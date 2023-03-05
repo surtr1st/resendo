@@ -1,0 +1,19 @@
+.sender, .receiver {
+  width: auto;
+  max-width: 40vw;
+  word-wrap: break-word;
+  margin: .15rem;
+  padding: .5rem;
+  border-radius: .6rem;
+}
+
+.sender {
+  background-color: #e6e6e6;
+  align-self: flex-start;
+}
+
+.receiver {
+  background-color: #3333ff;
+  color: white;
+  align-self: flex-end;
+}
