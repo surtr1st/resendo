@@ -1,0 +1,22 @@
+button {
+  height: 2.5rem;
+  padding-left: 0.75rem;
+  padding-right: 0.75rem;
+  background-color: #4f46e5;
+  border-radius: .3rem;
+  color: white;
+  border: 0px;
+  transition: 250ms ease-in-out all;
+}
+
+button:hover {
+  cursor: pointer;
+  background-color: #6366f1;
+}
+
+.content {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: .15rem;
+}
