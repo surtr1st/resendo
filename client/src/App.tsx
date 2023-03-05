@@ -1,5 +1,5 @@
 import React from 'react';
-import { Button, ChatBox, Input, Message } from './components';
+import { Button, ChatBox, Container, Input, List, Message } from './components';
 
 function App() {
   const ct = `
@@ -7,26 +7,34 @@ Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem
 `;
   return (
     <React.Fragment>
-      <ChatBox.Header type='container'>
-        <h2>Adu</h2>
-      </ChatBox.Header>
-      <ChatBox.Body type='container'>
-        {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15].map(() => (
-          <React.Fragment>
-            <Message.Sender content={ct} />
-            <Message.Receiver content='A du dark wa! Vl qua ban oi' />
-            <Message.Receiver content='A du dark wa! Vl qua ban oi' />
-            <Message.Receiver content='A du dark wa! Vl qua ban oi' />
-            <Message.Receiver content='A du dark wa! Vl qua ban oi' />
-            <Message.Receiver content='A du dark wa! Vl qua ban oi' />
-          </React.Fragment>
-        ))}
-      </ChatBox.Body>
-      <ChatBox.Footer type='container'>
-        <Input.Text>
-          <Button.Send label='Send' />
-        </Input.Text>
-      </ChatBox.Footer>
+      <Container>
+        <List></List>
+        <ChatBox.Header type='container'>
+          <Message.Card
+            avatarSrc=''
+            opponentName='A du dark wa'
+            latestMessage='A du dark wa! Vl qua ban oi'
+            onAction={() => console.log(true)}
+          />
+        </ChatBox.Header>
+        <ChatBox.Body type='container'>
+          {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15].map(() => (
+            <React.Fragment>
+              <Message.Sender content={ct} />
+              <Message.Receiver content='A du dark wa! Vl qua ban oi' />
+              <Message.Receiver content='A du dark wa! Vl qua ban oi' />
+              <Message.Receiver content='A du dark wa! Vl qua ban oi' />
+              <Message.Receiver content='A du dark wa! Vl qua ban oi' />
+              <Message.Receiver content='A du dark wa! Vl qua ban oi' />
+            </React.Fragment>
+          ))}
+        </ChatBox.Body>
+        <ChatBox.Footer type='container'>
+          <Input.Text>
+            <Button.Send label='Send' />
+          </Input.Text>
+        </ChatBox.Footer>
+      </Container>
     </React.Fragment>
   );
 }
