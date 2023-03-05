@@ -1,11 +1,8 @@
-import { ChatBox } from './ChatBox';
-import { Message } from './Message';
-
-export const Container = () => {
-  return (
-    <ChatBox>
-      <Message.Sender />
-      <Message.Receiver />
-    </ChatBox>
-  );
-};
+export * from './List'
+export * from './Input'
+export * from './Modal'
+export * from './Avatar'
+export * from './Button'
+export * from './Message'
+export * from './ChatBox'
+export * from './Spacing'

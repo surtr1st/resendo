@@ -1,7 +1,12 @@
-import { Container } from './components';
+import { ChatBox, Message } from "./components";
 
 function App() {
-  return <Container />;
+  return (
+    <ChatBox>
+      <Message.Sender />
+      <Message.Receiver />
+    </ChatBox>
+  )
 }
 
 export default App;
