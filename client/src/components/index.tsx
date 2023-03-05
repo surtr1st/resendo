@@ -7,3 +7,4 @@ export * from './Message';
 export * from './ChatBox';
 export * from './Spacing';
 export * from './PageHeader';
+export * from './Container';
