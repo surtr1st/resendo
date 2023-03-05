@@ -1,5 +1,5 @@
 input, textarea {
-  outline: 1px solid black;
+  outline: 1px solid #737373;
   width: 100%;
   border: 0px;
   transition: 250ms ease-in-out all;
@@ -11,4 +11,11 @@ input, textarea {
   padding: .8rem;
   border-radius: .3rem;
   margin: .2rem;
+}
+
+.chat-input {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }

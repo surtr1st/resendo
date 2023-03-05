@@ -1,8 +1,8 @@
 import './style.css';
 
 type Props = {
-  content: string
-}
+  content: string;
+};
 
 export const Message = {
   Sender: ({ content }: Props) => (

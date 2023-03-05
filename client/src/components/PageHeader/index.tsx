@@ -1,3 +1,3 @@
 export const PageHeader = () => {
-  return <div></div>
-}
+  return <div></div>;
+};

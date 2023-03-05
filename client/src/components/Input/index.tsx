@@ -1,5 +1,5 @@
-import React from 'react';
-import './style.css'
+import React, { ReactNode } from 'react';
+import './style.css';
 
 type Props = {
   ref: string;
@@ -8,13 +8,22 @@ type Props = {
   className: string;
   onChange: () => void;
   multiline?: boolean;
+  children: ReactNode;
 };
 
 export const Input = {
-  Text: ({ ref, name, value, onChange, className, multiline }: Partial<Props>) => (
+  Text: ({
+    ref,
+    name,
+    value,
+    onChange,
+    className,
+    multiline,
+    children,
+  }: Partial<Props>) => (
     <React.Fragment>
-      {
-        multiline ? (
+      {multiline ? (
+        <React.Fragment>
           <input
             type='text'
             ref={ref}
@@ -22,16 +31,24 @@ export const Input = {
             value={value}
             onChange={onChange}
             className='text'
-          />) : (
-          <textarea
-            rows={1}
-            ref={ref}
-            name={name}
-            value={value}
-            onChange={onChange}
-            className='text'
           />
-        )}
+          {children}
+        </React.Fragment>
+      ) : (
+        <React.Fragment>
+          <div className='chat-input'>
+            <textarea
+              rows={1}
+              ref={ref}
+              name={name}
+              value={value}
+              onChange={onChange}
+              className='text'
+            />
+            {children}
+          </div>
+        </React.Fragment>
+      )}
     </React.Fragment>
   ),
   FileUpload: ({ ref, name, value, onChange, className }: Partial<Props>) => (
