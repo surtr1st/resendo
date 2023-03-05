@@ -1,0 +1,6 @@
+build
+coverage
+
+*.svg
+*.css
+*.d.ts

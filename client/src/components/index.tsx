@@ -1,10 +1,11 @@
-import { ChatBox } from "./ChatBox"
-import { UserMessage } from "./UserMessage"
+import { ChatBox } from './ChatBox';
+import { MessageBox } from './MessageBox';
 
 export const Container = () => {
   return (
-    <ChatBox.Message>
-      <UserMessage />
-    </ChatBox.Message>
-  )
-}
+    <ChatBox>
+      <MessageBox.Sender />
+      <MessageBox.Receiver />
+    </ChatBox>
+  );
+};

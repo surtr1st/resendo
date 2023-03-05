@@ -1,0 +1,11 @@
+{
+  "semi": true,
+  "parser": "typescript",
+  "tabWidth": 2,
+  "quoteProps": "as-needed",
+  "endOfLine": "lf",
+  "singleQuote": true,
+  "singleAttributePerLine": true,
+  "jsxSingleQuote": true,
+  "trailingComma": "all"
+}

@@ -1,18 +1,12 @@
-import { ReactNode } from 'react'
-import './style.css'
+import { ReactNode } from 'react';
+import './style.css';
 
 interface Props {
-  children: ReactNode
+  children: ReactNode;
 }
 
-export const ChatBox = {
-  Message: ({ children }: Props) => (
-    <div className="box">
-      <div className="chat">
-        {children}
-      </div>
-    </div>
-  )
-}
-
-
+export const ChatBox = ({ children }: Props) => (
+  <div className='box'>
+    <div className='chat'>{children}</div>
+  </div>
+);
