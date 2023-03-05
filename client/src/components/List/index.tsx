@@ -1,5 +1,5 @@
 import './style.css';
 
-export const Modal = () => {
+export const List = () => {
   return <div></div>;
 };

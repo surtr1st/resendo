@@ -1,11 +1,11 @@
 import { ChatBox } from './ChatBox';
-import { MessageBox } from './MessageBox';
+import { Message } from './Message';
 
 export const Container = () => {
   return (
     <ChatBox>
-      <MessageBox.Sender />
-      <MessageBox.Receiver />
+      <Message.Sender />
+      <Message.Receiver />
     </ChatBox>
   );
 };
