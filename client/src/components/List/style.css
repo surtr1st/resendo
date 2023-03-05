@@ -1,0 +1,12 @@
+ul {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  overflow-x: hidden;
+  overflow-y: auto;
+}
+
+li {
+  margin-top: .75rem;
+  margin-bottom: .75rem;
+}
