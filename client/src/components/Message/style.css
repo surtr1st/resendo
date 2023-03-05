@@ -27,6 +27,8 @@
   padding: .5rem;
   background-color: transparent;
   transition: 150ms ease-in-out all;
+  height: 10vh;
+  margin: .15rem;
 }
 
 .card:hover {
