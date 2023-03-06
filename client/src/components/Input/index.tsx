@@ -1,74 +1,33 @@
 import './style.css';
-import React, { ReactNode } from 'react';
+import React, { ChangeEvent, ForwardedRef, ReactNode, SyntheticEvent, useEffect, useState } from 'react';
 
 type Props = {
-  ref: string;
   name: string;
   value: string;
   className: string;
-  onChange: () => void;
-  multiline?: boolean;
   children: ReactNode;
+  minRows: number
+  maxRows: number
 };
 
-export const Input = {
-  Text: ({
-    ref,
+export const Input = React.forwardRef((
+  {
     name,
     value,
-    onChange,
-    className,
-    multiline,
     children,
-  }: Partial<Props>) => (
-    <React.Fragment>
-      {multiline ? (
-        <React.Fragment>
-          <input
-            type='text'
-            ref={ref}
-            name={name}
-            value={value}
-            onChange={onChange}
-            className='text'
-          />
-          {children}
-        </React.Fragment>
-      ) : (
-        <React.Fragment>
-          <div className='chat-input'>
-            <textarea
-              rows={1}
-              ref={ref}
-              name={name}
-              value={value}
-              onChange={onChange}
-              className='text'
-            />
-            {children}
-          </div>
-        </React.Fragment>
-      )}
-    </React.Fragment>
-  ),
-  FileUpload: ({ ref, name, value, onChange, className }: Partial<Props>) => (
-    <input
-      type='file'
-      ref={ref}
-      name={name}
-      value={value}
-      onChange={onChange}
-      className={className}
-    />
-  ),
-  Search: ({ ref, name, value, onChange, className }: Partial<Props>) => (
-    <input
-      type='text'
-      ref={ref}
-      name={name}
-      value={value}
-      onChange={onChange}
-      className='search'
-    />
-  ),
-};
+  }: Partial<Props>,
+  ref: ForwardedRef<HTMLTextAreaElement>
+) => {
+  return (
+    <div className='chat-input'>
+      <textarea
+        ref={ref}
+        name={name}
+        value={value}
+        className='text'
+        rows={1}
+      />
+      {children}
+    </div>
+  )
+})
