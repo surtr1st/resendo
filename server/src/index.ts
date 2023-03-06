@@ -3,14 +3,26 @@ import { Server } from 'socket.io';
 
 dotenv.config({});
 
-const io = new Server({});
+const { PORT } = process.env;
 
-io.on('connection', (socket) => {
-  // ...
+const port = parseInt(PORT as string);
+
+const io = new Server(port, {
+  cors: {
+    origin: 'http://localhost:5173',
+    credentials: true,
+    optionsSuccessStatus: 200,
+  },
 });
 
-io.listen(3000);
+io.on('connection', (socket) => {
+  socket.emit('from-server', 'worudo');
+});
 
-async function main() {}
+io.on('connection', (socket) => {
+  socket.on('from-client', (arg) => {
+    console.log(arg);
+  });
+});
 
-main();
+io.listen(port);
