@@ -1,15 +1,39 @@
-import React, { createRef } from 'react';
+import { io } from 'socket.io-client';
+import React, { ChangeEvent, createRef, useEffect, useState } from 'react';
 import { Button, Chat, Container, Input, List, Message } from './components';
-import { useSocketIO } from './services';
 
 function App() {
 
-  const { emit } = useSocketIO()
-  const message = createRef<HTMLTextAreaElement>()
+  const [room, setRoom] = useState('')
+  const [message, setMessage] = useState('')
+  const [senders, setSenders] = useState<string[]>([])
+  const [receivers, setReceivers] = useState<string[]>([])
+
+  const socket = io('http://localhost:4000');
+  const content = createRef<HTMLTextAreaElement>()
+
+  function joinRoom(_room: string) {
+    setRoom(_room)
+    socket.emit('join-room', _room)
+  }
+
+  function handleChange(e: ChangeEvent) {
+    const value = (e.target as HTMLTextAreaElement).value
+    setMessage(value)
+  }
 
   function sendMessage() {
-    emit(message.current?.value)
+    const value = content.current?.value
+    socket.emit('from-client', { message: value, room: room });
+    setSenders([...senders, value as string])
+    setMessage('')
   }
+
+  useEffect(() => {
+    socket.on('from-server', (data) => {
+      setReceivers([...receivers, `${data.message}`])
+    });
+  }, [socket])
 
   return (
     <React.Fragment>
@@ -21,7 +45,7 @@ function App() {
                 avatarSrc=''
                 opponentName='A du dark wa'
                 latestMessage='A du dark wa! Vl qua ban oi'
-                onAction={() => console.log(true)}
+                onAction={() => joinRoom('test')}
               />
             </List.Item>
           </List.Box>
@@ -32,17 +56,19 @@ function App() {
               <h1>Page Header</h1>
             </Chat.Header>
             <Chat.Body>
-              <React.Fragment>
-                <Message.Sender content='A du' />
-                <Message.Receiver content='A du dark wa! Vl qua ban oi' />
-                <Message.Receiver content='A du dark wa! Vl qua ban oi' />
-                <Message.Receiver content='A du dark wa! Vl qua ban oi' />
-                <Message.Receiver content='A du dark wa! Vl qua ban oi' />
-                <Message.Receiver content='A du dark wa! Vl qua ban oi' />
-              </React.Fragment>
+              {
+                receivers && receivers.map((message, index) => (
+                  <Message.Receiver key={index} content={message} />
+                ))
+              }
+              {
+                senders && senders.map((message, index) => (
+                  <Message.Sender key={index} content={message} />
+                ))
+              }
             </Chat.Body>
             <Chat.Footer>
-              <Input ref={message} minRows={1} maxRows={3}>
+              <Input ref={content} minRows={1} maxRows={3} value={message} onChange={(e: ChangeEvent) => handleChange(e)}>
                 <Button.Send label='Send' onSend={() => sendMessage()} />
               </Input>
             </Chat.Footer>

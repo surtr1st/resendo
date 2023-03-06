@@ -1,5 +1,6 @@
 import dotenv from 'dotenv';
 import { Server } from 'socket.io';
+import { createServer } from 'http';
 
 dotenv.config({});
 
@@ -7,7 +8,9 @@ const { PORT } = process.env;
 
 const port = parseInt(PORT as string);
 
-const io = new Server(port, {
+const httpServer = createServer();
+
+const io = new Server(httpServer, {
   cors: {
     origin: 'http://localhost:5173',
     credentials: true,
@@ -16,12 +19,14 @@ const io = new Server(port, {
 });
 
 io.on('connection', (socket) => {
-  socket.emit('from-server', 'worudo');
-});
+  // Joining a room
+  socket.on('join-room', (data) => {
+    socket.join(data);
+  });
 
-io.on('connection', (socket) => {
-  socket.on('from-client', (arg) => {
-    console.log(arg);
+  // Only show message to all users within room
+  socket.on('from-client', (data) => {
+    socket.to(data.room).emit('from-server', data);
   });
 });
 

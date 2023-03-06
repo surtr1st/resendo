@@ -1,5 +1,5 @@
 import './style.css';
-import React, { ChangeEvent, ForwardedRef, ReactNode, SyntheticEvent, useEffect, useState } from 'react';
+import React, { ChangeEvent, createRef, ForwardedRef, ReactNode, SyntheticEvent, useEffect, useState } from 'react';
 
 type Props = {
   name: string;
@@ -8,6 +8,7 @@ type Props = {
   children: ReactNode;
   minRows: number
   maxRows: number
+  onChange: (e: ChangeEvent) => void
 };
 
 export const Input = React.forwardRef((
@@ -15,6 +16,7 @@ export const Input = React.forwardRef((
     name,
     value,
     children,
+    onChange
   }: Partial<Props>,
   ref: ForwardedRef<HTMLTextAreaElement>
 ) => {
@@ -26,6 +28,7 @@ export const Input = React.forwardRef((
         value={value}
         className='text'
         rows={1}
+        onChange={onChange}
       />
       {children}
     </div>
