@@ -1,45 +1,29 @@
-import { IncomingMessage, request } from 'http';
-import { TypeUser } from '../models';
-import { useUserRouter } from '../routes';
+import { IncomingMessage, ServerResponse } from 'http';
 import { UserService } from '../services';
 
 export function useUserController() {
   const service = new UserService();
-  const { GET_USERS, POST_USER } = useUserRouter();
 
-  const findAll = () => {
-    return new Promise((resolve, reject) => {
-      const req = request(GET_USERS, (res: IncomingMessage) => {
-        res.on('end', async () => {
-          const results = await service.findAll();
-          resolve(results);
-        });
-
-        req.on('error', (err) => {
-          reject(err);
-        });
-
-        req.end();
-      });
-
-      req.end();
-    });
+  const findAll = async (res: ServerResponse) => {
+    const users = await service.findAll();
+    res.statusCode = 200;
+    res.setHeader('Content-Type', 'application/json');
+    res.write(JSON.stringify(users));
+    res.end();
   };
 
-  const createUser = (user: TypeUser) => {
-    return new Promise((resolve, reject) => {
-      const req = request(POST_USER, (res: IncomingMessage) => {
-        res.on('end', async () => {
-          const id = await service.create(user);
-          resolve(id);
-        });
-
-        res.on('error', (err) => {
-          reject(err);
-        });
-      });
-
-      req.end();
+  const createUser = (req: IncomingMessage, res: ServerResponse) => {
+    let body = '';
+    req.on('data', (chunk) => {
+      body += chunk;
+    });
+    req.on('error', (err) => console.log(err));
+    req.on('end', async () => {
+      const user = JSON.parse(body);
+      const newUser = await service.create(user);
+      res.setHeader('Content-Type', 'application/json');
+      res.write(JSON.stringify(newUser));
+      res.end();
     });
   };
 

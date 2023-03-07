@@ -3,34 +3,36 @@ import { Server } from 'socket.io';
 import { createServer, IncomingMessage, ServerResponse } from 'http';
 import { connect } from 'mongoose';
 import { useUserController } from './controllers';
+import { GROUP, MEDIA, MESSAGE, METHOD, ROOM, USER } from './routes';
 
 dotenv.config({});
-const { PORT, MONGODB_URL } = process.env;
+const { HOST, PORT, MONGODB_URL } = process.env;
 const port = parseInt(PORT as string);
 const { findAll, createUser } = useUserController();
 const httpServer = createServer(
   async (req: IncomingMessage, res: ServerResponse) => {
-    if (req.url === '/api/users') {
-      if (req.method === 'GET') {
-        const users = await findAll();
-        res.statusCode = 200;
-        res.setHeader('Content-Type', 'application/json');
-        res.write(JSON.stringify(users));
-        res.end();
-      }
-      if (req.method === 'POST') {
-        let body = '';
-        req.on('data', (chunk) => {
-          body += chunk;
-        });
-        req.on('end', () => {
-          const user = JSON.parse(body);
-          const newUser = createUser(user);
-          res.setHeader('Content-Type', 'application/json');
-          res.write(JSON.stringify(newUser));
-          res.end();
-        });
-      }
+    switch (req.url) {
+      case USER:
+        if (req.method === METHOD.GET) await findAll(res);
+        if (req.method === METHOD.POST) createUser(req, res);
+        break;
+
+      case MESSAGE:
+        break;
+
+      case ROOM:
+        break;
+
+      case GROUP:
+        break;
+
+      case MEDIA:
+        break;
+
+      default:
+        if (req.method === METHOD.POST) {
+        }
+        break;
     }
   },
 );
@@ -58,7 +60,7 @@ function main() {
         });
       });
 
-      httpServer.listen(port);
+      httpServer.listen(port, HOST);
       console.log(`-> Connected to database | Server running at port ${port}`);
     },
     (err) => console.log(err),
