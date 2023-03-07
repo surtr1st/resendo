@@ -4,7 +4,7 @@ import { UserService } from '../services';
 export function useUserController() {
   const service = new UserService();
 
-  const findAll = async (res: ServerResponse) => {
+  const findUsers = async (res: ServerResponse) => {
     const users = await service.findAll();
     res.statusCode = 200;
     res.setHeader('Content-Type', 'application/json');
@@ -28,7 +28,7 @@ export function useUserController() {
   };
 
   return {
-    findAll,
+    findUsers,
     createUser,
   };
 }

@@ -14,6 +14,7 @@
   "author": "",
   "license": "ISC",
   "devDependencies": {
+    "@types/jsonwebtoken": "^9.0.1",
     "@types/node": "^18.14.6",
     "prettier": "2.8.4",
     "ts-node": "^10.9.1",
@@ -21,6 +22,7 @@
   },
   "dependencies": {
     "dotenv": "^16.0.3",
+    "jsonwebtoken": "^9.0.0",
     "mongoose": "^7.0.0",
     "socket.io": "^4.6.1"
   }
