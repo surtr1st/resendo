@@ -1,23 +1,32 @@
-import mongo, { model, ObjectId, Schema } from 'mongoose';
-import { IUser, User } from './user';
+import mongo, { model, ObjectId, Schema, Types } from 'mongoose';
+import { TypeUser, User } from './user';
 
-interface IGroup extends mongo.Document {
+type TypeGroup = mongo.Document & {
   _id: ObjectId;
   inviteId: string;
   title: string;
-  owner: Omit<IUser, 'password'>;
-  users: Array<Omit<IUser, 'password'>>;
+  owner: Omit<TypeUser, 'password'>;
+  users: Array<Omit<TypeUser, 'password'>>;
   type: string;
-}
+};
 
-const schema = new Schema<IGroup>({
+const schema = new Schema<TypeGroup>({
   inviteId: String,
   title: String,
-  owner: User,
-  users: Array<IUser>,
+  owner: {
+    type: Types.ObjectId,
+    ref: User,
+    required: true,
+  },
+  users: [
+    {
+      type: Types.ObjectId,
+      ref: User,
+    },
+  ],
   type: String,
 });
 
-const Group = model<IGroup>('Group', schema);
+const Group = model<TypeGroup>('Group', schema);
 
-export { IGroup, Group };
+export { TypeGroup, Group };
