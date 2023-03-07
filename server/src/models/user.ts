@@ -1,18 +1,18 @@
 import mongo, { model, ObjectId, Schema } from 'mongoose';
 
-interface IUser extends mongo.Document {
+type TypeUser = mongo.Document & {
   _id: ObjectId;
   username: string;
   password: string;
   email: string;
-}
+};
 
-const schema = new Schema<IUser>({
+const schema = new Schema<TypeUser>({
   username: String,
   password: String,
   email: String,
 });
 
-const User = model<IUser>('User', schema);
+const User = model<TypeUser>('User', schema);
 
-export { IUser, User };
+export { TypeUser, User };

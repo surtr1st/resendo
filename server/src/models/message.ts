@@ -1,17 +1,21 @@
-import mongo, { model, ObjectId, Schema } from 'mongoose';
-import { IUser, User } from './user';
+import mongo, { model, ObjectId, Schema, Types } from 'mongoose';
+import { TypeUser, User } from './user';
 
-interface IMessage extends mongo.Document {
+type TypeMessage = mongo.Document & {
   _id: ObjectId;
   content: string;
-  user: Omit<IUser, 'password'>;
-}
+  user: Omit<TypeUser, 'password'>;
+};
 
-const schema = new Schema<IMessage>({
+const schema = new Schema<TypeMessage>({
   content: String,
-  user: User,
+  user: {
+    type: Types.ObjectId,
+    ref: User,
+    required: true,
+  },
 });
 
-const Message = model<IMessage>('Message', schema);
+const Message = model<TypeMessage>('Message', schema);
 
-export { IMessage, Message };
+export { TypeMessage, Message };

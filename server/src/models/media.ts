@@ -1,17 +1,20 @@
-import mongo, { model, ObjectId, Schema } from 'mongoose';
-import { IMessage, Message } from './message';
+import mongo, { model, ObjectId, Schema, Types } from 'mongoose';
+import { TypeMessage, Message } from './message';
 
-interface IMedia extends mongo.Document {
+type TypeMedia = mongo.Document & {
   _id: ObjectId;
   src: string;
-  message: IMessage;
-}
+  message: TypeMessage;
+};
 
-const schema = new Schema<IMedia>({
+const schema = new Schema<TypeMedia>({
   src: String,
-  message: Message,
+  message: {
+    type: Types.ObjectId,
+    ref: Message,
+  },
 });
 
-const Media = model<IMedia>('Media', schema);
+const Media = model<TypeMedia>('Media', schema);
 
-export { IMedia, Media };
+export { TypeMedia, Media };

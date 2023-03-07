@@ -1,23 +1,31 @@
-import mongo, { model, Schema, ObjectId } from 'mongoose';
-import { IUser, User } from './user';
+import mongo, { model, Schema, ObjectId, Types } from 'mongoose';
+import { TypeUser, User } from './user';
 
-interface IRoom extends mongo.Document {
+type TypeRoom = mongo.Document & {
   _id: ObjectId;
   inviteId: string;
   title: string;
-  owner: Omit<IUser, 'password'>;
-  opponent: Omit<IUser, 'password'>;
+  owner: Omit<TypeUser, 'password'>;
+  opponent: Omit<TypeUser, 'password'>;
   type: string;
-}
+};
 
-const schema = new Schema<IRoom>({
+const schema = new Schema<TypeRoom>({
   inviteId: String,
   title: String,
-  owner: User,
-  opponent: User,
+  owner: {
+    type: Types.ObjectId,
+    ref: User,
+    required: true,
+  },
+  opponent: {
+    type: Types.ObjectId,
+    ref: User,
+    required: true,
+  },
   type: String,
 });
 
-const Room = model<IRoom>('Room', schema);
+const Room = model<TypeRoom>('Room', schema);
 
-export { IRoom, Room };
+export { TypeRoom, Room };
