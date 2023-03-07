@@ -3,7 +3,7 @@ import { TypeUser, User } from '../models';
 export class UserService {
   async findAll() {
     try {
-      return await User.find();
+      return await User.find({});
     } catch (e) {
       throw new Error('Cannot return list of users');
     }

@@ -9,8 +9,5 @@
     "rootDir": "src",
     "esModuleInterop": true,
     "skipDefaultLibCheck": true
-  },
-  "include": [
-    "src/*/**.ts"
-  ]
+  }
 }
