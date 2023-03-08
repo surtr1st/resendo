@@ -7,6 +7,11 @@ type TypeMedia = mongo.Document & {
   message: TypeMessage;
 };
 
+interface IMedia {
+  src: string;
+  message: TypeMessage;
+}
+
 const schema = new Schema<TypeMedia>({
   src: String,
   message: {
@@ -17,4 +22,4 @@ const schema = new Schema<TypeMedia>({
 
 const Media = model<TypeMedia>('Media', schema);
 
-export { TypeMedia, Media };
+export { TypeMedia, Media, IMedia };

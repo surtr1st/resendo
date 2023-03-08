@@ -12,9 +12,11 @@ import {
   MESSAGE_BY_USER_ID,
   METHOD,
   ROOM,
+  ROOM_BY_USER_ID,
   USER,
 } from './routes';
 import { useMessageController } from './controllers/message';
+import { useRoomController } from './controllers/room';
 
 dotenv.config({});
 const { HOST, PORT, MONGODB_URL } = process.env;
@@ -26,12 +28,14 @@ function main() {
       const { findUsers, createUser } = useUserController();
       const { findMessages, findMessagesByUser, createMessage } =
         useMessageController();
+      const { findRooms, findRoomsByUser, createRoom } = useRoomController();
 
       // Initialize server
       const httpServer = createServer(
         async (req: IncomingMessage, res: ServerResponse) => {
           const urlParts = url.parse(`${req.url}`);
           const query = querystring.parse(`${urlParts.query}`);
+          const { userId } = query;
 
           switch (req.url) {
             case USER:
@@ -45,9 +49,18 @@ function main() {
               break;
 
             case `${MESSAGE_BY_USER_ID}=${query.userId}`:
-              const { userId } = query;
               if (req.method === METHOD.GET)
                 await findMessagesByUser(userId as string, res);
+              break;
+
+            case ROOM:
+              if (req.method === METHOD.GET) await findRooms(res);
+              if (req.method === METHOD.POST) createRoom(req, res);
+              break;
+
+            case `${ROOM_BY_USER_ID}=${query.userId}`:
+              if (req.method === METHOD.GET)
+                await findRoomsByUser(userId as string, res);
               break;
           }
         },

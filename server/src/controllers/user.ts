@@ -1,15 +1,19 @@
 import { IncomingMessage, ServerResponse } from 'http';
+import { useResponse } from '../helpers';
 import { UserService } from '../services';
 
 export function useUserController() {
   const service = new UserService();
+  const { onServerResponse } = useResponse();
 
   const findUsers = async (res: ServerResponse) => {
     const users = await service.findAll();
-    res.statusCode = 200;
-    res.setHeader('Content-Type', 'application/json');
-    res.write(JSON.stringify(users));
-    res.end();
+
+    onServerResponse({
+      statusCode: 200,
+      headers: { contentType: 'application/json' },
+      data: users,
+    })(res);
   };
 
   const createUser = (req: IncomingMessage, res: ServerResponse) => {
@@ -21,9 +25,12 @@ export function useUserController() {
     req.on('end', async () => {
       const user = JSON.parse(body);
       const newUser = await service.create(user);
-      res.setHeader('Content-Type', 'application/json');
-      res.write(JSON.stringify(newUser));
-      res.end();
+
+      onServerResponse({
+        statusCode: 201,
+        headers: { contentType: 'application/json' },
+        data: newUser,
+      })(res);
     });
   };
 

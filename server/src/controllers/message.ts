@@ -1,18 +1,22 @@
-import url from 'url';
-import querystring from 'querystring';
 import { IncomingMessage, ServerResponse } from 'http';
 import { MessageService, UserService } from '../services';
 import { ObjectId } from 'mongoose';
+import { useResponse } from '../helpers';
+import { IMessage } from '../models';
 
-const service = new MessageService();
-const userService = new UserService();
 export function useMessageController() {
+  const service = new MessageService();
+  const userService = new UserService();
+  const { onServerResponse } = useResponse();
+
   const findMessages = async (res: ServerResponse) => {
     const messages = await service.findAll();
-    res.statusCode = 200;
-    res.setHeader('Content-Type', 'application/json');
-    res.write(JSON.stringify(messages));
-    res.end();
+
+    onServerResponse({
+      statusCode: 200,
+      headers: { contentType: 'application/json' },
+      data: messages,
+    })(res);
   };
 
   const findMessagesByUser = async (
@@ -21,10 +25,12 @@ export function useMessageController() {
   ) => {
     const user = await userService.findById(userId);
     const messages = await service.findAllByUser(user);
-    res.statusCode = 200;
-    res.setHeader('Content-Type', 'application/json');
-    res.write(JSON.stringify(messages));
-    res.end();
+
+    onServerResponse({
+      statusCode: 200,
+      headers: { contentType: 'application/json' },
+      data: messages,
+    })(res);
   };
 
   const createMessage = (req: IncomingMessage, res: ServerResponse) => {
@@ -36,15 +42,17 @@ export function useMessageController() {
     req.on('end', async () => {
       const { content, userId } = JSON.parse(body);
       const user = await userService.findById(userId as string);
-      const message = {
+      const message: IMessage = {
         content,
         user,
       };
       const newMessage = await service.create(message);
-      res.statusCode = 201;
-      res.setHeader('Content-Type', 'application/json');
-      res.write(JSON.stringify(newMessage));
-      res.end();
+
+      onServerResponse({
+        statusCode: 201,
+        headers: { contentType: 'application/json' },
+        data: newMessage,
+      })(res);
     });
   };
 

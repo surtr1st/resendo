@@ -10,6 +10,14 @@ type TypeGroup = mongo.Document & {
   type: string;
 };
 
+interface IGroup {
+  inviteId: string;
+  title: string;
+  owner: Omit<TypeUser, 'password'>;
+  users: Array<Omit<TypeUser, 'password'>>;
+  type: string;
+}
+
 const schema = new Schema<TypeGroup>({
   inviteId: String,
   title: String,
@@ -29,4 +37,4 @@ const schema = new Schema<TypeGroup>({
 
 const Group = model<TypeGroup>('Group', schema);
 
-export { TypeGroup, Group };
+export { TypeGroup, Group, IGroup };

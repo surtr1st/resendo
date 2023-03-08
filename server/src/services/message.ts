@@ -1,9 +1,4 @@
-import { TypeUser, Message } from '../models';
-
-interface IMessage {
-  content: string;
-  user: Omit<TypeUser, 'password'>;
-}
+import { TypeUser, Message, IMessage } from '../models';
 
 export class MessageService {
   async findAll() {

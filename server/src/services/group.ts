@@ -2,7 +2,7 @@ import { ObjectId } from 'mongoose';
 import { Group, TypeGroup, TypeUser } from '../models';
 
 export class GroupService {
-  async findAllByUser(user: TypeUser) {
+  async findAllByUser(user: Omit<TypeUser, 'password'>) {
     try {
       return await Group.find({ user });
     } catch (e) {

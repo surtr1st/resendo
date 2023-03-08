@@ -7,6 +7,11 @@ type TypeMessage = mongo.Document & {
   user: Omit<TypeUser, 'password'>;
 };
 
+interface IMessage {
+  content: string;
+  user: Omit<TypeUser, 'password'>;
+}
+
 const schema = new Schema<TypeMessage>({
   content: String,
   user: {
@@ -18,4 +23,4 @@ const schema = new Schema<TypeMessage>({
 
 const Message = model<TypeMessage>('Message', schema);
 
-export { TypeMessage, Message };
+export { TypeMessage, Message, IMessage };
