@@ -6,6 +6,7 @@ import { createServer, IncomingMessage, ServerResponse } from 'http';
 import { connect } from 'mongoose';
 import { useUserController } from './controllers';
 import {
+  AUTH,
   GROUP,
   MEDIA,
   MESSAGE,
@@ -17,6 +18,7 @@ import {
 } from './routes';
 import { useMessageController } from './controllers/message';
 import { useRoomController } from './controllers/room';
+import { useAuthController } from './controllers/auth';
 
 dotenv.config({});
 const { HOST, PORT, MONGODB_URL } = process.env;
@@ -25,6 +27,7 @@ const port = parseInt(PORT as string);
 function main() {
   connect(`${MONGODB_URL}`).then(
     () => {
+      const { authenticate } = useAuthController();
       const { findUsers, createUser } = useUserController();
       const { findMessages, findMessagesByUser, createMessage } =
         useMessageController();
@@ -61,6 +64,10 @@ function main() {
             case `${ROOM_BY_USER_ID}=${query.userId}`:
               if (req.method === METHOD.GET)
                 await findRoomsByUser(userId as string, res);
+              break;
+
+            case AUTH:
+              if (req.method === METHOD.POST) authenticate(req, res);
               break;
           }
         },

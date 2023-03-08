@@ -3,6 +3,8 @@ import { ServerResponse } from 'http';
 type Headers = {
   contentType: string;
   accept: string;
+  authorization: string;
+  refreshToken: string;
 };
 
 type Response = {
@@ -15,9 +17,11 @@ export function useResponse() {
   const onServerResponse =
     ({ statusCode = 100, headers, data }: Response) =>
     (res: ServerResponse) => {
-      const { contentType, accept } = headers;
+      const { contentType, accept, authorization, refreshToken } = headers;
       if (contentType) res.setHeader('Content-Type', contentType);
       if (accept) res.setHeader('Accept', accept);
+      if (authorization) res.setHeader('Authorization', authorization);
+      if (refreshToken) res.setHeader('Refresh-Token', refreshToken);
       res.statusCode = statusCode;
       try {
         const body = JSON.stringify(data);

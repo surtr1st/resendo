@@ -2,19 +2,19 @@ import mongo, { model, ObjectId, Schema } from 'mongoose';
 
 type TypeUser = mongo.Document & {
   _id: ObjectId;
-  username: string;
+  fullname: string;
   password: string;
   email: string;
 };
 
 interface IUser {
-  username: string;
+  fullname: string;
   password: string;
   email: string;
 }
 
 const schema = new Schema<TypeUser>({
-  username: String,
+  fullname: String,
   password: String,
   email: String,
 });

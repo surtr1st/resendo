@@ -20,6 +20,16 @@ export class UserService {
     }
   }
 
+  async findByEmail(email: string) {
+    try {
+      const user = await User.findOne({ email });
+      if (!user) throw new Error(`Cannot return user with email: ${email}`);
+      return user;
+    } catch (e) {
+      throw e;
+    }
+  }
+
   async create(user: TypeUser) {
     try {
       const createdUser = await User.create(user);
