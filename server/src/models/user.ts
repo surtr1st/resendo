@@ -7,6 +7,12 @@ type TypeUser = mongo.Document & {
   email: string;
 };
 
+interface IUser {
+  username: string;
+  password: string;
+  email: string;
+}
+
 const schema = new Schema<TypeUser>({
   username: String,
   password: String,
@@ -15,4 +21,4 @@ const schema = new Schema<TypeUser>({
 
 const User = model<TypeUser>('User', schema);
 
-export { TypeUser, User };
+export { TypeUser, User, IUser };

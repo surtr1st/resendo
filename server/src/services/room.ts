@@ -1,8 +1,15 @@
 import { ObjectId } from 'mongoose';
-import { TypeRoom, TypeUser, Room } from '../models';
+import { TypeUser, Room, IRoom } from '../models';
 
 export class RoomService {
-  async findAllByUser(user: TypeUser) {
+  async findAll() {
+    try {
+      return await Room.find({});
+    } catch (e) {
+      throw new Error('Cannot return list of rooms by user');
+    }
+  }
+  async findAllByUser(user: Omit<TypeUser, 'password'>) {
     try {
       return await Room.find({ user });
     } catch (e) {
@@ -10,7 +17,7 @@ export class RoomService {
     }
   }
 
-  async create(room: TypeRoom) {
+  async create(room: Partial<IRoom>) {
     try {
       const createdRoom = await Room.create(room);
       return createdRoom.id;

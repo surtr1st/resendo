@@ -10,6 +10,14 @@ type TypeRoom = mongo.Document & {
   type: string;
 };
 
+interface IRoom {
+  inviteId: string;
+  title: string;
+  owner: Omit<TypeUser, 'password'>;
+  opponent: Omit<TypeUser, 'password'>;
+  type: string;
+}
+
 const schema = new Schema<TypeRoom>({
   inviteId: String,
   title: String,
@@ -28,4 +36,4 @@ const schema = new Schema<TypeRoom>({
 
 const Room = model<TypeRoom>('Room', schema);
 
-export { TypeRoom, Room };
+export { TypeRoom, Room, IRoom };
