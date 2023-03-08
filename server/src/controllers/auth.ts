@@ -20,8 +20,14 @@ export function useAuthController() {
     req.on('end', async () => {
       const { email, password } = JSON.parse(body);
       const { JWT_SECRET, REFRESH_SECRET } = process.env;
+
       const user = await userService.findByEmail(email);
       if (!user || !bcrypt.compareSync(password, user.password)) {
+        return onServerResponse({
+          statusCode: 401,
+          headers: {},
+          data: 'Unauthorized',
+        })(res);
       }
 
       const accessToken = service.createToken({

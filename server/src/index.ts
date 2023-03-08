@@ -19,6 +19,7 @@ import {
 import { useMessageController } from './controllers/message';
 import { useRoomController } from './controllers/room';
 import { useAuthController } from './controllers/auth';
+import { verifyToken } from './middlewares';
 
 dotenv.config({});
 const { HOST, PORT, MONGODB_URL } = process.env;
@@ -67,7 +68,9 @@ function main() {
               break;
 
             case AUTH:
-              if (req.method === METHOD.POST) authenticate(req, res);
+              if (req.method === METHOD.POST) {
+                verifyToken(req, res, () => authenticate(req, res));
+              }
               break;
           }
         },

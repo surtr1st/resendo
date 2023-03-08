@@ -5,3 +5,5 @@ export type MiddlewareFunction = (
   response: ServerResponse,
   next: () => void,
 ) => void;
+
+export * from './auth';

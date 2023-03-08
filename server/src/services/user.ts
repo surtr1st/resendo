@@ -1,3 +1,4 @@
+import bcrypt from 'bcrypt';
 import { ObjectId } from 'mongoose';
 import { TypeUser, User } from '../models';
 
@@ -32,7 +33,12 @@ export class UserService {
 
   async create(user: TypeUser) {
     try {
-      const createdUser = await User.create(user);
+      const newUser = {
+        fullname: user.fullname,
+        email: user.email,
+        password: bcrypt.hashSync(user.password, 7),
+      };
+      const createdUser = await User.create(newUser);
       return createdUser.id;
     } catch (e) {
       throw new Error('Cannot create user');

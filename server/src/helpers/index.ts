@@ -22,9 +22,9 @@ export function useResponse() {
       if (accept) res.setHeader('Accept', accept);
       if (authorization) res.setHeader('Authorization', authorization);
       if (refreshToken) res.setHeader('Refresh-Token', refreshToken);
-      res.statusCode = statusCode;
       try {
         const body = JSON.stringify(data);
+        res.statusCode = statusCode;
         res.write(body);
       } catch (error) {
         console.error('Error serializing response data:', error);
