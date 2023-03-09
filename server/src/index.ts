@@ -5,10 +5,12 @@ import { Server } from 'socket.io';
 import { createServer, IncomingMessage, ServerResponse } from 'http';
 import { connect } from 'mongoose';
 import { useUserController } from './controllers';
+import { useMessageController } from './controllers/message';
+import { useRoomController } from './controllers/room';
+import { useAuthController } from './controllers/auth';
+import { verifyToken } from './middlewares';
 import {
   AUTH,
-  GROUP,
-  MEDIA,
   MESSAGE,
   MESSAGE_BY_USER_ID,
   METHOD,
@@ -16,10 +18,6 @@ import {
   ROOM_BY_USER_ID,
   USER,
 } from './routes';
-import { useMessageController } from './controllers/message';
-import { useRoomController } from './controllers/room';
-import { useAuthController } from './controllers/auth';
-import { verifyToken } from './middlewares';
 
 dotenv.config({});
 const { HOST, PORT, MONGODB_URL } = process.env;
