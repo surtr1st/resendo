@@ -86,6 +86,7 @@ function main() {
       io.on('connection', (socket) => {
         // Joining a room
         socket.on('join-room', (data) => {
+          console.log(data);
           socket.join(data);
         });
 

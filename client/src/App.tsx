@@ -1,16 +1,17 @@
 import { io } from 'socket.io-client';
 import React, { ChangeEvent, createRef, useEffect, useState } from 'react';
 import { Button, Chat, Container, Input, List, Message } from './components';
+import type { Message as TMessage } from './types';
 
 function App() {
 
   const [room, setRoom] = useState('')
   const [message, setMessage] = useState('')
-  const [senders, setSenders] = useState<string[]>([])
-  const [receivers, setReceivers] = useState<string[]>([])
+  const [conversation, setConversation] = useState<TMessage[]>([])
 
   const socket = io('http://localhost:4000');
   const content = createRef<HTMLTextAreaElement>()
+  const userId = sessionStorage.getItem('userId')
 
   function joinRoom(_room: string) {
     setRoom(_room)
@@ -25,13 +26,12 @@ function App() {
   function sendMessage() {
     const value = content.current?.value
     socket.emit('from-client', { message: value, room: room });
-    setSenders([...senders, value as string])
     setMessage('')
   }
 
   useEffect(() => {
     socket.on('from-server', (data) => {
-      setReceivers([...receivers, `${data.message}`])
+      setConversation([...conversation, data])
     });
   }, [socket])
 
@@ -45,7 +45,7 @@ function App() {
                 avatarSrc=''
                 opponentName='A du dark wa'
                 latestMessage='A du dark wa! Vl qua ban oi'
-                onAction={() => joinRoom('test')}
+                onAction={() => joinRoom('64099f4cb6e1164a191441f1')}
               />
             </List.Item>
           </List.Box>
@@ -57,13 +57,14 @@ function App() {
             </Chat.Header>
             <Chat.Body>
               {
-                receivers && receivers.map((message, index) => (
-                  <Message.Receiver key={index} content={message} />
-                ))
-              }
-              {
-                senders && senders.map((message, index) => (
-                  <Message.Sender key={index} content={message} />
+                conversation && conversation.map((message, index) => (
+                  <React.Fragment>
+                    {
+                      message.userId === userId
+                        ? <Message.Sender key={index} content={message.content} />
+                        : <Message.Receiver key={index} content={message.content} />
+                    }
+                  </React.Fragment>
                 ))
               }
             </Chat.Body>

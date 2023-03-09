@@ -5,11 +5,13 @@ type TypeMessage = mongo.Document & {
   _id: ObjectId;
   content: string;
   user: Omit<TypeUser, 'password'>;
+  sentAt: Date;
 };
 
 interface IMessage {
   content: string;
   user: Omit<TypeUser, 'password'>;
+  sentAt: Date;
 }
 
 const schema = new Schema<TypeMessage>({
@@ -19,6 +21,7 @@ const schema = new Schema<TypeMessage>({
     ref: User,
     required: true,
   },
+  sentAt: Date,
 });
 
 const Message = model<TypeMessage>('Message', schema);

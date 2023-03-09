@@ -45,6 +45,7 @@ export function useMessageController() {
       const message: IMessage = {
         content,
         user,
+        sentAt: new Date(),
       };
       const newMessage = await service.create(message);
 

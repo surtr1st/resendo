@@ -2,7 +2,7 @@ import './style.css';
 
 type SendProps = {
   label: string;
-  onSend: () => void;
+  onSend: () => void | Promise<void>;
 };
 
 export const Button = {
