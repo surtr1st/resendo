@@ -29,7 +29,7 @@ const schema = new Schema<TypeRoom>({
   opponent: {
     type: Types.ObjectId,
     ref: User,
-    required: true,
+    required: false,
   },
   type: String,
 });
