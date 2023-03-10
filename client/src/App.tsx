@@ -1,46 +1,58 @@
 import { io } from 'socket.io-client';
 import React, { ChangeEvent, createRef, useEffect, useState } from 'react';
-import { Button, Chat, Container, Input, List, Message } from './components';
+import {
+  Button,
+  Chat,
+  Container,
+  Input,
+  List,
+  Message,
+  Modal,
+} from './components';
 import type { Message as TMessage } from './types';
 import { useAuth, useMessage } from './services';
 
 function App() {
+  const [room, setRoom] = useState('');
+  const [message, setMessage] = useState('');
+  const [conversation, setConversation] = useState<TMessage[]>([]);
+  const [openModal, setOpenModal] = useState(false);
 
-  const [room, setRoom] = useState('')
-  const [message, setMessage] = useState('')
-  const [conversation, setConversation] = useState<TMessage[]>([])
-
-  const { userId } = useAuth()
-  const { createMessage } = useMessage()
+  const { userId } = useAuth();
+  const { createMessage } = useMessage();
 
   const socket = io('http://localhost:4000', { withCredentials: true });
-  const content = createRef<HTMLTextAreaElement>()
+  const content = createRef<HTMLTextAreaElement>();
 
   function joinRoom(_room: string) {
-    setRoom(_room)
-    socket.emit('join-room', _room)
+    setRoom(_room);
+    socket.emit('join-room', _room);
   }
 
   function handleChange(e: ChangeEvent) {
-    const value = (e.target as HTMLTextAreaElement).value
-    setMessage(value)
+    const value = (e.target as HTMLTextAreaElement).value;
+    setMessage(value);
+  }
+
+  function handleRoomCreator() {
+    setOpenModal(!openModal);
   }
 
   function sendMessage() {
-    const value = content.current?.value as string
+    const value = content.current?.value as string;
     createMessage({ content: value, userId })
       .then(() => {
         socket.emit('from-client', { message: value, room: room });
-        setMessage('')
+        setMessage('');
       })
-      .catch(err => console.log(err))
+      .catch((err) => console.log(err));
   }
 
   useEffect(() => {
     socket.on('from-server', (data) => {
-      setConversation([...conversation, data])
+      setConversation([...conversation, data]);
     });
-  }, [socket])
+  }, [socket]);
 
   return (
     <React.Fragment>
@@ -48,7 +60,25 @@ function App() {
         <Container.GridItem type='side'>
           <List.Box>
             <List.Item>
-              <Button.Creator label='Create Room' onCreate={() => { }} />
+              <Button.Create
+                label='Create Room'
+                onCreate={() => setOpenModal(!openModal)}
+              />
+              {/* <Modal.Default */}
+              {/*   open={openModal} */}
+              {/*   title='Room Creator' */}
+              {/*   content='Creating Room' */}
+              {/*   onClose={() => setOpenModal(false)} */}
+              {/* /> */}
+              <Modal.Customizable open={openModal} title='Create room' onClose={() => setOpenModal(false)}>
+                <Modal.ContentBody>
+                  <Input name='room-input' />
+                </Modal.ContentBody>
+                <Modal.ActionFooter>
+                  <Button.Create label='Create' onCreate={() => setOpenModal(false)} />
+                  <Button.Cancel label='Cancel' onCancel={() => setOpenModal(false)} />
+                </Modal.ActionFooter>
+              </Modal.Customizable>
               <Message.Card
                 avatarSrc=''
                 opponentName='A du dark wa'
@@ -64,27 +94,41 @@ function App() {
               <h1>Page Header</h1>
             </Chat.Header>
             <Chat.Body>
-              {
-                conversation && conversation.map((message, index) => (
+              {conversation &&
+                conversation.map((message, index) => (
                   <React.Fragment>
-                    {
-                      message.userId === userId
-                        ? <Message.Sender key={index} content={message.content} />
-                        : <Message.Receiver key={index} content={message.content} />
-                    }
+                    {message.userId === userId ? (
+                      <Message.Sender
+                        key={index}
+                        content={message.content}
+                      />
+                    ) : (
+                      <Message.Receiver
+                        key={index}
+                        content={message.content}
+                      />
+                    )}
                   </React.Fragment>
-                ))
-              }
+                ))}
             </Chat.Body>
             <Chat.Footer>
-              <Input ref={content} minRows={1} maxRows={3} value={message} onChange={(e: ChangeEvent) => handleChange(e)}>
-                <Button.Send label='Send' onSend={() => sendMessage()} />
+              <Input
+                ref={content}
+                minRows={1}
+                maxRows={3}
+                value={message}
+                onChange={(e: ChangeEvent) => handleChange(e)}
+              >
+                <Button.Send
+                  label='Send'
+                  onSend={() => sendMessage()}
+                />
               </Input>
             </Chat.Footer>
           </Chat.Box>
         </Container.GridItem>
       </Container.Grid>
-    </React.Fragment>
+    </React.Fragment >
   );
 }
 
