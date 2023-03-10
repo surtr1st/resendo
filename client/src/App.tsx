@@ -60,16 +60,25 @@ function App() {
         <Container.GridItem type='side'>
           <List.Box>
             <List.Item>
-              <Button.Creator
+              <Button.Create
                 label='Create Room'
                 onCreate={() => setOpenModal(!openModal)}
               />
-              <Modal.Default
-                open={openModal}
-                title='Room Creator'
-                content='Creating Room'
-                onClose={() => setOpenModal(false)}
-              />
+              {/* <Modal.Default */}
+              {/*   open={openModal} */}
+              {/*   title='Room Creator' */}
+              {/*   content='Creating Room' */}
+              {/*   onClose={() => setOpenModal(false)} */}
+              {/* /> */}
+              <Modal.Customizable open={openModal} title='Create room' onClose={() => setOpenModal(false)}>
+                <Modal.ContentBody>
+                  <Input name='room-input' />
+                </Modal.ContentBody>
+                <Modal.ActionFooter>
+                  <Button.Create label='Create' onCreate={() => setOpenModal(false)} />
+                  <Button.Cancel label='Cancel' onCancel={() => setOpenModal(false)} />
+                </Modal.ActionFooter>
+              </Modal.Customizable>
               <Message.Card
                 avatarSrc=''
                 opponentName='A du dark wa'
@@ -119,7 +128,7 @@ function App() {
           </Chat.Box>
         </Container.GridItem>
       </Container.Grid>
-    </React.Fragment>
+    </React.Fragment >
   );
 }
 

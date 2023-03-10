@@ -41,7 +41,7 @@ export const Button = {
       </div>
     </button>
   ),
-  Creator: ({ label, onCreate }: Partial<CreateProps>) => (
+  Create: ({ label, onCreate }: Partial<CreateProps>) => (
     <button
       onClick={onCreate}
       className='create'

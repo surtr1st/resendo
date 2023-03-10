@@ -25,6 +25,8 @@
   padding: 1rem;
   display: grid;
   height: 15vh;
+  min-height: 10vh;
+  max-height: 50vh;
   place-items: center;
 }
 
