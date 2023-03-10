@@ -1,5 +1,5 @@
 import './style.css';
-import React, { ChangeEvent, ForwardedRef, ReactNode } from 'react';
+import React, { ChangeEvent, ForwardedRef, ReactNode, Ref, RefObject } from 'react';
 import { Button } from '../Button';
 
 type Props = {
@@ -23,7 +23,9 @@ export const Input = {
     ) => {
       return (
         <div className="chat-box">
-          {label && <label htmlFor={name}>{label}</label>}
+          <div className='input-label'>
+            {label && <label htmlFor={name}>{label}</label>}
+          </div>
           <div className='chat-input'>
             <input
               id={name}
@@ -44,19 +46,29 @@ export const Input = {
       { label, name, value, children, onChange }: Partial<Props>,
       ref: ForwardedRef<HTMLTextAreaElement>,
     ) => {
+
+      const handleInput = (e: ChangeEvent<HTMLTextAreaElement>) => {
+        const localRef = ref as RefObject<HTMLTextAreaElement>
+        if (localRef.current) {
+          localRef.current.style.height = "auto";
+          localRef.current.style.height = `${e.target.scrollHeight - 16}px`;
+        }
+      };
       return (
         <div className="chat-box">
-          {label && <label htmlFor={name}>{label}</label>}
+          <div className='input-label'>
+            {label && <label htmlFor={name}>{label}</label>}
+          </div>
           <div className='chat-input'>
             <textarea
               id={name}
               ref={ref}
               name={name}
               value={value}
-              className='text'
               cols={10}
-              rows={2}
+              rows={1}
               onChange={onChange}
+              onInput={handleInput}
             />
             {children}
           </div>
