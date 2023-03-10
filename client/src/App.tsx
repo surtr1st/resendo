@@ -2,6 +2,7 @@ import { io } from 'socket.io-client';
 import React, { ChangeEvent, createRef, useEffect, useState } from 'react';
 import { Button, Chat, Container, Input, List, Message } from './components';
 import type { Message as TMessage } from './types';
+import { useAuth, useMessage } from './services';
 
 function App() {
 
@@ -9,9 +10,11 @@ function App() {
   const [message, setMessage] = useState('')
   const [conversation, setConversation] = useState<TMessage[]>([])
 
-  const socket = io('http://localhost:4000');
+  const { userId } = useAuth()
+  const { createMessage } = useMessage()
+
+  const socket = io('http://localhost:4000', { withCredentials: true });
   const content = createRef<HTMLTextAreaElement>()
-  const userId = sessionStorage.getItem('userId')
 
   function joinRoom(_room: string) {
     setRoom(_room)
@@ -24,9 +27,13 @@ function App() {
   }
 
   function sendMessage() {
-    const value = content.current?.value
-    socket.emit('from-client', { message: value, room: room });
-    setMessage('')
+    const value = content.current?.value as string
+    createMessage({ content: value, userId })
+      .then(() => {
+        socket.emit('from-client', { message: value, room: room });
+        setMessage('')
+      })
+      .catch(err => console.log(err))
   }
 
   useEffect(() => {

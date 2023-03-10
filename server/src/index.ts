@@ -18,6 +18,7 @@ import {
   ROOM_BY_USER_ID,
   USER,
 } from './routes';
+import { useResponse } from './helpers';
 
 dotenv.config({});
 const { HOST, PORT, MONGODB_URL } = process.env;
@@ -31,6 +32,7 @@ function main() {
       const { findMessages, findMessagesByUser, createMessage } =
         useMessageController();
       const { findRooms, findRoomsByUser, createRoom } = useRoomController();
+      const { handleRequest } = useResponse();
 
       // Initialize server
       const httpServer = createServer(
@@ -38,6 +40,8 @@ function main() {
           const urlParts = url.parse(`${req.url}`);
           const query = querystring.parse(`${urlParts.query}`);
           const { userId } = query;
+
+          if (req.method === METHOD.OPTIONS) handleRequest(res);
 
           switch (req.url) {
             case USER:
@@ -66,9 +70,8 @@ function main() {
               break;
 
             case AUTH:
-              if (req.method === METHOD.POST) {
+              if (req.method === METHOD.POST)
                 verifyToken(req, res, () => authenticate(req, res));
-              }
               break;
           }
         },
@@ -80,13 +83,14 @@ function main() {
           origin: 'http://localhost:5173',
           credentials: true,
           optionsSuccessStatus: 200,
+          allowedHeaders: ['Content-Type', 'Accept', 'Authorization'],
+          methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
         },
       });
 
       io.on('connection', (socket) => {
         // Joining a room
         socket.on('join-room', (data) => {
-          console.log(data);
           socket.join(data);
         });
 

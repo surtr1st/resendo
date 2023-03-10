@@ -9,6 +9,7 @@ export function useRoom() {
       headers: {
         'Content-Type': 'application/json',
       },
+      credentials: 'include',
     };
     const data = await fetch(`${BASE_URL}/rooms?userId=${userId}`, options);
     const rooms = await data.json();
@@ -21,6 +22,7 @@ export function useRoom() {
       headers: {
         'Content-Type': 'application/json',
       },
+      credentials: 'include',
       body: JSON.stringify(room),
     };
     const data = await fetch(`${BASE_URL}/rooms`, options);

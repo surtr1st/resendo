@@ -9,6 +9,7 @@ export function useMessage() {
       headers: {
         'Content-Type': 'application/json',
       },
+      credentials: 'include',
     };
     await fetch(`${BASE_URL}/messages?userId=${userId}`, options);
   };
@@ -19,6 +20,7 @@ export function useMessage() {
       headers: {
         'Content-Type': 'application/json',
       },
+      credentials: 'include',
       body: JSON.stringify(message),
     };
     await fetch(`${BASE_URL}/messages`, options);

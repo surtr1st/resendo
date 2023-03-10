@@ -16,7 +16,7 @@ export type User = {
 export type Message = {
   content: string;
   userId: string;
-  sentAt: Date;
+  sentAt?: Date;
 };
 export type Room = {
   title: string;

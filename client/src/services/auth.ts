@@ -3,7 +3,7 @@ import type { AuthenticationArgs, AuthorizeResponse } from '../types';
 const BASE_URL = 'http://localhost:4000/api';
 
 export function useAuth() {
-  const userId = parseInt(sessionStorage.getItem('userId') as string);
+  const userId = sessionStorage.getItem('userId') as string;
   const isAuth = Boolean(sessionStorage.getItem('isAuth')) ? true : false;
   const accessToken = sessionStorage.getItem('Access-Token');
   const refreshToken = sessionStorage.getItem('Refresh-Token');
@@ -22,6 +22,7 @@ export function useAuth() {
       headers: {
         'Content-Type': 'application/json',
       },
+      credentials: 'include',
       body: JSON.stringify({ ...args }),
     };
     await fetch(`${BASE_URL}/auth`, options).then(async (res) => {
