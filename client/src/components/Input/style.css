@@ -1,16 +1,27 @@
-input, textarea {
-  outline: 1px solid #737373;
+label {
+  width: 100%;
+  padding-left: .1rem;
+  padding-top: 1rem;
+  padding-bottom: 1rem;
+}
+
+.text, .search {
   width: 100%;
   border: 0px;
   transition: 250ms ease-in-out all;
   font-size: 16px;
   resize: none;
-}
-
-.text, .search {
   padding: .8rem;
   border-radius: .3rem;
   margin: .2rem;
+}
+
+.text:focus, .search:focus {
+  outline: 0px;
+}
+
+.chat-box {
+  width: 100%;
 }
 
 .chat-input {
@@ -18,4 +29,7 @@ input, textarea {
   display: flex;
   justify-content: center;
   align-items: center;
+  outline: 1px solid #737373;
+  border-radius: .3rem;
+  padding-right: .45rem;
 }
