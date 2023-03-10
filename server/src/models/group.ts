@@ -1,4 +1,5 @@
 import mongo, { model, ObjectId, Schema, Types } from 'mongoose';
+import { Message, TypeMessage } from './message';
 import { TypeUser, User } from './user';
 
 type TypeGroup = mongo.Document & {
@@ -7,6 +8,7 @@ type TypeGroup = mongo.Document & {
   title: string;
   owner: Omit<TypeUser, 'password'>;
   users: Array<Omit<TypeUser, 'password'>>;
+  messages: Array<TypeMessage>;
   type: string;
 };
 
@@ -15,6 +17,7 @@ interface IGroup {
   title: string;
   owner: Omit<TypeUser, 'password'>;
   users: Array<Omit<TypeUser, 'password'>>;
+  messages: Array<TypeMessage>;
   type: string;
 }
 
@@ -30,6 +33,12 @@ const schema = new Schema<TypeGroup>({
     {
       type: Types.ObjectId,
       ref: User,
+    },
+  ],
+  messages: [
+    {
+      type: Types.ObjectId,
+      ref: Message,
     },
   ],
   type: String,

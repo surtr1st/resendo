@@ -2,13 +2,16 @@ import dotenv from 'dotenv';
 import url from 'url';
 import querystring from 'querystring';
 import { Server } from 'socket.io';
-import { createServer, IncomingMessage, ServerResponse } from 'http';
 import { connect } from 'mongoose';
-import { useUserController } from './controllers';
-import { useMessageController } from './controllers/message';
-import { useRoomController } from './controllers/room';
-import { useAuthController } from './controllers/auth';
+import { createServer, IncomingMessage, ServerResponse } from 'http';
+import { useResponse } from './helpers';
 import { verifyToken } from './middlewares';
+import {
+  useUserController,
+  useMessageController,
+  useRoomController,
+  useAuthController,
+} from './controllers';
 import {
   AUTH,
   MESSAGE,
@@ -18,7 +21,6 @@ import {
   ROOM_BY_USER_ID,
   USER,
 } from './routes';
-import { useResponse } from './helpers';
 
 dotenv.config({});
 const { HOST, PORT, MONGODB_URL } = process.env;
