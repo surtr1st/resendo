@@ -9,17 +9,11 @@ interface Props {
 export const Chat = {
   Box: ({ children, type }: Props) => (
     <React.Fragment>
-      {type === 'container'
-        ? (
-          <div className='container'>
-            {children}
-          </div>
-        ) : (
-          <div className='fluid'>
-            {children}
-          </div>
-        )
-      }
+      {type === 'container' ? (
+        <div className='container'>{children}</div>
+      ) : (
+        <div className='fluid'>{children}</div>
+      )}
     </React.Fragment>
   ),
   Header: ({ children }: Props) => (
