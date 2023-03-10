@@ -43,7 +43,9 @@ export function useRoomController() {
     req.on('end', async () => {
       const { userId, partnerId, title, type } = JSON.parse(body);
       const owner = await userService.findById(userId as string);
-      const opponent = await userService.findById(partnerId as string);
+      const opponent = partnerId
+        ? await userService.findById(partnerId as string)
+        : undefined;
       const room: Partial<IRoom> = {
         owner,
         opponent,
@@ -60,9 +62,19 @@ export function useRoomController() {
     });
   };
 
+  const joinRoom = async (roomId: string | ObjectId, res: ServerResponse) => {
+    const room = await service.findById(roomId);
+    onServerResponse({
+      statusCode: 200,
+      headers: { contentType: 'application/json' },
+      data: room,
+    })(res);
+  };
+
   return {
     findRoomsByUser,
     findRooms,
     createRoom,
+    joinRoom,
   };
 }

@@ -17,4 +17,5 @@ export const METHOD = {
   POST: 'POST',
   PUT: 'PUT',
   DELETE: 'DELETE',
+  OPTIONS: 'OPTIONS',
 };

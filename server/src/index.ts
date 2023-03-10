@@ -5,9 +5,12 @@ import { Server } from 'socket.io';
 import { createServer, IncomingMessage, ServerResponse } from 'http';
 import { connect } from 'mongoose';
 import { useUserController } from './controllers';
+import { useMessageController } from './controllers/message';
+import { useRoomController } from './controllers/room';
+import { useAuthController } from './controllers/auth';
+import { verifyToken } from './middlewares';
 import {
-  GROUP,
-  MEDIA,
+  AUTH,
   MESSAGE,
   MESSAGE_BY_USER_ID,
   METHOD,
@@ -15,8 +18,7 @@ import {
   ROOM_BY_USER_ID,
   USER,
 } from './routes';
-import { useMessageController } from './controllers/message';
-import { useRoomController } from './controllers/room';
+import { useResponse } from './helpers';
 
 dotenv.config({});
 const { HOST, PORT, MONGODB_URL } = process.env;
@@ -25,10 +27,12 @@ const port = parseInt(PORT as string);
 function main() {
   connect(`${MONGODB_URL}`).then(
     () => {
+      const { authenticate } = useAuthController();
       const { findUsers, createUser } = useUserController();
       const { findMessages, findMessagesByUser, createMessage } =
         useMessageController();
       const { findRooms, findRoomsByUser, createRoom } = useRoomController();
+      const { handleRequest } = useResponse();
 
       // Initialize server
       const httpServer = createServer(
@@ -36,6 +40,8 @@ function main() {
           const urlParts = url.parse(`${req.url}`);
           const query = querystring.parse(`${urlParts.query}`);
           const { userId } = query;
+
+          if (req.method === METHOD.OPTIONS) handleRequest(res);
 
           switch (req.url) {
             case USER:
@@ -62,6 +68,11 @@ function main() {
               if (req.method === METHOD.GET)
                 await findRoomsByUser(userId as string, res);
               break;
+
+            case AUTH:
+              if (req.method === METHOD.POST)
+                verifyToken(req, res, () => authenticate(req, res));
+              break;
           }
         },
       );
@@ -72,6 +83,8 @@ function main() {
           origin: 'http://localhost:5173',
           credentials: true,
           optionsSuccessStatus: 200,
+          allowedHeaders: ['Content-Type', 'Accept', 'Authorization'],
+          methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
         },
       });
 

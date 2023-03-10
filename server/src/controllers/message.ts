@@ -34,25 +34,34 @@ export function useMessageController() {
   };
 
   const createMessage = (req: IncomingMessage, res: ServerResponse) => {
-    let body = '';
+    let requestBody = '';
     req.on('data', (chunk) => {
-      body += chunk;
+      requestBody += chunk;
     });
     req.on('error', (err) => console.log(err));
     req.on('end', async () => {
-      const { content, userId } = JSON.parse(body);
-      const user = await userService.findById(userId as string);
-      const message: IMessage = {
-        content,
-        user,
-      };
-      const newMessage = await service.create(message);
+      try {
+        const { content, userId } = JSON.parse(requestBody);
+        const user = await userService.findById(userId as string);
+        const message: IMessage = {
+          content,
+          user,
+          sentAt: new Date(),
+        };
+        const newMessage = await service.create(message);
 
-      onServerResponse({
-        statusCode: 201,
-        headers: { contentType: 'application/json' },
-        data: newMessage,
-      })(res);
+        onServerResponse({
+          statusCode: 201,
+          headers: { contentType: 'application/json' },
+          data: newMessage,
+        })(res);
+      } catch (err) {
+        return onServerResponse({
+          statusCode: 400,
+          headers: { contentType: 'application/json' },
+          data: 'Unknown error',
+        })(res);
+      }
     });
   };
 
