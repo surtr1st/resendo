@@ -1,4 +1,5 @@
 import mongo, { model, Schema, ObjectId, Types } from 'mongoose';
+import { Message, TypeMessage } from './message';
 import { TypeUser, User } from './user';
 
 type TypeRoom = mongo.Document & {
@@ -7,7 +8,8 @@ type TypeRoom = mongo.Document & {
   title: string;
   owner: Omit<TypeUser, 'password'>;
   opponent: Omit<TypeUser, 'password'>;
-  type: string;
+  messages: Array<TypeMessage>;
+  type: 'PRIVATE';
 };
 
 interface IRoom {
@@ -15,7 +17,8 @@ interface IRoom {
   title: string;
   owner: Omit<TypeUser, 'password'>;
   opponent: Omit<TypeUser, 'password'>;
-  type: string;
+  messages: Array<TypeMessage>;
+  type: 'PRIVATE';
 }
 
 const schema = new Schema<TypeRoom>({
@@ -29,8 +32,14 @@ const schema = new Schema<TypeRoom>({
   opponent: {
     type: Types.ObjectId,
     ref: User,
-    required: false,
+    required: true,
   },
+  messages: [
+    {
+      type: Types.ObjectId,
+      ref: Message,
+    },
+  ],
   type: String,
 });
 

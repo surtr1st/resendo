@@ -1,7 +1,11 @@
 import { ServerResponse } from 'http';
 
 type Headers = {
-  contentType: string;
+  contentType:
+    | 'application/json'
+    | 'multipart/form-data'
+    | 'text/plain'
+    | 'text/html; charset=utf-8';
   accept: string;
   authorization: string;
   refreshToken: string;
@@ -55,7 +59,7 @@ export function useResponse() {
         res.write(body);
       } catch (error) {
         console.error('Error serializing response data:', error);
-        res.statusCode = 500;
+        res.writeHead(500);
         res.write(JSON.stringify({ error: 'Internal Server Error' }));
       }
       res.end();

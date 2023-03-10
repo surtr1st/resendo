@@ -34,14 +34,22 @@ export function useRoomController() {
   };
 
   const createRoom = (req: IncomingMessage, res: ServerResponse) => {
-    let body = '';
+    let requestBody = '';
 
     req.on('data', (chunk) => {
-      body += chunk;
+      requestBody += chunk;
+    });
+
+    req.on('error', (err) => {
+      onServerResponse({
+        statusCode: 500,
+        headers: { contentType: 'application/json' },
+        data: err,
+      })(res);
     });
 
     req.on('end', async () => {
-      const { userId, partnerId, title, type } = JSON.parse(body);
+      const { userId, partnerId, title, type } = JSON.parse(requestBody);
       const owner = await userService.findById(userId as string);
       const opponent = partnerId
         ? await userService.findById(partnerId as string)

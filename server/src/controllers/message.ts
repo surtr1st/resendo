@@ -35,33 +35,34 @@ export function useMessageController() {
 
   const createMessage = (req: IncomingMessage, res: ServerResponse) => {
     let requestBody = '';
+
     req.on('data', (chunk) => {
       requestBody += chunk;
     });
-    req.on('error', (err) => console.log(err));
-    req.on('end', async () => {
-      try {
-        const { content, userId } = JSON.parse(requestBody);
-        const user = await userService.findById(userId as string);
-        const message: IMessage = {
-          content,
-          user,
-          sentAt: new Date(),
-        };
-        const newMessage = await service.create(message);
 
-        onServerResponse({
-          statusCode: 201,
-          headers: { contentType: 'application/json' },
-          data: newMessage,
-        })(res);
-      } catch (err) {
-        return onServerResponse({
-          statusCode: 400,
-          headers: { contentType: 'application/json' },
-          data: 'Unknown error',
-        })(res);
-      }
+    req.on('error', (err) => {
+      onServerResponse({
+        statusCode: 500,
+        headers: { contentType: 'application/json' },
+        data: err,
+      })(res);
+    });
+
+    req.on('end', async () => {
+      const { content, userId } = JSON.parse(requestBody);
+      const user = await userService.findById(userId as string);
+      const message: IMessage = {
+        content,
+        user,
+        sentAt: new Date(),
+      };
+      const newMessage = await service.create(message);
+
+      onServerResponse({
+        statusCode: 201,
+        headers: { contentType: 'application/json' },
+        data: newMessage,
+      })(res);
     });
   };
 
