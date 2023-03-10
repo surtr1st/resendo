@@ -1,7 +1,10 @@
 ul {
-  display: flex;
-  flex-direction: column;
+  display: block;
   height: 100vh;
   overflow-x: hidden;
   overflow-y: auto;
+  text-align: center;
+  list-style: none;
+  border-right: 1px solid #f2f2f2;
+  padding-top: .1rem;
 }

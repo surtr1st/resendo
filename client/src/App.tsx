@@ -48,6 +48,7 @@ function App() {
         <Container.GridItem type='side'>
           <List.Box>
             <List.Item>
+              <Button.Creator label='Create Room' onCreate={() => { }} />
               <Message.Card
                 avatarSrc=''
                 opponentName='A du dark wa'
