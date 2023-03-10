@@ -17,6 +17,16 @@ export function useAuthController() {
       body += chunk;
     });
 
+    req.on('error', (err) => {
+      onServerResponse({
+        statusCode: 500,
+        headers: {
+          contentType: 'application/json'
+        },
+        data: err,
+      })(res);
+    })
+
     req.on('end', async () => {
       const { email, password } = JSON.parse(body);
       const { JWT_SECRET, REFRESH_SECRET } = process.env;

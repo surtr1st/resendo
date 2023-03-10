@@ -17,13 +17,22 @@ export function useUserController() {
   };
 
   const createUser = (req: IncomingMessage, res: ServerResponse) => {
-    let body = '';
+    let requestBody = '';
+
     req.on('data', (chunk) => {
-      body += chunk;
+      requestBody += chunk;
     });
-    req.on('error', (err) => console.log(err));
+
+    req.on('error', (err) => {
+      onServerResponse({
+        statusCode: 500,
+        headers: { contentType: 'application/json' },
+        data: err,
+      })(res);
+    });
+
     req.on('end', async () => {
-      const user = JSON.parse(body);
+      const user = JSON.parse(requestBody);
       const newUser = await service.create(user);
 
       onServerResponse({
