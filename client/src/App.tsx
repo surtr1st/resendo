@@ -17,25 +17,28 @@ function App() {
   const [message, setMessage] = useState('');
   const [conversation, setConversation] = useState<TMessage[]>([]);
   const [openModal, setOpenModal] = useState(false);
+  const [roomTitle, setRoomTitle] = useState('');
 
   const { userId } = useAuth();
   const { createMessage } = useMessage();
 
-  const socket = io('http://localhost:4000', { withCredentials: true });
+  const socket = io('', { withCredentials: true });
   const content = createRef<HTMLTextAreaElement>();
+  const title = createRef<HTMLInputElement>();
 
   function joinRoom(_room: string) {
     setRoom(_room);
     socket.emit('join-room', _room);
   }
 
-  function handleChange(e: ChangeEvent) {
+  function handleChatChange(e: ChangeEvent) {
     const value = (e.target as HTMLTextAreaElement).value;
     setMessage(value);
   }
 
-  function handleRoomCreator() {
-    setOpenModal(!openModal);
+  function handleInputChange(e: ChangeEvent) {
+    const value = (e.target as HTMLInputElement).value;
+    setRoomTitle(value)
   }
 
   function sendMessage() {
@@ -64,15 +67,16 @@ function App() {
                 label='Create Room'
                 onCreate={() => setOpenModal(!openModal)}
               />
-              {/* <Modal.Default */}
-              {/*   open={openModal} */}
-              {/*   title='Room Creator' */}
-              {/*   content='Creating Room' */}
-              {/*   onClose={() => setOpenModal(false)} */}
-              {/* /> */}
               <Modal.Customizable open={openModal} title='Create room' onClose={() => setOpenModal(false)}>
                 <Modal.ContentBody>
-                  <Input name='room-input' />
+                  <Input.Text
+                    ref={title}
+                    label='Room name'
+                    name='room-input'
+                    value={roomTitle}
+                    onChange={(e: ChangeEvent) => handleInputChange(e)}
+                    onClear={() => setRoomTitle('')}
+                  />
                 </Modal.ContentBody>
                 <Modal.ActionFooter>
                   <Button.Create label='Create' onCreate={() => setOpenModal(false)} />
@@ -83,7 +87,7 @@ function App() {
                 avatarSrc=''
                 opponentName='A du dark wa'
                 latestMessage='A du dark wa! Vl qua ban oi'
-                onAction={() => joinRoom('64099f4cb6e1164a191441f1')}
+                onAction={() => { }}
               />
             </List.Item>
           </List.Box>
@@ -112,18 +116,16 @@ function App() {
                 ))}
             </Chat.Body>
             <Chat.Footer>
-              <Input
+              <Input.TextArea
                 ref={content}
-                minRows={1}
-                maxRows={3}
                 value={message}
-                onChange={(e: ChangeEvent) => handleChange(e)}
+                onChange={(e: ChangeEvent) => handleChatChange(e)}
               >
                 <Button.Send
                   label='Send'
                   onSend={() => sendMessage()}
                 />
-              </Input>
+              </Input.TextArea>
             </Chat.Footer>
           </Chat.Box>
         </Container.GridItem>

@@ -1,5 +1,5 @@
 import './style.css';
-import React, { ForwardedRef, ReactElement, ReactNode, useEffect } from 'react';
+import React, { ReactNode } from 'react';
 import ReactDOM from 'react-dom';
 import { Button } from '../Button';
 
@@ -26,7 +26,7 @@ export const Modal = {
     return ReactDOM.createPortal(
       <React.Fragment>
         {open && (
-          <div>
+          <>
             <div className='modal'>
               <span className='modal-header'>
                 <h3>{title}</h3>
@@ -47,7 +47,7 @@ export const Modal = {
               </div>
             </div>
             <div className='modal-backdrop' />
-          </div>
+          </>
         )}
       </React.Fragment>,
       document.querySelector('body') as HTMLElement,
@@ -57,7 +57,7 @@ export const Modal = {
     ReactDOM.createPortal(
       <React.Fragment>
         {open && (
-          <div>
+          <>
             <div className='modal'>
               <span className='modal-header'>
                 <h3>{title}</h3>
@@ -66,7 +66,7 @@ export const Modal = {
               {children}
             </div>
             <div className='modal-backdrop' />
-          </div>
+          </>
         )}
       </React.Fragment>, document.querySelector('body') as HTMLElement),
   ContentBody: ({ children }: Partial<CustomizableContentProps>) => (
