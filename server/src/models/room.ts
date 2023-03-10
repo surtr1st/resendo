@@ -9,7 +9,7 @@ type TypeRoom = mongo.Document & {
   owner: Omit<TypeUser, 'password'>;
   opponent: Omit<TypeUser, 'password'>;
   messages: Array<TypeMessage>;
-  type: string;
+  type: 'PRIVATE';
 };
 
 interface IRoom {
@@ -18,7 +18,7 @@ interface IRoom {
   owner: Omit<TypeUser, 'password'>;
   opponent: Omit<TypeUser, 'password'>;
   messages: Array<TypeMessage>;
-  type: string;
+  type: 'PRIVATE';
 }
 
 const schema = new Schema<TypeRoom>({
@@ -32,7 +32,7 @@ const schema = new Schema<TypeRoom>({
   opponent: {
     type: Types.ObjectId,
     ref: User,
-    required: false,
+    required: true,
   },
   messages: [
     {

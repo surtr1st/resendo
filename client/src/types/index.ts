@@ -22,5 +22,5 @@ export type Room = {
   title: string;
   userId: string;
   partnerId: string;
-  type: 'PUBLIC' | 'PRIVATE';
+  messages: Partial<Message[]>;
 };
