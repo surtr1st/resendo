@@ -1,5 +1,5 @@
 import { ObjectId } from 'mongoose';
-import { TypeUser, Room, IRoom } from '../models';
+import { TypeUser, Room, IRoom, TypeMessage } from '../models';
 
 export class RoomService {
   async findAll() {
@@ -39,6 +39,18 @@ export class RoomService {
   async update(room: Partial<IRoom>) {
     try {
       const updatedRoom = await Room.updateOne(room);
+      return updatedRoom.modifiedCount;
+    } catch (e) {
+      throw new Error('Cannot update room');
+    }
+  }
+
+  async patchMessage(id: string | ObjectId, message: TypeMessage) {
+    try {
+      const updatedRoom = await Room.updateOne(
+        { id },
+        { $push: { messages: message } },
+      );
       return updatedRoom.modifiedCount;
     } catch (e) {
       throw new Error('Cannot update room');

@@ -18,6 +18,7 @@ import {
   MESSAGE_BY_USER_ID,
   METHOD,
   ROOM,
+  ROOM_BY_ID,
   ROOM_BY_USER_ID,
   USER,
 } from './routes';
@@ -33,7 +34,12 @@ function main() {
       const { findUsers, createUser } = useUserController();
       const { findMessages, findMessagesByUser, createMessage } =
         useMessageController();
-      const { findRooms, findRoomsByUser, createRoom } = useRoomController();
+      const {
+        findRooms,
+        findRoomsByUser,
+        createRoom,
+        updateConversationInRoom,
+      } = useRoomController();
       const { handleRequest } = useResponse();
 
       // Initialize server
@@ -69,6 +75,11 @@ function main() {
             case `${ROOM_BY_USER_ID}=${query.userId}`:
               if (req.method === METHOD.GET)
                 await findRoomsByUser(userId as string, res);
+              break;
+
+            case `${ROOM_BY_ID}=${query.roomId}`:
+              if (req.method === METHOD.PATCH)
+                updateConversationInRoom(req, res);
               break;
 
             case AUTH:

@@ -2,11 +2,12 @@ import { IncomingMessage, ServerResponse } from 'http';
 import { ObjectId } from 'mongoose';
 import { useResponse } from '../helpers';
 import { IRoom } from '../models';
-import { RoomService, UserService } from '../services';
+import { MessageService, RoomService, UserService } from '../services';
 
 export function useRoomController() {
   const service = new RoomService();
   const userService = new UserService();
+  const messageService = new MessageService();
   const { onServerResponse } = useResponse();
 
   const findRoomsByUser = async (
@@ -70,6 +71,37 @@ export function useRoomController() {
     });
   };
 
+  const updateConversationInRoom = (
+    req: IncomingMessage,
+    res: ServerResponse,
+  ) => {
+    let requestBody = '';
+
+    req.on('data', (chunk) => {
+      requestBody += chunk;
+    });
+
+    req.on('error', (err) => {
+      return onServerResponse({
+        statusCode: 500,
+        headers: { contentType: 'application/json' },
+        data: err,
+      })(res);
+    });
+
+    req.on('end', async () => {
+      const { roomId, messageId } = JSON.parse(requestBody);
+      const newMessage = await messageService.findById(messageId);
+      const updatedRoom = await service.patchMessage(roomId, newMessage);
+
+      onServerResponse({
+        statusCode: 201,
+        headers: { contentType: 'application/json' },
+        data: updatedRoom,
+      })(res);
+    });
+  };
+
   const joinRoom = async (roomId: string | ObjectId, res: ServerResponse) => {
     const room = await service.findById(roomId);
     onServerResponse({
@@ -83,6 +115,7 @@ export function useRoomController() {
     findRoomsByUser,
     findRooms,
     createRoom,
+    updateConversationInRoom,
     joinRoom,
   };
 }
