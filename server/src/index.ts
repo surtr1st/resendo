@@ -11,9 +11,13 @@ import {
   useMessageController,
   useRoomController,
   useAuthController,
+  useFriendController,
 } from './controllers';
 import {
   AUTH,
+  FRIEND,
+  FRIEND_BY_ID,
+  FRIEND_BY_USER_ID,
   MESSAGE,
   MESSAGE_BY_USER_ID,
   METHOD,
@@ -40,6 +44,8 @@ function main() {
         createRoom,
         updateConversationInRoom,
       } = useRoomController();
+      const { findFriends, findFriendsByUser, createFriend, updateFriends } =
+        useFriendController();
       const { handleRequest } = useResponse();
 
       // Initialize server
@@ -47,7 +53,7 @@ function main() {
         async (req: IncomingMessage, res: ServerResponse) => {
           const urlParts = url.parse(`${req.url}`);
           const query = querystring.parse(`${urlParts.query}`);
-          const { userId } = query;
+          const { userId, roomId, friendId } = query;
 
           if (req.method === METHOD.OPTIONS) handleRequest(res);
 
@@ -62,7 +68,7 @@ function main() {
               if (req.method === METHOD.POST) createMessage(req, res);
               break;
 
-            case `${MESSAGE_BY_USER_ID}=${query.userId}`:
+            case `${MESSAGE_BY_USER_ID}=${userId}`:
               if (req.method === METHOD.GET)
                 await findMessagesByUser(userId as string, res);
               break;
@@ -72,14 +78,29 @@ function main() {
               if (req.method === METHOD.POST) createRoom(req, res);
               break;
 
-            case `${ROOM_BY_USER_ID}=${query.userId}`:
+            case `${ROOM_BY_USER_ID}=${userId}`:
               if (req.method === METHOD.GET)
                 await findRoomsByUser(userId as string, res);
               break;
 
-            case `${ROOM_BY_ID}=${query.roomId}`:
+            case `${ROOM_BY_ID}=${roomId}`:
               if (req.method === METHOD.PATCH)
                 updateConversationInRoom(req, res);
+              break;
+
+            case FRIEND:
+              if (req.method === METHOD.GET) await findFriends(res);
+              break;
+
+            case `${FRIEND_BY_ID}=${friendId}`:
+              if (req.method === METHOD.PATCH)
+                updateFriends(friendId as string, req, res);
+              break;
+
+            case `${FRIEND_BY_USER_ID}=${userId}`:
+              if (req.method === METHOD.GET)
+                await findFriendsByUser(userId as string, res);
+              if (req.method === METHOD.POST) createFriend(req, res);
               break;
 
             case AUTH:
