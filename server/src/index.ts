@@ -26,6 +26,9 @@ import {
   ROOM_BY_USER_ID,
   USER,
 } from './routes';
+import { validateMessageUndefined } from './middlewares/message';
+import { validateRoomUndefined } from './middlewares/room';
+import { validateUser } from './middlewares/user';
 
 dotenv.config({});
 const { HOST, PORT, MONGODB_URL } = process.env;
@@ -65,22 +68,30 @@ function main() {
 
             case MESSAGE:
               if (req.method === METHOD.GET) await findMessages(res);
-              if (req.method === METHOD.POST) createMessage(req, res);
+              if (req.method === METHOD.POST)
+                validateMessageUndefined(req, res, () =>
+                  createMessage(req, res),
+                );
               break;
 
             case `${MESSAGE_BY_USER_ID}=${userId}`:
               if (req.method === METHOD.GET)
-                await findMessagesByUser(userId as string, res);
+                validateUser(userId as string, res, () =>
+                  Promise.resolve(findMessagesByUser(userId as string, res)),
+                );
               break;
 
             case ROOM:
               if (req.method === METHOD.GET) await findRooms(res);
-              if (req.method === METHOD.POST) createRoom(req, res);
+              if (req.method === METHOD.POST)
+                validateRoomUndefined(req, res, () => createRoom(req, res));
               break;
 
             case `${ROOM_BY_USER_ID}=${userId}`:
               if (req.method === METHOD.GET)
-                await findRoomsByUser(userId as string, res);
+                validateUser(userId as string, res, () =>
+                  Promise.resolve(findRoomsByUser(userId as string, res)),
+                );
               break;
 
             case `${ROOM_BY_ID}=${roomId}`:
@@ -99,8 +110,13 @@ function main() {
 
             case `${FRIEND_BY_USER_ID}=${userId}`:
               if (req.method === METHOD.GET)
-                await findFriendsByUser(userId as string, res);
-              if (req.method === METHOD.POST) createFriend(req, res);
+                validateUser(userId as string, res, () =>
+                  Promise.resolve(findFriendsByUser(userId as string, res)),
+                );
+              if (req.method === METHOD.POST)
+                validateUser(userId as string, res, () =>
+                  createFriend(req, res),
+                );
               break;
 
             case AUTH:
