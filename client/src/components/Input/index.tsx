@@ -10,6 +10,7 @@ type Props = {
   children: ReactNode;
   minRows: number;
   maxRows: number;
+  clearable: boolean
   onChange: (e: ChangeEvent) => void;
   onClear: () => void
 };
@@ -18,7 +19,7 @@ type Props = {
 export const Input = {
   Text: React.forwardRef(
     (
-      { label, name, value, children, onChange, onClear }: Partial<Props>,
+      { label, name, value, children, clearable, onChange, onClear }: Partial<Props>,
       ref: ForwardedRef<HTMLInputElement>,
     ) => {
       return (
@@ -36,7 +37,33 @@ export const Input = {
               onChange={onChange}
             />
             {children}
-            <Button.Clear onClear={onClear} />
+            {clearable && <Button.Clear onClear={onClear} />}
+          </div>
+        </div>
+      );
+    }),
+  Password: React.forwardRef(
+    (
+      { label, name, value, children, clearable, onChange, onClear }: Partial<Props>,
+      ref: ForwardedRef<HTMLInputElement>,
+    ) => {
+      return (
+        <div className="chat-box">
+          <div className='input-label'>
+            {label && <label htmlFor={name}>{label}</label>}
+          </div>
+          <div className='chat-input'>
+            <input
+              id={name}
+              ref={ref}
+              name={name}
+              value={value}
+              type='password'
+              className='text'
+              onChange={onChange}
+            />
+            {children}
+            {clearable && <Button.Clear onClear={onClear} />}
           </div>
         </div>
       );
