@@ -1,0 +1,20 @@
+.login-bg {
+  width: 100%;
+  display: grid;
+  place-items: center;
+  height: 100vh;
+}
+
+.login {
+  padding: 1rem;
+  border-radius: 7px;
+  width: 500px;
+  height: 500px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
+h2 { font-weight: bold;}
+a { text-decoration: none;}
