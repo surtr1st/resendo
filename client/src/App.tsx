@@ -8,6 +8,8 @@ import {
   List,
   Message,
   Modal,
+  Spacing,
+  User
 } from './components';
 import type { Message as TMessage } from './types';
 import { useAuth, useMessage } from './services';
@@ -17,7 +19,8 @@ function App() {
   const [room, setRoom] = useState('');
   const [message, setMessage] = useState('');
   const [conversation, setConversation] = useState<TMessage[]>([]);
-  const [openModal, setOpenModal] = useState(false);
+  const [openModalCreate, setOpenModalCreate] = useState(false);
+  const [openModalFind, setOpenModalFind] = useState(false);
   const [roomTitle, setRoomTitle] = useState('');
 
   const { userId, isAuth } = useAuth();
@@ -61,15 +64,21 @@ function App() {
   return (
     <React.Fragment>
       {
-        isAuth ? <Container.Grid>
+        !isAuth ? <Container.Grid>
           <Container.GridItem type='side'>
             <List.Box>
               <List.Item>
-                <Button.Create
-                  label='Create Room'
-                  onCreate={() => setOpenModal(!openModal)}
-                />
-                <Modal.Customizable open={openModal} title='Create room' onClose={() => setOpenModal(false)}>
+                <Spacing.Horizontal>
+                  <Button.Create
+                    label='Create'
+                    onCreate={() => setOpenModalCreate(!openModalCreate)}
+                  />
+                  <Button.Create
+                    label='Find'
+                    onCreate={() => setOpenModalFind(!openModalFind)}
+                  />
+                </Spacing.Horizontal>
+                <Modal.Customizable open={openModalCreate} title='Create room' onClose={() => setOpenModalCreate(false)}>
                   <Modal.ContentBody>
                     <Input.Text
                       ref={title}
@@ -81,8 +90,29 @@ function App() {
                     />
                   </Modal.ContentBody>
                   <Modal.ActionFooter>
-                    <Button.Create label='Create' onCreate={() => setOpenModal(false)} />
-                    <Button.Cancel label='Cancel' onCancel={() => setOpenModal(false)} />
+                    <Button.Create label='Create' onCreate={() => setOpenModalCreate(false)} />
+                    <Button.Cancel label='Cancel' onCancel={() => setOpenModalCreate(false)} />
+                  </Modal.ActionFooter>
+                </Modal.Customizable>
+                <Modal.Customizable open={openModalFind} title='Find People' onClose={() => setOpenModalFind(false)}>
+                  <Modal.ContentBody>
+                    <Input.Search
+                      ref={title}
+                      label='Name'
+                      name='room-input'
+                      value={roomTitle}
+                      onChange={(e: ChangeEvent) => handleInputChange(e)}
+                      onClear={() => setRoomTitle('')}
+                    />
+                    <Spacing.Horizontal>
+                      {
+                        [1, 2, 3, 4, 5, 6, 6, 7, 8, 9, 10].map((i, index) => <User key={index} name='Adu dark wa' />)
+                      }
+                    </Spacing.Horizontal>
+                  </Modal.ContentBody>
+                  <Modal.ActionFooter>
+                    <Button.Send label='Find' onSend={() => { }} />
+                    <Button.Cancel label='Cancel' onCancel={() => setOpenModalFind(false)} />
                   </Modal.ActionFooter>
                 </Modal.Customizable>
                 <Message.Card
