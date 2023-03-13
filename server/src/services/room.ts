@@ -19,11 +19,19 @@ export class RoomService {
     }
   }
 
-  async findAllByUser(user: Omit<TypeUser, 'password'>) {
+  async findRoomByUserAndFriend(
+    user: Omit<TypeUser, 'password'>,
+    friend: Omit<TypeUser, 'password'>,
+  ) {
     try {
-      return await Room.find({ user });
+      const room = await Room.findOne({
+        owner: user,
+        opponent: friend,
+      });
+      if (!room) throw new Error('Cannot return messages of room by user');
+      return room;
     } catch (e) {
-      throw new Error('Cannot return list of rooms by user');
+      throw e;
     }
   }
 

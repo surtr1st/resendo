@@ -19,7 +19,7 @@ export const validateUser = (
         onServerResponse({
           statusCode: 400,
           headers: { contentType: 'application/json' },
-          data: err,
+          data: `${err}`,
         })(res),
       );
   } catch (e) {

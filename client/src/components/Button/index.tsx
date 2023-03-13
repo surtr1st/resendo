@@ -161,9 +161,7 @@ export const Button = {
       onClick={onNavigate}
       className='close'
     >
-      <div className='content'>
-        {label}
-      </div>
+      <div className='content'>{label}</div>
     </button>
   ),
 };

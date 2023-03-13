@@ -10,11 +10,14 @@ export class FriendService {
       throw new Error('Cannot return list friends');
     }
   }
-  async findAllByUser(user: Omit<TypeUser, 'password'>) {
+  async findFriendsByUser(user: Omit<TypeUser, 'password'>) {
     try {
-      return await Friend.find({ user });
+      const validUser = await Friend.findOne({ user });
+      if (!validUser)
+        throw new Error(`Cannot return list friends by user: ${user.id}`);
+      return validUser.friends;
     } catch (e) {
-      throw new Error(`Cannot return list friends by user: ${user.id}`);
+      throw e;
     }
   }
 
@@ -46,12 +49,18 @@ export class FriendService {
     }
   }
 
-  async patchFriend(id: string | ObjectId, user: TypeUser) {
+  async patchFriend(user: TypeUser, friend: TypeUser) {
     try {
-      const updatedFriend = await Friend.updateOne({ id }, { $push: { user } });
+      const updatedFriend = await Friend.updateOne(
+        { user },
+        {
+          $push: { friends: friend },
+        },
+      );
+      if (!updatedFriend) throw new Error('Cannot patch friend');
       return updatedFriend.modifiedCount;
     } catch (e) {
-      throw new Error('Cannot patch friend');
+      throw e;
     }
   }
 

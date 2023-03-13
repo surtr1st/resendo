@@ -1,4 +1,4 @@
-import { Room } from '../types';
+import { Room, RoomResponse } from '../types';
 
 const BASE_URL = 'http://localhost:4000/api';
 
@@ -14,6 +14,22 @@ export function useRoom() {
     const data = await fetch(`${BASE_URL}/rooms?userId=${userId}`, options);
     const rooms = await data.json();
     return rooms;
+  };
+
+  const getConversationInRoom = async (userId: string, friendId: string) => {
+    const options: RequestInit = {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      credentials: 'include',
+    };
+    const data = await fetch(
+      `${BASE_URL}/rooms?userId=${userId}&friendId=${friendId}`,
+      options,
+    );
+    const room: RoomResponse = await data.json();
+    return room;
   };
 
   const createRoom = async (room: Partial<Room>) => {
@@ -32,6 +48,7 @@ export function useRoom() {
 
   return {
     getRoomsByUserId,
+    getConversationInRoom,
     createRoom,
   };
 }

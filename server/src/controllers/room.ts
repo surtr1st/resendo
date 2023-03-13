@@ -10,17 +10,19 @@ export function useRoomController() {
   const messageService = new MessageService();
   const { onServerResponse } = useResponse();
 
-  const findRoomsByUser = async (
+  const findMessagesInRoom = async (
     userId: string | ObjectId,
+    friendId: string | ObjectId,
     res: ServerResponse,
   ) => {
     const user = await userService.findById(userId);
-    const rooms = await service.findAllByUser(user);
+    const friend = await userService.findById(friendId);
+    const room = await service.findRoomByUserAndFriend(user, friend);
 
     onServerResponse({
       statusCode: 200,
       headers: { contentType: 'application/json' },
-      data: rooms,
+      data: room,
     })(res);
   };
 
@@ -50,6 +52,18 @@ export function useRoomController() {
     });
 
     req.on('end', async () => {
+      const requiredFields = ['userId', 'partnerId', 'title'];
+      const missingFields = requiredFields.filter(
+        (field) => !JSON.parse(requestBody)[field],
+      );
+
+      if (missingFields.length > 0) {
+        return onServerResponse({
+          statusCode: 406,
+          headers: { contentType: 'application/json' },
+          data: '',
+        })(res);
+      }
       const { userId, partnerId, title, type } = JSON.parse(requestBody);
       const owner = await userService.findById(userId as string);
       const opponent = partnerId
@@ -112,7 +126,7 @@ export function useRoomController() {
   };
 
   return {
-    findRoomsByUser,
+    findMessagesInRoom,
     findRooms,
     createRoom,
     updateConversationInRoom,

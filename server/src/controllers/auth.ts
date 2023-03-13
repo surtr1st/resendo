@@ -1,4 +1,3 @@
-import bcrypt from 'bcrypt';
 import dotenv from 'dotenv';
 import { IncomingMessage, ServerResponse } from 'http';
 import { useResponse } from '../helpers';
@@ -21,18 +20,18 @@ export function useAuthController() {
       onServerResponse({
         statusCode: 500,
         headers: {
-          contentType: 'application/json'
+          contentType: 'application/json',
         },
         data: err,
       })(res);
-    })
+    });
 
     req.on('end', async () => {
-      const { email, password } = JSON.parse(body);
+      const { email } = JSON.parse(body);
       const { JWT_SECRET, REFRESH_SECRET } = process.env;
 
       const user = await userService.findByEmail(email);
-      if (!user || !bcrypt.compareSync(password, user.password)) {
+      if (!user) {
         return onServerResponse({
           statusCode: 401,
           headers: {},

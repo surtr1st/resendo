@@ -23,7 +23,7 @@ export function useFriendController() {
     res: ServerResponse,
   ) => {
     const user = await userService.findById(userId);
-    const friends = await service.findAllByUser(user);
+    const friends = await service.findFriendsByUser(user);
     onServerResponse({
       statusCode: 200,
       headers: { contentType: 'application/json' },
@@ -31,39 +31,12 @@ export function useFriendController() {
     })(res);
   };
 
-  const createFriend = (req: IncomingMessage, res: ServerResponse) => {
-    let requestBody = '';
-
-    req.on('data', (chunk) => {
-      requestBody += chunk;
-    });
-
-    req.on('error', (err) => {
-      return onServerResponse({
-        statusCode: 500,
-        headers: { contentType: 'application/json' },
-        data: err,
-      })(res);
-    });
-
-    req.on('end', async () => {
-      const { userId } = JSON.parse(requestBody);
-      const user = await userService.findById(userId);
-      const newFriend = await service.create({ user });
-      onServerResponse({
-        statusCode: 201,
-        headers: { contentType: 'application/json' },
-        data: newFriend,
-      })(res);
-    });
-  };
-
   const updateFriends = (
-    id: string | ObjectId,
+    userId: string | ObjectId,
     req: IncomingMessage,
     res: ServerResponse,
   ) => {
-    let requestBody = '';
+    let requestBody: NonNullable<string> = '';
 
     req.on('data', (chunk) => {
       requestBody += chunk;
@@ -78,13 +51,18 @@ export function useFriendController() {
     });
 
     req.on('end', async () => {
-      const { userId } = JSON.parse(requestBody);
+      const { friendId } = JSON.parse(requestBody);
       const user = await userService.findById(userId);
-      const patchedFriend = await service.patchFriend(id, user);
+      const friend = await userService.findById(friendId);
+      // Update to self first
+      const first = await service.patchFriend(user, friend);
+      // Then update to other
+      const second = await service.patchFriend(friend, user);
+      console.log(first, second);
       onServerResponse({
-        statusCode: 201,
+        statusCode: 200,
         headers: { contentType: 'application/json' },
-        data: patchedFriend,
+        data: { first, second },
       })(res);
     });
   };
@@ -92,7 +70,6 @@ export function useFriendController() {
   return {
     findFriends,
     findFriendsByUser,
-    createFriend,
     updateFriends,
   };
 }
