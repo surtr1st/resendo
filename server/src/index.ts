@@ -150,8 +150,7 @@ function main() {
 
         // Only show message to all users within room
         socket.on('from-client', (data) => {
-          console.log(data);
-          socket.to(data.room).emit('from-server', data);
+          socket.to(data.room).emit('from-server', data.message);
         });
       });
 

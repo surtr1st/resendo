@@ -1,5 +1,5 @@
 import { io } from 'socket.io-client';
-import React, { ChangeEvent, createRef, useState } from 'react';
+import React, { ChangeEvent, createRef, useEffect, useState } from 'react';
 import {
   Button,
   Chat,
@@ -11,13 +11,13 @@ import {
   Spacing,
   User,
 } from './components';
-import { Message as TMessage, User as TUser } from './types';
+import { MessageResponse, User as TUser } from './types';
 import { useAuth, useFriend, useMessage, useRoom, useUser } from './services';
 
 function App() {
   const [room, setRoom] = useState('');
   const [message, setMessage] = useState('');
-  const [conversation, setConversation] = useState<TMessage[]>([]);
+  const [conversation, setConversation] = useState<MessageResponse[]>([]);
   const [openModalFind, setOpenModalFind] = useState(false);
   const [username, setUsername] = useState('');
   const [users, setUsers] = useState<Array<Omit<TUser, 'password'>>>([]);
@@ -76,23 +76,26 @@ function App() {
         const { _id, messages } = res;
         setRoom(_id);
         socket.emit('join-room', _id);
-        setConversation(messages as TMessage[]);
+        setConversation(messages as MessageResponse[]);
       })
       .catch((err) => console.log(err));
   }
 
   function sendMessage() {
     const value = content.current?.value as string;
-    createMessage({ content: value, userId })
-      .then(() => {
-        socket.emit('from-client', { message: value, room: room });
+    createMessage({ content: value, userId, roomId: room })
+      .then((res) => {
+        socket.emit('from-client', { message: res, room: room });
         setMessage('');
-        socket.on('from-server', (data) => {
-          setConversation([...conversation, data]);
-        });
       })
       .catch((err) => console.log(err));
   }
+
+  useEffect(() => {
+    socket.on('from-server', (data) => {
+      setConversation(prev => [...prev, data]);
+    })
+  }, [socket])
 
   return (
     <React.Fragment>
@@ -169,8 +172,8 @@ function App() {
             <Chat.Body>
               {conversation &&
                 conversation.map((message, index) => (
-                  <React.Fragment>
-                    {message.userId === userId ? (
+                  <React.Fragment key={index}>
+                    {message.user === userId ? (
                       <Message.Sender
                         key={index}
                         content={message.content}
@@ -189,6 +192,7 @@ function App() {
                 ref={content}
                 value={message}
                 onChange={(e: ChangeEvent) => handleChatChange(e)}
+                onEnter={() => sendMessage()}
               >
                 <Button.Send
                   label='Send'

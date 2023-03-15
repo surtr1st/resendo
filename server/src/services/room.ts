@@ -53,7 +53,7 @@ export class RoomService {
   async patchMessage(id: string | ObjectId, message: TypeMessage) {
     try {
       const updatedRoom = await Room.updateOne(
-        { id },
+        { _id: id },
         { $push: { messages: message } },
       );
       return updatedRoom.modifiedCount;

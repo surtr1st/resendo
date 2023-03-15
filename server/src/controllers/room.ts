@@ -1,7 +1,7 @@
 import { IncomingMessage, ServerResponse } from 'http';
 import { ObjectId } from 'mongoose';
 import { useResponse } from '../helpers';
-import { IRoom } from '../models';
+import { IRoom, TypeRoom } from '../models';
 import { MessageService, RoomService, UserService } from '../services';
 
 export function useRoomController() {
@@ -15,15 +15,33 @@ export function useRoomController() {
     friendId: string | ObjectId,
     res: ServerResponse,
   ) => {
+    console.log(userId, friendId);
     const user = await userService.findById(userId);
     const friend = await userService.findById(friendId);
-    const room = await service.findRoomByUserAndFriend(user, friend);
+    let loggedUser = {};
+    service
+      .findRoomByUserAndFriend(user, friend)
+      .then((res) => (loggedUser = res))
+      .catch(
+        async () =>
+          (loggedUser = await service.findRoomByUserAndFriend(friend, user)),
+      )
+      .then(async () => {
+        const { _id, user1, user2, messages } = loggedUser as TypeRoom;
+        const messagesInRoom = [];
+        for (const message of messages) {
+          const detailMessage = await messageService.findById(message._id);
+          messagesInRoom.push(detailMessage);
+        }
 
-    onServerResponse({
-      statusCode: 200,
-      headers: { contentType: 'application/json' },
-      data: room,
-    })(res);
+        const room = { _id, user1, user2, messages: messagesInRoom };
+
+        onServerResponse({
+          statusCode: 200,
+          headers: { contentType: 'application/json' },
+          data: room,
+        })(res);
+      });
   };
 
   const findRooms = async (res: ServerResponse) => {

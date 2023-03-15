@@ -47,21 +47,25 @@ export function LoginOrRegistrate() {
             <Input.Text
               ref={password}
               label='Fullname'
+              onEnter={() => signup()}
             />
           )}
           <Input.Text
             ref={email}
             label='Email'
+            onEnter={() => isSignUp ? signup() : signin()}
           />
           {isSignUp && (
             <React.Fragment>
               <Input.Password
                 ref={password}
                 label='Password'
+                onEnter={() => signup()}
               />
               <Input.Password
                 ref={password}
                 label='Re-enter Password'
+                onEnter={() => signup()}
               />
             </React.Fragment>
           )}

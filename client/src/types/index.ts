@@ -17,7 +17,14 @@ export type User = {
 export type Message = {
   content: string;
   userId: string;
+  roomId: string;
   sentAt?: Date;
+};
+export type MessageResponse = {
+  _id: string;
+  content: string;
+  user: string;
+  sentAt: Date;
 };
 export type Room = {
   title: string;
@@ -33,5 +40,5 @@ export type RoomResponse = {
   _id: string;
   user1: Omit<User, 'password'>;
   user2: Omit<User, 'password'>;
-  messages: Partial<Message[]>;
+  messages: Partial<MessageResponse[]>;
 };

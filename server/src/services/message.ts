@@ -20,7 +20,7 @@ export class MessageService {
 
   async findById(id: string | ObjectId) {
     try {
-      const message = await Message.findOne({ id });
+      const message = await Message.findOne({ _id: id });
       if (!message) throw new Error('Cannot return list of messages by user');
       return message;
     } catch (e) {
@@ -31,7 +31,7 @@ export class MessageService {
   async create(message: IMessage) {
     try {
       const createdMessage = await Message.create(message);
-      return createdMessage.id;
+      return createdMessage;
     } catch (e) {
       throw new Error('Cannot create message');
     }

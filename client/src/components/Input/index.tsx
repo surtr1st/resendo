@@ -2,8 +2,8 @@ import './style.css';
 import React, {
   ChangeEvent,
   ForwardedRef,
+  KeyboardEvent,
   ReactNode,
-  Ref,
   RefObject,
 } from 'react';
 import { Button } from '../Button';
@@ -18,8 +18,10 @@ type Props = {
   maxRows: number;
   clearable: boolean;
   onChange: (e: ChangeEvent) => void;
+  onEnter: () => void;
   onClear: () => void;
 };
+
 
 export const Input = {
   Text: React.forwardRef(
@@ -30,11 +32,22 @@ export const Input = {
         value,
         children,
         clearable,
+        onEnter,
         onChange,
         onClear,
       }: Partial<Props>,
       ref: ForwardedRef<HTMLInputElement>,
     ) => {
+
+      function handleEnter(event: KeyboardEvent) {
+        const ENTER = 'Enter'
+        if (event.key === ENTER) {
+          event.preventDefault()
+          if (onEnter) {
+            onEnter()
+          }
+        }
+      }
       return (
         <div className='chat-box'>
           <div className='input-label'>
@@ -48,6 +61,7 @@ export const Input = {
               value={value}
               className='text'
               onChange={onChange}
+              onKeyDown={handleEnter}
             />
             {children}
             {clearable && <Button.Clear onClear={onClear} />}
@@ -64,11 +78,22 @@ export const Input = {
         value,
         children,
         clearable,
+        onEnter,
         onChange,
         onClear,
       }: Partial<Props>,
       ref: ForwardedRef<HTMLInputElement>,
     ) => {
+
+      function handleEnter(event: KeyboardEvent) {
+        const ENTER = 'Enter'
+        if (event.key === ENTER) {
+          event.preventDefault()
+          if (onEnter) {
+            onEnter()
+          }
+        }
+      }
       return (
         <div className='chat-box'>
           <div className='input-label'>
@@ -83,6 +108,7 @@ export const Input = {
               type='password'
               className='text'
               onChange={onChange}
+              onKeyDown={handleEnter}
             />
             {children}
             {clearable && <Button.Clear onClear={onClear} />}
@@ -93,7 +119,7 @@ export const Input = {
   ),
   TextArea: React.forwardRef(
     (
-      { label, name, value, children, onChange }: Partial<Props>,
+      { label, name, value, children, onEnter, onChange }: Partial<Props>,
       ref: ForwardedRef<HTMLTextAreaElement>,
     ) => {
       const handleInput = (e: ChangeEvent<HTMLTextAreaElement>) => {
@@ -103,6 +129,15 @@ export const Input = {
           localRef.current.style.height = `${e.target.scrollHeight - 16}px`;
         }
       };
+      function handleEnter(event: KeyboardEvent) {
+        const ENTER = 'Enter'
+        if (event.key === ENTER) {
+          event.preventDefault()
+          if (onEnter) {
+            onEnter()
+          }
+        }
+      }
       return (
         <div className='chat-box'>
           <div className='input-label'>
@@ -118,6 +153,7 @@ export const Input = {
               rows={1}
               onChange={onChange}
               onInput={handleInput}
+              onKeyDown={handleEnter}
             />
             {children}
           </div>
