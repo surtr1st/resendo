@@ -4,32 +4,26 @@ import { TypeUser, User } from './user';
 
 type TypeRoom = mongo.Document & {
   _id: ObjectId;
-  inviteId: string;
-  title: string;
-  owner: Omit<TypeUser, 'password'>;
-  opponent: Omit<TypeUser, 'password'>;
+  user1: Omit<TypeUser, 'password'>;
+  user2: Omit<TypeUser, 'password'>;
   messages: Array<TypeMessage>;
   type: 'PRIVATE';
 };
 
 interface IRoom {
-  inviteId: string;
-  title: string;
-  owner: Omit<TypeUser, 'password'>;
-  opponent: Omit<TypeUser, 'password'>;
+  user1: Omit<TypeUser, 'password'>;
+  user2: Omit<TypeUser, 'password'>;
   messages: Array<TypeMessage>;
   type: 'PRIVATE';
 }
 
 const schema = new Schema<TypeRoom>({
-  inviteId: String,
-  title: String,
-  owner: {
+  user1: {
     type: Types.ObjectId,
     ref: User,
     required: true,
   },
-  opponent: {
+  user2: {
     type: Types.ObjectId,
     ref: User,
     required: true,

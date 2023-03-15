@@ -1,12 +1,14 @@
 import { IncomingMessage, ServerResponse } from 'http';
 import { ObjectId } from 'mongoose';
 import { useResponse } from '../helpers';
-import { UserService } from '../services';
+import { IRoom } from '../models';
+import { RoomService, UserService } from '../services';
 import { FriendService } from '../services/friend';
 
 export function useFriendController() {
   const service = new FriendService();
   const userService = new UserService();
+  const roomService = new RoomService();
   const { onServerResponse } = useResponse();
 
   const findFriends = async (res: ServerResponse) => {
@@ -24,11 +26,43 @@ export function useFriendController() {
   ) => {
     const user = await userService.findById(userId);
     const friends = await service.findFriendsByUser(user);
+    const userFriends = [];
+    for (const friend of friends) {
+      const detailFriend = await userService.findById(friend._id);
+      userFriends.push(detailFriend);
+    }
     onServerResponse({
       statusCode: 200,
       headers: { contentType: 'application/json' },
-      data: friends,
+      data: userFriends,
     })(res);
+  };
+
+  const checkIfAdded = (req: IncomingMessage, res: ServerResponse) => {
+    let requestBody = '';
+
+    req.on('data', (chunk) => {
+      requestBody += chunk;
+    });
+
+    req.on('error', (err) => {
+      onServerResponse({
+        statusCode: 500,
+        headers: { contentType: 'application/json' },
+        data: `${err}`,
+      })(res);
+    });
+
+    req.on('end', async () => {
+      const { userId, friendId } = JSON.parse(requestBody);
+      const user = await userService.findById(userId);
+      const isAdded = await service.isAdded(user, friendId);
+      onServerResponse({
+        statusCode: 200,
+        headers: { contentType: 'application/json' },
+        data: isAdded,
+      })(res);
+    });
   };
 
   const updateFriends = (
@@ -55,14 +89,18 @@ export function useFriendController() {
       const user = await userService.findById(userId);
       const friend = await userService.findById(friendId);
       // Update to self first
-      const first = await service.patchFriend(user, friend);
+      await service.patchFriend(user, friend);
       // Then update to other
-      const second = await service.patchFriend(friend, user);
-      console.log(first, second);
+      await service.patchFriend(friend, user);
+      const newRoom: Partial<IRoom> = {
+        user1: user,
+        user2: friend,
+      };
+      await roomService.create(newRoom);
       onServerResponse({
         statusCode: 200,
         headers: { contentType: 'application/json' },
-        data: { first, second },
+        data: {},
       })(res);
     });
   };
@@ -70,6 +108,7 @@ export function useFriendController() {
   return {
     findFriends,
     findFriendsByUser,
+    checkIfAdded,
     updateFriends,
   };
 }

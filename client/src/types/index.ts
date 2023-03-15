@@ -29,13 +29,9 @@ export type Friend = {
   userId: string;
   friendId?: string;
 };
-export type FriendResponse = {
-  id: string;
-  user: Omit<User, 'password'>;
-};
 export type RoomResponse = {
-  id: string;
-  owner: Omit<User, 'password'>;
-  opponent: Omit<User, 'password'>;
+  _id: string;
+  user1: Omit<User, 'password'>;
+  user2: Omit<User, 'password'>;
   messages: Partial<Message[]>;
 };

@@ -11,24 +11,22 @@ import {
   Spacing,
   User,
 } from './components';
-import { FriendResponse, Message as TMessage, User as TUser } from './types';
+import { Message as TMessage, User as TUser } from './types';
 import { useAuth, useFriend, useMessage, useRoom, useUser } from './services';
 
 function App() {
   const [room, setRoom] = useState('');
   const [message, setMessage] = useState('');
   const [conversation, setConversation] = useState<TMessage[]>([]);
-  const [openModalCreate, setOpenModalCreate] = useState(false);
   const [openModalFind, setOpenModalFind] = useState(false);
-  const [roomTitle, setRoomTitle] = useState('');
   const [username, setUsername] = useState('');
   const [users, setUsers] = useState<Array<Omit<TUser, 'password'>>>([]);
-  const [friends, setFriends] = useState<Array<FriendResponse>>([]);
+  const [friends, setFriends] = useState<Array<Omit<TUser, 'password'>>>([]);
 
   const { userId } = useAuth();
   const { createMessage } = useMessage();
   const { getUsersWithoutSelf } = useUser();
-  const { getFriendsByUserId, updateFriend } = useFriend();
+  const { getFriendsByUserId, checkIfAdded, updateFriend } = useFriend();
   const { getConversationInRoom } = useRoom();
 
   const socket = io('http://localhost:4000', { withCredentials: true });
@@ -37,8 +35,16 @@ function App() {
 
   function findPeople() {
     getUsersWithoutSelf(userId)
-      .then((res) => setUsers(res))
+      .then((res) => {
+        const filteredAddedUsers = res.filter(
+          async (user: TUser) => await checkIfAdded(userId, user._id as string) ? {} : user
+        )
+        setUsers(filteredAddedUsers)
+      })
       .catch((err) => console.log(err));
+  }
+
+  function retrieveFriends() {
     getFriendsByUserId(userId)
       .then((res) => setFriends(res))
       .catch((err) => console.log(err));
@@ -55,11 +61,6 @@ function App() {
     setMessage(value);
   }
 
-  function handleCreateRoom(e: ChangeEvent) {
-    const value = (e.target as HTMLInputElement).value;
-    setRoomTitle(value);
-  }
-
   function handleFindPeople(e: ChangeEvent) {
     const value = (e.target as HTMLInputElement).value;
     const filteredUsers = users.filter(
@@ -72,9 +73,9 @@ function App() {
   function handleConversationInRoom(friendId: string) {
     getConversationInRoom(userId, friendId)
       .then((res) => {
-        const { id: roomId, messages } = res;
-        setRoom(roomId);
-        socket.emit('join-room', roomId);
+        const { _id, messages } = res;
+        setRoom(_id);
+        socket.emit('join-room', _id);
         setConversation(messages as TMessage[]);
       })
       .catch((err) => console.log(err));
@@ -92,6 +93,7 @@ function App() {
       })
       .catch((err) => console.log(err));
   }
+
   return (
     <React.Fragment>
       <Container.Grid>
@@ -100,40 +102,14 @@ function App() {
             <List.Item>
               <Spacing.Horizontal>
                 <Button.Create
-                  label='Create'
-                  onCreate={() => setOpenModalCreate(!openModalCreate)}
+                  label='Fetch'
+                  onCreate={() => retrieveFriends()}
                 />
                 <Button.Create
                   label='Find'
                   onCreate={() => setOpenModalFind(!openModalFind)}
                 />
               </Spacing.Horizontal>
-              <Modal.Customizable
-                open={openModalCreate}
-                title='Create room'
-                onClose={() => setOpenModalCreate(false)}
-              >
-                <Modal.ContentBody>
-                  <Input.Text
-                    ref={title}
-                    label='Room name'
-                    name='room-input'
-                    value={roomTitle}
-                    onChange={(e: ChangeEvent) => handleCreateRoom(e)}
-                    onClear={() => setRoomTitle('')}
-                  />
-                </Modal.ContentBody>
-                <Modal.ActionFooter>
-                  <Button.Create
-                    label='Create'
-                    onCreate={() => setOpenModalCreate(false)}
-                  />
-                  <Button.Cancel
-                    label='Cancel'
-                    onCancel={() => setOpenModalCreate(false)}
-                  />
-                </Modal.ActionFooter>
-              </Modal.Customizable>
               <Modal.Customizable
                 open={openModalFind}
                 title='Find People'
@@ -175,10 +151,10 @@ function App() {
                   <Message.Card
                     key={index}
                     avatarSrc=''
-                    opponentName={friend.user.fullname}
+                    opponentName={friend.fullname}
                     latestMessage='A du dark wa! Vl qua ban oi'
                     onAction={() =>
-                      handleConversationInRoom(friend.user._id as string)
+                      handleConversationInRoom(friend._id as string)
                     }
                   />
                 ))}

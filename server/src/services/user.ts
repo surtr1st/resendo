@@ -23,7 +23,7 @@ export class UserService {
 
   async findExcludeSelf(selfId: string | ObjectId) {
     try {
-      return await User.find({ id: { $ne: selfId } });
+      return await User.find({ _id: { $ne: selfId } });
     } catch (e) {
       throw e;
     }

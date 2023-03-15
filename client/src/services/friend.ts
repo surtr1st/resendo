@@ -16,6 +16,20 @@ export function useFriend() {
     return friends;
   };
 
+  const checkIfAdded = async (userId: string, friendId: string) => {
+    const options: RequestInit = {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      credentials: 'include',
+      body: JSON.stringify({ userId, friendId }),
+    };
+    const data = await fetch(`${BASE_URL}/friends`, options);
+    const result = await data.json();
+    return result;
+  };
+
   const createFriend = async (userId: string) => {
     const options: RequestInit = {
       method: 'POST',
@@ -42,6 +56,7 @@ export function useFriend() {
   };
   return {
     getFriendsByUserId,
+    checkIfAdded,
     createFriend,
     updateFriend,
   };

@@ -47,7 +47,7 @@ function main() {
         createRoom,
         updateConversationInRoom,
       } = useRoomController();
-      const { findFriends, findFriendsByUser, updateFriends } =
+      const { findFriends, findFriendsByUser, checkIfAdded, updateFriends } =
         useFriendController();
       const { handleRequest } = useResponse();
 
@@ -108,6 +108,7 @@ function main() {
 
             case FRIEND:
               if (req.method === METHOD.GET) await findFriends(res);
+              if (req.method === METHOD.POST) checkIfAdded(req, res);
               break;
 
             case `${FRIEND_BY_USER_ID}=${userId}`:
@@ -143,11 +144,13 @@ function main() {
       io.on('connection', (socket) => {
         // Joining a room
         socket.on('join-room', (data) => {
+          console.log(data);
           socket.join(data);
         });
 
         // Only show message to all users within room
         socket.on('from-client', (data) => {
+          console.log(data);
           socket.to(data.room).emit('from-server', data);
         });
       });

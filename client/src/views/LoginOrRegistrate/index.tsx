@@ -18,7 +18,7 @@ export function LoginOrRegistrate() {
       // password: `${password.current?.value}`
     };
     authorize(account)
-      .then(() => console.log('Logged'))
+      .then(() => setTimeout(() => location.reload(), 1000))
       .catch((err) => console.log(err));
   }
 
@@ -34,7 +34,7 @@ export function LoginOrRegistrate() {
       password: `${password.current?.value}`,
     };
     createUser(account)
-      .then((res) => console.log(res))
+      .then(() => setIsSignUp(false))
       .catch((err) => console.log(err));
   }
 

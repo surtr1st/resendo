@@ -64,16 +64,14 @@ export function useRoomController() {
           data: '',
         })(res);
       }
-      const { userId, partnerId, title, type } = JSON.parse(requestBody);
-      const owner = await userService.findById(userId as string);
-      const opponent = partnerId
+      const { userId, partnerId } = JSON.parse(requestBody);
+      const user1 = await userService.findById(userId as string);
+      const user2 = partnerId
         ? await userService.findById(partnerId as string)
         : undefined;
       const room: Partial<IRoom> = {
-        owner,
-        opponent,
-        title,
-        type,
+        user1,
+        user2,
       };
       const newRoom = await service.create(room);
 

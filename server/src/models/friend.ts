@@ -22,6 +22,7 @@ const schema = new Schema<TypeFriend>({
     {
       type: Types.ObjectId,
       ref: User,
+      required: true,
     },
   ],
 });

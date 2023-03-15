@@ -31,6 +31,18 @@ export class FriendService {
     }
   }
 
+  async isAdded(user: TypeUser, friend: string | ObjectId) {
+    try {
+      const beFriended = await Friend.findOne({
+        user,
+        friends: { _id: friend },
+      });
+      return beFriended ? true : false;
+    } catch (e) {
+      throw e;
+    }
+  }
+
   async create(friend: Partial<TypeFriend>) {
     try {
       const createdFriend = await Friend.create(friend);
