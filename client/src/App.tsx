@@ -14,7 +14,6 @@ import {
   User,
 } from './components';
 
-
 function App() {
   const [room, setRoom] = useState('');
   const [message, setMessage] = useState('');
@@ -24,7 +23,8 @@ function App() {
   const [users, setUsers] = useState<Array<Omit<TUser, 'password'>>>([]);
   const [friends, setFriends] = useState<Array<Omit<TUser, 'password'>>>([]);
   const [isMount, setIsMount] = useState(false)
-  const [typingUsers, setTypingUsers] = useState<string[]>([]);
+  const [isTyping, setIsTyping] = useState(false)
+  const [who, setWho] = useState('')
 
   const { userId } = useAuth();
   const { createMessage } = useMessage();
@@ -68,11 +68,20 @@ function App() {
     setMessage(value);
   }
 
+
+
+  let timeout = 0
   function handleKeyDown() {
-    if (message.length > 0)
-      socket.emit('incoming-message-from-client', { userId, room })
-    else
-      socket.emit('stop-incoming-message-from-client', { userId, room })
+    const typingTimeout = () => setIsTyping(false)
+    if (message.length > 0) {
+      setIsTyping(true)
+      socket.emit('incoming-message-from-client', { userId, room, isTyping })
+      timeout = setTimeout(typingTimeout, 3000)
+    }
+    else {
+      clearTimeout(timeout)
+      typingTimeout()
+    }
   }
 
   function handleInputKeyword(e: ChangeEvent) {
@@ -113,7 +122,10 @@ function App() {
       setConversation((prev) => [...prev, data]);
     });
     socket.on('incoming-message-from-server', (data) => {
-      setTypingUsers((prev) => prev.filter((user) => user !== data.userId));
+      if (data.isTyping)
+        setWho(`${data.fullname} is typing...`)
+      else
+        setWho('')
     });
   }, [socket]);
 
@@ -207,8 +219,8 @@ function App() {
                     </React.Fragment>
                   ))}
                 <React.Fragment>
-                  <span style={{ position: 'absolute', bottom: 0, left: 0 }}>
-                    {typingUsers.length > 0 ? 'Typing...' : ''}
+                  <span style={{ position: 'sticky', bottom: 0, left: 0, background: 'white', borderBottom: '1px solid #f2f2f2' }}>
+                    {isTyping && who}
                   </span>
                 </React.Fragment>
               </Chat.Body>

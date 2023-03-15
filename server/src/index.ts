@@ -171,22 +171,11 @@ function main() {
 
         socket.on('incoming-message-from-client', async (data) => {
           const service = new UserService();
-          const { userId, room } = data;
+          const { userId, room, isTyping } = data;
           const { fullname } = await service.findById(userId);
-          const otherUsers = [];
-          for (const user of await service.findAll())
-            if (userId !== user._id) otherUsers.push(user);
           socket.broadcast.to(room).emit('incoming-message-from-server', {
-            whoTyping: fullname,
-            userId,
-            otherUsers,
-          });
-        });
-
-        socket.on('stop-incoming-message-from-client', async (data) => {
-          const { userId, room } = data;
-          socket.broadcast.to(room).emit('stop-incoming-message-from-server', {
-            userId,
+            fullname,
+            isTyping,
           });
         });
       });
