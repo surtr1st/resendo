@@ -25,10 +25,9 @@ import {
   ROOM_BY_ID,
   ROOM_BY_USER_ID,
   USER,
+  USER_EXCEPT_ID,
 } from './routes';
-import { validateMessageUndefined } from './middlewares/message';
-import { validateRoomUndefined } from './middlewares/room';
-import { validateUser } from './middlewares/user';
+import { validateUser } from './middlewares';
 
 dotenv.config({});
 const { HOST, PORT, MONGODB_URL } = process.env;
@@ -38,16 +37,17 @@ function main() {
   connect(`${MONGODB_URL}`).then(
     () => {
       const { authenticate } = useAuthController();
-      const { findUsers, createUser } = useUserController();
+      const { findUsers, findUsersWithoutSelf, createUser } =
+        useUserController();
       const { findMessages, findMessagesByUser, createMessage } =
         useMessageController();
       const {
         findRooms,
-        findRoomsByUser,
+        findMessagesInRoom,
         createRoom,
         updateConversationInRoom,
       } = useRoomController();
-      const { findFriends, findFriendsByUser, createFriend, updateFriends } =
+      const { findFriends, findFriendsByUser, checkIfAdded, updateFriends } =
         useFriendController();
       const { handleRequest } = useResponse();
 
@@ -56,7 +56,7 @@ function main() {
         async (req: IncomingMessage, res: ServerResponse) => {
           const urlParts = url.parse(`${req.url}`);
           const query = querystring.parse(`${urlParts.query}`);
-          const { userId, roomId, friendId } = query;
+          const { userId, roomId, friendId, except } = query;
 
           if (req.method === METHOD.OPTIONS) handleRequest(res);
 
@@ -66,12 +66,14 @@ function main() {
               if (req.method === METHOD.POST) createUser(req, res);
               break;
 
+            case `${USER_EXCEPT_ID}=${except}`:
+              if (req.method === METHOD.GET)
+                await findUsersWithoutSelf(except as string, res);
+              break;
+
             case MESSAGE:
               if (req.method === METHOD.GET) await findMessages(res);
-              if (req.method === METHOD.POST)
-                validateMessageUndefined(req, res, () =>
-                  createMessage(req, res),
-                );
+              if (req.method === METHOD.POST) createMessage(req, res);
               break;
 
             case `${MESSAGE_BY_USER_ID}=${userId}`:
@@ -83,14 +85,19 @@ function main() {
 
             case ROOM:
               if (req.method === METHOD.GET) await findRooms(res);
-              if (req.method === METHOD.POST)
-                validateRoomUndefined(req, res, () => createRoom(req, res));
+              if (req.method === METHOD.POST) createRoom(req, res);
               break;
 
-            case `${ROOM_BY_USER_ID}=${userId}`:
+            case `${ROOM_BY_USER_ID}=${userId}&friendId=${friendId}`:
               if (req.method === METHOD.GET)
                 validateUser(userId as string, res, () =>
-                  Promise.resolve(findRoomsByUser(userId as string, res)),
+                  Promise.resolve(
+                    findMessagesInRoom(
+                      userId as string,
+                      friendId as string,
+                      res,
+                    ),
+                  ),
                 );
               break;
 
@@ -101,11 +108,7 @@ function main() {
 
             case FRIEND:
               if (req.method === METHOD.GET) await findFriends(res);
-              break;
-
-            case `${FRIEND_BY_ID}=${friendId}`:
-              if (req.method === METHOD.PATCH)
-                updateFriends(friendId as string, req, res);
+              if (req.method === METHOD.POST) checkIfAdded(req, res);
               break;
 
             case `${FRIEND_BY_USER_ID}=${userId}`:
@@ -113,9 +116,9 @@ function main() {
                 validateUser(userId as string, res, () =>
                   Promise.resolve(findFriendsByUser(userId as string, res)),
                 );
-              if (req.method === METHOD.POST)
+              if (req.method === METHOD.PATCH)
                 validateUser(userId as string, res, () =>
-                  createFriend(req, res),
+                  updateFriends(userId as string, req, res),
                 );
               break;
 
@@ -141,12 +144,13 @@ function main() {
       io.on('connection', (socket) => {
         // Joining a room
         socket.on('join-room', (data) => {
+          console.log(data);
           socket.join(data);
         });
 
         // Only show message to all users within room
         socket.on('from-client', (data) => {
-          socket.to(data.room).emit('from-server', data);
+          socket.to(data.room).emit('from-server', data.message);
         });
       });
 

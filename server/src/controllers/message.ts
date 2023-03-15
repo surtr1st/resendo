@@ -1,5 +1,5 @@
 import { IncomingMessage, ServerResponse } from 'http';
-import { MessageService, UserService } from '../services';
+import { MessageService, RoomService, UserService } from '../services';
 import { ObjectId } from 'mongoose';
 import { useResponse } from '../helpers';
 import { IMessage } from '../models';
@@ -7,6 +7,7 @@ import { IMessage } from '../models';
 export function useMessageController() {
   const service = new MessageService();
   const userService = new UserService();
+  const roomService = new RoomService();
   const { onServerResponse } = useResponse();
 
   const findMessages = async (res: ServerResponse) => {
@@ -49,7 +50,18 @@ export function useMessageController() {
     });
 
     req.on('end', async () => {
-      const { content, userId } = JSON.parse(requestBody);
+      const requiredFields = ['userId', 'content', 'roomId'];
+      const missingFields = requiredFields.filter(
+        (field) => !JSON.parse(requestBody)[`${field}`],
+      );
+      if (missingFields.length > 0) {
+        return onServerResponse({
+          statusCode: 406,
+          headers: { contentType: 'application/json' },
+          data: '',
+        })(res);
+      }
+      const { content, userId, roomId } = JSON.parse(requestBody);
       const user = await userService.findById(userId as string);
       const message: IMessage = {
         content,
@@ -57,6 +69,7 @@ export function useMessageController() {
         sentAt: new Date(),
       };
       const newMessage = await service.create(message);
+      await roomService.patchMessage(roomId, newMessage);
 
       onServerResponse({
         statusCode: 201,

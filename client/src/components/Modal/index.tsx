@@ -10,16 +10,16 @@ type Props = {
 };
 type DefaultProps = Props & {
   content: string;
-}
+};
 type CustomizableProps = Props & {
-  children: ReactNode
-}
+  children: ReactNode;
+};
 type CustomizableContentProps = {
   children: ReactNode;
-}
+};
 type CustomizableActionProps = {
   children: ReactNode;
-}
+};
 
 export const Modal = {
   Default: ({ open, title, content, onClose }: Partial<DefaultProps>) => {
@@ -53,7 +53,12 @@ export const Modal = {
       document.querySelector('body') as HTMLElement,
     );
   },
-  Customizable: ({ open, onClose, title, children }: Partial<CustomizableProps>) =>
+  Customizable: ({
+    open,
+    onClose,
+    title,
+    children,
+  }: Partial<CustomizableProps>) =>
     ReactDOM.createPortal(
       <React.Fragment>
         {open && (
@@ -68,15 +73,13 @@ export const Modal = {
             <div className='modal-backdrop' />
           </>
         )}
-      </React.Fragment>, document.querySelector('body') as HTMLElement),
+      </React.Fragment>,
+      document.querySelector('body') as HTMLElement,
+    ),
   ContentBody: ({ children }: Partial<CustomizableContentProps>) => (
-    <div className='modal-body'>
-      {children}
-    </div>
+    <div className='modal-body'>{children}</div>
   ),
   ActionFooter: ({ children }: Partial<CustomizableActionProps>) => (
-    <div className='modal-footer'>
-      {children}
-    </div>
-  )
+    <div className='modal-footer'>{children}</div>
+  ),
 };

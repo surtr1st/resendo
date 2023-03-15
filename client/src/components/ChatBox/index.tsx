@@ -2,7 +2,7 @@ import './style.css';
 import React, { ReactNode } from 'react';
 
 interface Props {
-  children: ReactNode;
+  children: ReactNode | ReactNode[];
   type?: 'container' | 'fluid';
 }
 

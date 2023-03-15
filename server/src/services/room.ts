@@ -19,11 +19,16 @@ export class RoomService {
     }
   }
 
-  async findAllByUser(user: Omit<TypeUser, 'password'>) {
+  async findRoomByUserAndFriend(user: TypeUser, friend: TypeUser) {
     try {
-      return await Room.find({ user });
+      const room = await Room.findOne({
+        user1: user,
+        user2: friend,
+      });
+      if (!room) throw new Error('Cannot return messages of room by user');
+      return room;
     } catch (e) {
-      throw new Error('Cannot return list of rooms by user');
+      throw e;
     }
   }
 
@@ -48,7 +53,7 @@ export class RoomService {
   async patchMessage(id: string | ObjectId, message: TypeMessage) {
     try {
       const updatedRoom = await Room.updateOne(
-        { id },
+        { _id: id },
         { $push: { messages: message } },
       );
       return updatedRoom.modifiedCount;

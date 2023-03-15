@@ -1,7 +1,7 @@
 export type AccessToken = string;
 export type AuthenticationArgs = {
   email: string;
-  password: string;
+  password?: string;
 };
 export type AuthorizeResponse = {
   accessToken: string;
@@ -9,6 +9,7 @@ export type AuthorizeResponse = {
   userId: string;
 };
 export type User = {
+  _id?: string;
   fullname: string;
   email: string;
   password: string;
@@ -16,11 +17,28 @@ export type User = {
 export type Message = {
   content: string;
   userId: string;
+  roomId: string;
   sentAt?: Date;
+};
+export type MessageResponse = {
+  _id: string;
+  content: string;
+  user: string;
+  sentAt: Date;
 };
 export type Room = {
   title: string;
   userId: string;
   partnerId: string;
   messages: Partial<Message[]>;
+};
+export type Friend = {
+  userId: string;
+  friendId?: string;
+};
+export type RoomResponse = {
+  _id: string;
+  user1: Omit<User, 'password'>;
+  user2: Omit<User, 'password'>;
+  messages: Partial<MessageResponse[]>;
 };

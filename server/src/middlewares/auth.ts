@@ -1,7 +1,7 @@
 import dotenv from 'dotenv';
 import { verify } from 'jsonwebtoken';
 import { IncomingMessage, ServerResponse } from 'http';
-import { MiddlewareFunction } from '.';
+import { MiddlewareFunction, NextFunction } from '.';
 import { UserService } from '../services';
 import { ObjectId } from 'mongoose';
 import { useResponse } from '../helpers';
@@ -13,14 +13,14 @@ const { onServerResponse } = useResponse();
 export const verifyToken: MiddlewareFunction = async (
   req: IncomingMessage,
   res: ServerResponse,
-  next: (fn?: () => void) => void,
+  next: NextFunction,
 ) => {
   const service = new UserService();
   const authHeader = req.headers['authorization'];
   const token = authHeader && authHeader.split(' ')[1];
 
   if (!token) {
-    next();
+    next(req, res);
     return;
   }
   if (token) {
@@ -38,7 +38,7 @@ export const verifyToken: MiddlewareFunction = async (
           data: 'Unauthorized',
         })(res);
 
-      next();
+      next(req, res);
       return;
     } catch (err) {
       return onServerResponse({

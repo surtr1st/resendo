@@ -21,6 +21,14 @@ export class UserService {
     }
   }
 
+  async findExcludeSelf(selfId: string | ObjectId) {
+    try {
+      return await User.find({ _id: { $ne: selfId } });
+    } catch (e) {
+      throw e;
+    }
+  }
+
   async findByEmail(email: string) {
     try {
       const user = await User.findOne({ email });

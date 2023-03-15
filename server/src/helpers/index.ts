@@ -14,7 +14,7 @@ type Headers = {
 type Response = {
   statusCode: number;
   headers: Partial<Headers>;
-  data: unknown;
+  data?: unknown;
 };
 
 export function useResponse() {
@@ -22,7 +22,7 @@ export function useResponse() {
     res.setHeader('Access-Control-Allow-Origin', 'http://localhost:5173');
     res.setHeader(
       'Access-Control-Allow-Methods',
-      'GET, POST, PUT, DELETE, OPTIONS',
+      'GET, POST, PUT, PATCH, DELETE, OPTIONS',
     );
     res.setHeader(
       'Access-Control-Allow-Headers',
@@ -54,6 +54,7 @@ export function useResponse() {
       if (refreshToken) res.setHeader('Refresh-Token', refreshToken);
 
       try {
+        if (!data) data = { status: 'OK' };
         const body = JSON.stringify(data);
         res.writeHead(statusCode);
         res.write(body);

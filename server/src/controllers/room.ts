@@ -1,7 +1,7 @@
 import { IncomingMessage, ServerResponse } from 'http';
 import { ObjectId } from 'mongoose';
 import { useResponse } from '../helpers';
-import { IRoom } from '../models';
+import { IRoom, TypeRoom } from '../models';
 import { MessageService, RoomService, UserService } from '../services';
 
 export function useRoomController() {
@@ -10,18 +10,38 @@ export function useRoomController() {
   const messageService = new MessageService();
   const { onServerResponse } = useResponse();
 
-  const findRoomsByUser = async (
+  const findMessagesInRoom = async (
     userId: string | ObjectId,
+    friendId: string | ObjectId,
     res: ServerResponse,
   ) => {
+    console.log(userId, friendId);
     const user = await userService.findById(userId);
-    const rooms = await service.findAllByUser(user);
+    const friend = await userService.findById(friendId);
+    let loggedUser = {};
+    service
+      .findRoomByUserAndFriend(user, friend)
+      .then((res) => (loggedUser = res))
+      .catch(
+        async () =>
+          (loggedUser = await service.findRoomByUserAndFriend(friend, user)),
+      )
+      .then(async () => {
+        const { _id, user1, user2, messages } = loggedUser as TypeRoom;
+        const messagesInRoom = [];
+        for (const message of messages) {
+          const detailMessage = await messageService.findById(message._id);
+          messagesInRoom.push(detailMessage);
+        }
 
-    onServerResponse({
-      statusCode: 200,
-      headers: { contentType: 'application/json' },
-      data: rooms,
-    })(res);
+        const room = { _id, user1, user2, messages: messagesInRoom };
+
+        onServerResponse({
+          statusCode: 200,
+          headers: { contentType: 'application/json' },
+          data: room,
+        })(res);
+      });
   };
 
   const findRooms = async (res: ServerResponse) => {
@@ -50,16 +70,26 @@ export function useRoomController() {
     });
 
     req.on('end', async () => {
-      const { userId, partnerId, title, type } = JSON.parse(requestBody);
-      const owner = await userService.findById(userId as string);
-      const opponent = partnerId
+      const requiredFields = ['userId', 'partnerId', 'title'];
+      const missingFields = requiredFields.filter(
+        (field) => !JSON.parse(requestBody)[field],
+      );
+
+      if (missingFields.length > 0) {
+        return onServerResponse({
+          statusCode: 406,
+          headers: { contentType: 'application/json' },
+          data: '',
+        })(res);
+      }
+      const { userId, partnerId } = JSON.parse(requestBody);
+      const user1 = await userService.findById(userId as string);
+      const user2 = partnerId
         ? await userService.findById(partnerId as string)
         : undefined;
       const room: Partial<IRoom> = {
-        owner,
-        opponent,
-        title,
-        type,
+        user1,
+        user2,
       };
       const newRoom = await service.create(room);
 
@@ -112,7 +142,7 @@ export function useRoomController() {
   };
 
   return {
-    findRoomsByUser,
+    findMessagesInRoom,
     findRooms,
     createRoom,
     updateConversationInRoom,

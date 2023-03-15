@@ -1,12 +1,14 @@
 import { IncomingMessage, ServerResponse } from 'http';
 import { ObjectId } from 'mongoose';
 import { useResponse } from '../helpers';
-import { UserService } from '../services';
+import { IRoom } from '../models';
+import { RoomService, UserService } from '../services';
 import { FriendService } from '../services/friend';
 
 export function useFriendController() {
   const service = new FriendService();
   const userService = new UserService();
+  const roomService = new RoomService();
   const { onServerResponse } = useResponse();
 
   const findFriends = async (res: ServerResponse) => {
@@ -23,15 +25,20 @@ export function useFriendController() {
     res: ServerResponse,
   ) => {
     const user = await userService.findById(userId);
-    const friends = await service.findAllByUser(user);
+    const friends = await service.findFriendsByUser(user);
+    const userFriends = [];
+    for (const friend of friends) {
+      const detailFriend = await userService.findById(friend._id);
+      userFriends.push(detailFriend);
+    }
     onServerResponse({
       statusCode: 200,
       headers: { contentType: 'application/json' },
-      data: friends,
+      data: userFriends,
     })(res);
   };
 
-  const createFriend = (req: IncomingMessage, res: ServerResponse) => {
+  const checkIfAdded = (req: IncomingMessage, res: ServerResponse) => {
     let requestBody = '';
 
     req.on('data', (chunk) => {
@@ -39,31 +46,31 @@ export function useFriendController() {
     });
 
     req.on('error', (err) => {
-      return onServerResponse({
+      onServerResponse({
         statusCode: 500,
         headers: { contentType: 'application/json' },
-        data: err,
+        data: `${err}`,
       })(res);
     });
 
     req.on('end', async () => {
-      const { userId } = JSON.parse(requestBody);
+      const { userId, friendId } = JSON.parse(requestBody);
       const user = await userService.findById(userId);
-      const newFriend = await service.create({ user });
+      const isAdded = await service.isAdded(user, friendId);
       onServerResponse({
-        statusCode: 201,
+        statusCode: 200,
         headers: { contentType: 'application/json' },
-        data: newFriend,
+        data: isAdded,
       })(res);
     });
   };
 
   const updateFriends = (
-    id: string | ObjectId,
+    userId: string | ObjectId,
     req: IncomingMessage,
     res: ServerResponse,
   ) => {
-    let requestBody = '';
+    let requestBody: NonNullable<string> = '';
 
     req.on('data', (chunk) => {
       requestBody += chunk;
@@ -78,13 +85,22 @@ export function useFriendController() {
     });
 
     req.on('end', async () => {
-      const { userId } = JSON.parse(requestBody);
+      const { friendId } = JSON.parse(requestBody);
       const user = await userService.findById(userId);
-      const patchedFriend = await service.patchFriend(id, user);
+      const friend = await userService.findById(friendId);
+      // Update to self first
+      await service.patchFriend(user, friend);
+      // Then update to other
+      await service.patchFriend(friend, user);
+      const newRoom: Partial<IRoom> = {
+        user1: user,
+        user2: friend,
+      };
+      await roomService.create(newRoom);
       onServerResponse({
-        statusCode: 201,
+        statusCode: 200,
         headers: { contentType: 'application/json' },
-        data: patchedFriend,
+        data: {},
       })(res);
     });
   };
@@ -92,7 +108,7 @@ export function useFriendController() {
   return {
     findFriends,
     findFriendsByUser,
-    createFriend,
+    checkIfAdded,
     updateFriends,
   };
 }
