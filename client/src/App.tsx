@@ -1,5 +1,7 @@
 import { io } from 'socket.io-client';
 import React, { ChangeEvent, createRef, useEffect, useState } from 'react';
+import { MessageResponse, User as TUser } from './types';
+import { useAuth, useFriend, useMessage, useRoom, useUser } from './services';
 import {
   Button,
   Chat,
@@ -11,8 +13,7 @@ import {
   Spacing,
   User,
 } from './components';
-import { MessageResponse, User as TUser } from './types';
-import { useAuth, useFriend, useMessage, useRoom, useUser } from './services';
+
 
 function App() {
   const [room, setRoom] = useState('');
@@ -36,10 +37,10 @@ function App() {
   function findPeople() {
     getUsersWithoutSelf(userId)
       .then((res) => {
-        const filteredAddedUsers = res.filter(
-          async (user: TUser) => await checkIfAdded(userId, user._id as string) ? {} : user
-        )
-        setUsers(filteredAddedUsers)
+        const filteredAddedUsers = res.filter(async (user: TUser) =>
+          (await checkIfAdded(userId, user._id as string)) ? {} : user,
+        );
+        setUsers(filteredAddedUsers);
       })
       .catch((err) => console.log(err));
   }
@@ -66,7 +67,7 @@ function App() {
     const filteredUsers = users.filter(
       (user) => user.fullname.indexOf(value) !== -1,
     );
-    setUsername(value)
+    setUsername(value);
     setUsers(filteredUsers);
   }
 
@@ -93,9 +94,9 @@ function App() {
 
   useEffect(() => {
     socket.on('from-server', (data) => {
-      setConversation(prev => [...prev, data]);
-    })
-  }, [socket])
+      setConversation((prev) => [...prev, data]);
+    });
+  }, [socket]);
 
   return (
     <React.Fragment>

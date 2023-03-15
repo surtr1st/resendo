@@ -53,7 +53,7 @@ export function LoginOrRegistrate() {
           <Input.Text
             ref={email}
             label='Email'
-            onEnter={() => isSignUp ? signup() : signin()}
+            onEnter={() => (isSignUp ? signup() : signin())}
           />
           {isSignUp && (
             <React.Fragment>

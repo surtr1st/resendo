@@ -5,7 +5,7 @@ import './index.css';
 import { useAuth } from './services';
 import { LoginOrRegistrate } from './views/LoginOrRegistrate';
 
-const { isAuth } = useAuth()
+const { isAuth } = useAuth();
 
 ReactDOM.createRoot(document.getElementById('root') as HTMLElement).render(
   <React.StrictMode>

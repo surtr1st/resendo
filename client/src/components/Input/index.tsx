@@ -22,7 +22,6 @@ type Props = {
   onClear: () => void;
 };
 
-
 export const Input = {
   Text: React.forwardRef(
     (
@@ -38,13 +37,12 @@ export const Input = {
       }: Partial<Props>,
       ref: ForwardedRef<HTMLInputElement>,
     ) => {
-
       function handleEnter(event: KeyboardEvent) {
-        const ENTER = 'Enter'
+        const ENTER = 'Enter';
         if (event.key === ENTER) {
-          event.preventDefault()
+          event.preventDefault();
           if (onEnter) {
-            onEnter()
+            onEnter();
           }
         }
       }
@@ -84,13 +82,12 @@ export const Input = {
       }: Partial<Props>,
       ref: ForwardedRef<HTMLInputElement>,
     ) => {
-
       function handleEnter(event: KeyboardEvent) {
-        const ENTER = 'Enter'
+        const ENTER = 'Enter';
         if (event.key === ENTER) {
-          event.preventDefault()
+          event.preventDefault();
           if (onEnter) {
-            onEnter()
+            onEnter();
           }
         }
       }
@@ -130,11 +127,11 @@ export const Input = {
         }
       };
       function handleEnter(event: KeyboardEvent) {
-        const ENTER = 'Enter'
+        const ENTER = 'Enter';
         if (event.key === ENTER) {
-          event.preventDefault()
+          event.preventDefault();
           if (onEnter) {
-            onEnter()
+            onEnter();
           }
         }
       }
