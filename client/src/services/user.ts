@@ -15,7 +15,7 @@ export function useUser() {
     const user = await data.json();
     return user;
   };
-  const getUserById = async (id: string) => {
+  const getUserById = async (id: string): Promise<User> => {
     const options: RequestInit = {
       method: 'GET',
       headers: {

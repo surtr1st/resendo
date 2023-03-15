@@ -17,6 +17,15 @@ export function useUserController() {
     })(res);
   };
 
+  const findUser = async (userId: string | ObjectId, res: ServerResponse) => {
+    const user = await service.findById(userId);
+    onServerResponse({
+      statusCode: 200,
+      headers: { contentType: 'application/json' },
+      data: user,
+    })(res);
+  };
+
   const findUsersWithoutSelf = async (
     userId: string | ObjectId,
     res: ServerResponse,
@@ -60,6 +69,7 @@ export function useUserController() {
 
   return {
     findUsers,
+    findUser,
     findUsersWithoutSelf,
     createUser,
   };

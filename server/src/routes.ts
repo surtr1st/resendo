@@ -2,7 +2,7 @@
 const BASE_URL = '/api';
 export const AUTH = `${BASE_URL}/auth`;
 export const USER = `${BASE_URL}/users`;
-export const USER_BY_ID = `${BASE_URL}/users`;
+export const USER_BY_ID = `${BASE_URL}/users?id`;
 export const USER_EXCEPT_ID = `${BASE_URL}/users?except`;
 export const MESSAGE = `${BASE_URL}/messages`;
 export const MESSAGE_BY_ID = `${BASE_URL}/messages?id`;

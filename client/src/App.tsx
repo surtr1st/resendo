@@ -16,6 +16,7 @@ import {
 
 
 function App() {
+  const [who, setWho] = useState('')
   const [room, setRoom] = useState('');
   const [message, setMessage] = useState('');
   const [conversation, setConversation] = useState<MessageResponse[]>([]);
@@ -23,6 +24,9 @@ function App() {
   const [username, setUsername] = useState('');
   const [users, setUsers] = useState<Array<Omit<TUser, 'password'>>>([]);
   const [friends, setFriends] = useState<Array<Omit<TUser, 'password'>>>([]);
+  const [isTyping, setIsTyping] = useState(false)
+  const [isMount, setIsMount] = useState(false)
+  const [isSelf, setIsSelf] = useState(true)
 
   const { userId } = useAuth();
   const { createMessage } = useMessage();
@@ -34,12 +38,17 @@ function App() {
   const content = createRef<HTMLTextAreaElement>();
   const title = createRef<HTMLInputElement>();
 
+  const incomingMessage = () => `${who} is typing...`
+
   function findPeople() {
     getUsersWithoutSelf(userId)
-      .then((res) => {
-        const filteredAddedUsers = res.filter(async (user: TUser) =>
-          (await checkIfAdded(userId, user._id as string)) ? {} : user,
-        );
+      .then(async (res: TUser[]) => {
+        const filteredAddedUsers = []
+        for await (const user of res) {
+          const isAdded = await checkIfAdded(userId, user._id as string)
+          if (!isAdded)
+            filteredAddedUsers.push(user)
+        }
         setUsers(filteredAddedUsers);
       })
       .catch((err) => console.log(err));
@@ -62,6 +71,18 @@ function App() {
     setMessage(value);
   }
 
+
+  function handleKeyDown() {
+    if (message.length > 0) {
+      setIsTyping(true)
+      socket.emit('incoming-message-from-client', { userId, room })
+    }
+    else {
+      setIsTyping(false)
+      socket.emit('stop-incoming-message-from-client', { userId, room })
+    }
+  }
+
   function handleFindPeople(e: ChangeEvent) {
     const value = (e.target as HTMLInputElement).value;
     const filteredUsers = users.filter(
@@ -72,6 +93,7 @@ function App() {
   }
 
   function handleConversationInRoom(friendId: string) {
+    setIsMount(true)
     getConversationInRoom(userId, friendId)
       .then((res) => {
         const { _id, messages } = res;
@@ -86,7 +108,7 @@ function App() {
     const value = content.current?.value as string;
     createMessage({ content: value, userId, roomId: room })
       .then((res) => {
-        socket.emit('from-client', { message: res, room: room });
+        socket.emit('from-client', { message: res, room });
         setMessage('');
       })
       .catch((err) => console.log(err));
@@ -95,6 +117,14 @@ function App() {
   useEffect(() => {
     socket.on('from-server', (data) => {
       setConversation((prev) => [...prev, data]);
+    });
+    socket.on('incoming-message-from-server', (data) => {
+      if (data.userId !== userId)
+        setWho(data.whoTyping)
+    });
+    socket.on('stop-incoming-message-from-server', (data) => {
+      if (data.userId !== userId)
+        setIsTyping(false)
     });
   }, [socket]);
 
@@ -166,42 +196,50 @@ function App() {
           </List.Box>
         </Container.GridItem>
         <Container.GridItem type='article'>
-          <Chat.Box type='container'>
-            <Chat.Header>
-              <h1>Page Header</h1>
-            </Chat.Header>
-            <Chat.Body>
-              {conversation &&
-                conversation.map((message, index) => (
-                  <React.Fragment key={index}>
-                    {message.user === userId ? (
-                      <Message.Sender
-                        key={index}
-                        content={message.content}
-                      />
-                    ) : (
-                      <Message.Receiver
-                        key={index}
-                        content={message.content}
-                      />
-                    )}
-                  </React.Fragment>
-                ))}
-            </Chat.Body>
-            <Chat.Footer>
-              <Input.TextArea
-                ref={content}
-                value={message}
-                onChange={(e: ChangeEvent) => handleChatChange(e)}
-                onEnter={() => sendMessage()}
-              >
-                <Button.Send
-                  label='Send'
-                  onSend={() => sendMessage()}
-                />
-              </Input.TextArea>
-            </Chat.Footer>
-          </Chat.Box>
+          {
+            isMount && <Chat.Box type='container'>
+              <Chat.Header>
+                <h1>Page Header</h1>
+              </Chat.Header>
+              <Chat.Body>
+                {conversation &&
+                  conversation.map((message, index) => (
+                    <React.Fragment key={index}>
+                      {message.user === userId ? (
+                        <Message.Sender
+                          key={index}
+                          content={message.content}
+                        />
+                      ) : (
+                        <Message.Receiver
+                          key={index}
+                          content={message.content}
+                        />
+                      )}
+                    </React.Fragment>
+                  ))}
+                <React.Fragment>
+                  <span style={{ position: 'absolute', bottom: 0, left: 0 }}>
+                    {isTyping && incomingMessage()}
+                  </span>
+                </React.Fragment>
+              </Chat.Body>
+              <Chat.Footer>
+                <Input.TextArea
+                  ref={content}
+                  value={message}
+                  onChange={(e: ChangeEvent) => handleChatChange(e)}
+                  onEnter={() => sendMessage()}
+                  onKeyDown={handleKeyDown}
+                >
+                  <Button.Send
+                    label='Send'
+                    onSend={() => sendMessage()}
+                  />
+                </Input.TextArea>
+              </Chat.Footer>
+            </Chat.Box>
+          }
         </Container.GridItem>
       </Container.Grid>
     </React.Fragment>

@@ -54,7 +54,6 @@ export function useResponse() {
       if (refreshToken) res.setHeader('Refresh-Token', refreshToken);
 
       try {
-        if (!data) data = { status: 'OK' };
         const body = JSON.stringify(data);
         res.writeHead(statusCode);
         res.write(body);

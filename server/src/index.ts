@@ -25,9 +25,11 @@ import {
   ROOM_BY_ID,
   ROOM_BY_USER_ID,
   USER,
+  USER_BY_ID,
   USER_EXCEPT_ID,
 } from './routes';
 import { validateUser } from './middlewares';
+import { UserService } from './services';
 
 dotenv.config({});
 const { HOST, PORT, MONGODB_URL } = process.env;
@@ -37,7 +39,7 @@ function main() {
   connect(`${MONGODB_URL}`).then(
     () => {
       const { authenticate } = useAuthController();
-      const { findUsers, findUsersWithoutSelf, createUser } =
+      const { findUsers, findUsersWithoutSelf, findUser, createUser } =
         useUserController();
       const { findMessages, findMessagesByUser, createMessage } =
         useMessageController();
@@ -64,6 +66,11 @@ function main() {
             case USER:
               if (req.method === METHOD.GET) await findUsers(res);
               if (req.method === METHOD.POST) createUser(req, res);
+              break;
+
+            case `${USER_BY_ID}=${userId}`:
+              if (req.method === METHOD.GET)
+                await findUser(userId as string, res);
               break;
 
             case `${USER_EXCEPT_ID}=${except}`:
@@ -144,13 +151,33 @@ function main() {
       io.on('connection', (socket) => {
         // Joining a room
         socket.on('join-room', (data) => {
-          console.log(data);
           socket.join(data);
         });
 
         // Only show message to all users within room
         socket.on('from-client', (data) => {
           socket.to(data.room).emit('from-server', data.message);
+        });
+
+        socket.on('incoming-message-from-client', async (data) => {
+          const service = new UserService();
+          const { userId, room } = data;
+          const { fullname } = await service.findById(userId);
+          const otherUsers = [];
+          for (const user of await service.findAll())
+            if (userId !== user._id) otherUsers.push(user);
+          socket.broadcast.to(room).emit('incoming-message-from-server', {
+            whoTyping: fullname,
+            userId,
+            otherUsers,
+          });
+        });
+
+        socket.on('stop-incoming-message-from-client', async (data) => {
+          const { userId, room } = data;
+          socket.broadcast.to(room).emit('stop-incoming-message-from-server', {
+            userId,
+          });
         });
       });
 

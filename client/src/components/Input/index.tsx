@@ -20,6 +20,8 @@ type Props = {
   onChange: (e: ChangeEvent) => void;
   onEnter: () => void;
   onClear: () => void;
+  onKeyDown: () => void
+  onKeyUp: () => void;
 };
 
 export const Input = {
@@ -116,7 +118,7 @@ export const Input = {
   ),
   TextArea: React.forwardRef(
     (
-      { label, name, value, children, onEnter, onChange }: Partial<Props>,
+      { label, name, value, children, onEnter, onChange, onKeyUp, onKeyDown }: Partial<Props>,
       ref: ForwardedRef<HTMLTextAreaElement>,
     ) => {
       const handleInput = (e: ChangeEvent<HTMLTextAreaElement>) => {
@@ -128,11 +130,12 @@ export const Input = {
       };
       function handleEnter(event: KeyboardEvent) {
         const ENTER = 'Enter';
+        if (onKeyDown)
+          onKeyDown()
         if (event.key === ENTER) {
           event.preventDefault();
-          if (onEnter) {
+          if (onEnter)
             onEnter();
-          }
         }
       }
       return (
@@ -151,6 +154,7 @@ export const Input = {
               onChange={onChange}
               onInput={handleInput}
               onKeyDown={handleEnter}
+              onKeyUp={onKeyUp}
             />
             {children}
           </div>
