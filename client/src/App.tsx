@@ -16,7 +16,6 @@ import {
 
 
 function App() {
-  const [who, setWho] = useState('')
   const [room, setRoom] = useState('');
   const [message, setMessage] = useState('');
   const [conversation, setConversation] = useState<MessageResponse[]>([]);
@@ -24,13 +23,12 @@ function App() {
   const [username, setUsername] = useState('');
   const [users, setUsers] = useState<Array<Omit<TUser, 'password'>>>([]);
   const [friends, setFriends] = useState<Array<Omit<TUser, 'password'>>>([]);
-  const [isTyping, setIsTyping] = useState(false)
   const [isMount, setIsMount] = useState(false)
-  const [isSelf, setIsSelf] = useState(true)
+  const [typingUsers, setTypingUsers] = useState<string[]>([]);
 
   const { userId } = useAuth();
   const { createMessage } = useMessage();
-  const { getUsersWithoutSelf } = useUser();
+  const { getUsersWithoutSelf, findUserByName } = useUser();
   const { getFriendsByUserId, checkIfAdded, updateFriend } = useFriend();
   const { getConversationInRoom } = useRoom();
 
@@ -38,9 +36,8 @@ function App() {
   const content = createRef<HTMLTextAreaElement>();
   const title = createRef<HTMLInputElement>();
 
-  const incomingMessage = () => `${who} is typing...`
-
   function findPeople() {
+    setOpenModalFind(true)
     getUsersWithoutSelf(userId)
       .then(async (res: TUser[]) => {
         const filteredAddedUsers = []
@@ -71,25 +68,22 @@ function App() {
     setMessage(value);
   }
 
-
   function handleKeyDown() {
-    if (message.length > 0) {
-      setIsTyping(true)
+    if (message.length > 0)
       socket.emit('incoming-message-from-client', { userId, room })
-    }
-    else {
-      setIsTyping(false)
+    else
       socket.emit('stop-incoming-message-from-client', { userId, room })
-    }
   }
 
-  function handleFindPeople(e: ChangeEvent) {
+  function handleInputKeyword(e: ChangeEvent) {
     const value = (e.target as HTMLInputElement).value;
-    const filteredUsers = users.filter(
-      (user) => user.fullname.indexOf(value) !== -1,
-    );
     setUsername(value);
-    setUsers(filteredUsers);
+  }
+
+  function handleFindPeople() {
+    findUserByName(username, userId)
+      .then(res => setUsers(res))
+      .catch(err => console.log(err))
   }
 
   function handleConversationInRoom(friendId: string) {
@@ -119,12 +113,7 @@ function App() {
       setConversation((prev) => [...prev, data]);
     });
     socket.on('incoming-message-from-server', (data) => {
-      if (data.userId !== userId)
-        setWho(data.whoTyping)
-    });
-    socket.on('stop-incoming-message-from-server', (data) => {
-      if (data.userId !== userId)
-        setIsTyping(false)
+      setTypingUsers((prev) => prev.filter((user) => user !== data.userId));
     });
   }, [socket]);
 
@@ -139,9 +128,9 @@ function App() {
                   label='Fetch'
                   onCreate={() => retrieveFriends()}
                 />
-                <Button.Create
+                <Button.Send
                   label='Find'
-                  onCreate={() => setOpenModalFind(!openModalFind)}
+                  onSend={() => findPeople()}
                 />
               </Spacing.Horizontal>
               <Modal.Customizable
@@ -155,25 +144,24 @@ function App() {
                     label='User Name'
                     name='room-input'
                     value={username}
-                    onChange={(e: ChangeEvent) => handleFindPeople(e)}
+                    onChange={(e: ChangeEvent) => handleInputKeyword(e)}
                     onClear={() => setUsername('')}
+                    onEnter={handleFindPeople}
                   />
                   <Spacing.Horizontal>
                     {users &&
                       users.map((user, index) => (
                         <User
                           key={index}
+                          uid={user._id as string}
                           name={user.fullname}
                           addFriend={() => addFriend(user._id as string)}
+                          isSelf={user._id === userId}
                         />
                       ))}
                   </Spacing.Horizontal>
                 </Modal.ContentBody>
                 <Modal.ActionFooter>
-                  <Button.Send
-                    label='Find'
-                    onSend={() => findPeople()}
-                  />
                   <Button.Cancel
                     label='Cancel'
                     onCancel={() => setOpenModalFind(false)}
@@ -220,7 +208,7 @@ function App() {
                   ))}
                 <React.Fragment>
                   <span style={{ position: 'absolute', bottom: 0, left: 0 }}>
-                    {isTyping && incomingMessage()}
+                    {typingUsers.length > 0 ? 'Typing...' : ''}
                   </span>
                 </React.Fragment>
               </Chat.Body>

@@ -16,7 +16,6 @@ import {
 import {
   AUTH,
   FRIEND,
-  FRIEND_BY_ID,
   FRIEND_BY_USER_ID,
   MESSAGE,
   MESSAGE_BY_USER_ID,
@@ -26,6 +25,7 @@ import {
   ROOM_BY_USER_ID,
   USER,
   USER_BY_ID,
+  USER_BY_NAME,
   USER_EXCEPT_ID,
 } from './routes';
 import { validateUser } from './middlewares';
@@ -39,8 +39,13 @@ function main() {
   connect(`${MONGODB_URL}`).then(
     () => {
       const { authenticate } = useAuthController();
-      const { findUsers, findUsersWithoutSelf, findUser, createUser } =
-        useUserController();
+      const {
+        findUsers,
+        findUsersWithoutSelf,
+        findUserByName,
+        findUser,
+        createUser,
+      } = useUserController();
       const { findMessages, findMessagesByUser, createMessage } =
         useMessageController();
       const {
@@ -58,7 +63,7 @@ function main() {
         async (req: IncomingMessage, res: ServerResponse) => {
           const urlParts = url.parse(`${req.url}`);
           const query = querystring.parse(`${urlParts.query}`);
-          const { userId, roomId, friendId, except } = query;
+          const { userId, roomId, friendId, except, name } = query;
 
           if (req.method === METHOD.OPTIONS) handleRequest(res);
 
@@ -71,6 +76,11 @@ function main() {
             case `${USER_BY_ID}=${userId}`:
               if (req.method === METHOD.GET)
                 await findUser(userId as string, res);
+              break;
+
+            case `${USER_BY_NAME}=${name}`:
+              if (req.method === METHOD.POST)
+                await findUserByName(name as string, res);
               break;
 
             case `${USER_EXCEPT_ID}=${except}`:

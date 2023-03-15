@@ -39,6 +39,14 @@ export class UserService {
     }
   }
 
+  async findByName(name: string) {
+    try {
+      return await User.find({ fullname: { $regex: `.*${name}.*` } });
+    } catch (e) {
+      throw e;
+    }
+  }
+
   async create(user: TypeUser) {
     try {
       const newUser = {

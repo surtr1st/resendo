@@ -23,10 +23,11 @@ export function LoginOrRegistrate() {
   }
 
   function signup() {
-    if (fullname.current?.value === '') return;
-    if (email.current?.value === '') return;
-    if (password.current?.value === '') return;
-    if (reEnterPassword.current?.value !== password.current?.value) return;
+    if (fullname.current?.value.length === 0) return;
+    if (email.current?.value.length === 0) return;
+    if (password.current?.value.length === 0) return;
+    if (`${reEnterPassword.current?.value}`.includes(`${password.current?.value}`)) return;
+    console.log(4)
 
     const account = {
       fullname: `${fullname.current?.value}`,
@@ -45,13 +46,15 @@ export function LoginOrRegistrate() {
           <h2>{isSignUp ? 'SIGN UP' : 'SIGN IN'}</h2>
           {isSignUp && (
             <Input.Text
-              ref={password}
+              ref={fullname}
+              name='fullname'
               label='Fullname'
               onEnter={() => signup()}
             />
           )}
           <Input.Text
             ref={email}
+            name='email'
             label='Email'
             onEnter={() => (isSignUp ? signup() : signin())}
           />
@@ -59,11 +62,13 @@ export function LoginOrRegistrate() {
             <React.Fragment>
               <Input.Password
                 ref={password}
+                name='password'
                 label='Password'
                 onEnter={() => signup()}
               />
               <Input.Password
                 ref={password}
+                name='re-enter-password'
                 label='Re-enter Password'
                 onEnter={() => signup()}
               />

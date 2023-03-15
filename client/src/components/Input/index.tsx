@@ -168,13 +168,22 @@ export const Input = {
         label,
         name,
         value,
-        children,
         clearable,
         onChange,
         onClear,
+        onEnter
       }: Partial<Props>,
       ref: ForwardedRef<HTMLInputElement>,
     ) => {
+      function handleEnter(event: KeyboardEvent) {
+        const ENTER = 'Enter';
+        if (event.key === ENTER) {
+          event.preventDefault();
+          if (onEnter) {
+            onEnter();
+          }
+        }
+      }
       return (
         <div className='chat-box'>
           <div className='input-label'>
@@ -188,6 +197,7 @@ export const Input = {
               value={value}
               className='text'
               onChange={onChange}
+              onKeyDown={handleEnter}
             />
             {clearable && <Button.Clear onClear={onClear} />}
             <svg

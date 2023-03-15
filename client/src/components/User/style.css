@@ -4,6 +4,19 @@
   justify-content: space-between;
   gap: .5rem;
   align-items: center;
-  width: 100%;
+  width: 300px;
+}
+
+.self-label, .added {
+  height: 2.5rem;
+  padding-left: 0.75rem;
+  padding-right: 0.75rem;
+  border-radius: .3rem;
+  border: 0px;
+  transition: 250ms ease-in-out all;
+  background: #e6e6e6;
+  color: black;
+  display: grid;
+  place-items: center;
 }
 

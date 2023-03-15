@@ -38,6 +38,15 @@ export function useUserController() {
     })(res);
   };
 
+  const findUserByName = async (keyword: string, res: ServerResponse) => {
+    const users = await service.findByName(keyword);
+    onServerResponse({
+      statusCode: 200,
+      headers: { contentType: 'application/json' },
+      data: users,
+    })(res);
+  };
+
   const createUser = (req: IncomingMessage, res: ServerResponse) => {
     let requestBody = '';
 
@@ -70,6 +79,7 @@ export function useUserController() {
   return {
     findUsers,
     findUser,
+    findUserByName,
     findUsersWithoutSelf,
     createUser,
   };
