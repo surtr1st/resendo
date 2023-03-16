@@ -1,9 +1,10 @@
 import './style.css';
-import React, { ReactNode } from 'react';
+import React, { ReactNode, useRef, useEffect, useCallback } from 'react';
 
 interface Props {
   children: ReactNode | ReactNode[];
   type?: 'container' | 'fluid';
+  triggerScrollDown?: boolean
 }
 
 export const Chat = {
@@ -21,11 +22,22 @@ export const Chat = {
       <div className='chat-header'>{children}</div>
     </div>
   ),
-  Body: ({ children }: Props) => (
-    <div className='inner-box'>
-      <div className='chat'>{children}</div>
-    </div>
-  ),
+  Body: ({ children, triggerScrollDown }: Props) => {
+    const chatBody = useRef<HTMLDivElement>(null)
+    const scrollToBottom = useCallback(() => {
+      setTimeout(() => {
+        chatBody.current?.scrollIntoView({ behavior: 'smooth', block: 'end', inline: 'nearest' });
+      }, 0);
+    }, [chatBody]);
+    useEffect(() => {
+      scrollToBottom();
+    }, [triggerScrollDown]);
+    return (
+      <div className='inner-box'>
+        <div ref={chatBody} className='chat'>{children}</div>
+      </div>
+    )
+  },
   Footer: ({ children }: Props) => (
     <div className='inner-box-footer'>
       <div className='chat-footer'>{children}</div>

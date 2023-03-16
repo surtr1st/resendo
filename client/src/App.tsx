@@ -1,5 +1,5 @@
 import { io } from 'socket.io-client';
-import React, { ChangeEvent, createRef, useEffect, useState } from 'react';
+import React, { ChangeEvent, createRef, useEffect, useRef, useState } from 'react';
 import { MessageResponse, User as TUser } from './types';
 import { useAuth, useFriend, useMessage, useRoom, useUser } from './services';
 import {
@@ -23,9 +23,7 @@ function App() {
   const [users, setUsers] = useState<Array<Omit<TUser, 'password'>>>([]);
   const [friends, setFriends] = useState<Array<Omit<TUser, 'password'>>>([]);
   const [isMount, setIsMount] = useState(false)
-  const [isTyping, setIsTyping] = useState(false)
-  const [who, setWho] = useState('')
-  const [onlineUser, setOnlineUser] = useState<string>('')
+  const [isScrollDown, setIsScrollDown] = useState(false)
 
   const { userId } = useAuth();
   const { createMessage } = useMessage();
@@ -69,20 +67,6 @@ function App() {
     setMessage(value);
   }
 
-  let timeout = 0
-  function handleKeyDown() {
-    const typingTimeout = () => setIsTyping(false)
-    if (message.length > 0) {
-      setIsTyping(true)
-      socket.emit('incoming-message-from-client', { userId, room, isTyping })
-      timeout = setTimeout(typingTimeout, 3000)
-    }
-    else {
-      clearTimeout(timeout)
-      typingTimeout()
-    }
-  }
-
   function handleInputKeyword(e: ChangeEvent) {
     const value = (e.target as HTMLInputElement).value;
     setUsername(value);
@@ -100,10 +84,12 @@ function App() {
       .then((res) => {
         const { _id, messages } = res;
         setRoom(_id);
-        socket.emit('join-room', { room: _id, userId });
+        socket.emit('join-room', _id);
         setConversation(messages as MessageResponse[]);
+        setIsScrollDown(true)
       })
       .catch((err) => console.log(err));
+    setTimeout(() => setIsScrollDown(false), 0)
   }
 
   function sendMessage() {
@@ -112,6 +98,7 @@ function App() {
       .then((res) => {
         socket.emit('from-client', { message: res, room });
         setMessage('');
+        setIsScrollDown(!isScrollDown)
       })
       .catch((err) => console.log(err));
   }
@@ -120,23 +107,6 @@ function App() {
     socket.on('from-server', (data) => {
       setConversation((prev) => [...prev, data]);
     });
-    socket.on('incoming-message-from-server', (data) => {
-      if (data.isTyping)
-        setWho(`${data.fullname} is typing...`)
-      else
-        setWho('')
-    });
-    socket.on("online", ({ userId }: { userId: string }) => {
-      setOnlineUser(userId);
-    });
-
-    socket.on("offline", ({ userId }: { userId: string }) => {
-      setOnlineUser(userId);
-    });
-
-    return () => {
-      socket.disconnect();
-    };
   }, [socket]);
 
   return (
@@ -196,7 +166,7 @@ function App() {
                     key={index}
                     avatarSrc=''
                     opponentName={friend.fullname}
-                    latestMessage={`${onlineUser} is online`}
+                    latestMessage=''
                     onAction={() =>
                       handleConversationInRoom(friend._id as string)
                     }
@@ -211,7 +181,7 @@ function App() {
               <Chat.Header>
                 <h1>Page Header</h1>
               </Chat.Header>
-              <Chat.Body>
+              <Chat.Body triggerScrollDown={isScrollDown}>
                 {conversation &&
                   conversation.map((message, index) => (
                     <React.Fragment key={index}>
@@ -228,11 +198,6 @@ function App() {
                       )}
                     </React.Fragment>
                   ))}
-                <React.Fragment>
-                  <span style={{ position: 'sticky', bottom: 0, left: 0, background: 'white', borderBottom: '1px solid #f2f2f2' }}>
-                    {isTyping && who}
-                  </span>
-                </React.Fragment>
               </Chat.Body>
               <Chat.Footer>
                 <Input.TextArea
@@ -240,7 +205,6 @@ function App() {
                   value={message}
                   onChange={(e: ChangeEvent) => handleChatChange(e)}
                   onEnter={() => sendMessage()}
-                  onKeyDown={handleKeyDown}
                 >
                   <Button.Send
                     label='Send'
