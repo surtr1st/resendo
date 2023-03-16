@@ -25,6 +25,7 @@ function App() {
   const [isMount, setIsMount] = useState(false)
   const [isTyping, setIsTyping] = useState(false)
   const [who, setWho] = useState('')
+  const [onlineUser, setOnlineUser] = useState<string>('')
 
   const { userId } = useAuth();
   const { createMessage } = useMessage();
@@ -68,8 +69,6 @@ function App() {
     setMessage(value);
   }
 
-
-
   let timeout = 0
   function handleKeyDown() {
     const typingTimeout = () => setIsTyping(false)
@@ -101,7 +100,7 @@ function App() {
       .then((res) => {
         const { _id, messages } = res;
         setRoom(_id);
-        socket.emit('join-room', _id);
+        socket.emit('join-room', { room: _id, userId });
         setConversation(messages as MessageResponse[]);
       })
       .catch((err) => console.log(err));
@@ -127,6 +126,17 @@ function App() {
       else
         setWho('')
     });
+    socket.on("online", ({ userId }: { userId: string }) => {
+      setOnlineUser(userId);
+    });
+
+    socket.on("offline", ({ userId }: { userId: string }) => {
+      setOnlineUser(userId);
+    });
+
+    return () => {
+      socket.disconnect();
+    };
   }, [socket]);
 
   return (
@@ -186,7 +196,7 @@ function App() {
                     key={index}
                     avatarSrc=''
                     opponentName={friend.fullname}
-                    latestMessage='A du dark wa! Vl qua ban oi'
+                    latestMessage={`${onlineUser} is online`}
                     onAction={() =>
                       handleConversationInRoom(friend._id as string)
                     }

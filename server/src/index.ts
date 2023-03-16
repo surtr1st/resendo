@@ -158,10 +158,33 @@ function main() {
         },
       });
 
+      interface UserStatus {
+        id: string;
+        name: string;
+        isOnline: boolean;
+      }
+
+      const onlineUsers: UserStatus[] = [];
+
       io.on('connection', (socket) => {
         // Joining a room
         socket.on('join-room', (data) => {
-          socket.join(data);
+          socket.join(data.room);
+
+          const user = {
+            id: socket.id,
+            name: data.userId,
+            isOnline: true,
+          };
+
+          onlineUsers.push(user);
+          io.emit('userJoin', user);
+
+          // Send list of online users to the client
+          socket.emit(
+            'userList',
+            onlineUsers.filter((user: UserStatus) => user.isOnline),
+          );
         });
 
         // Only show message to all users within room
@@ -177,6 +200,18 @@ function main() {
             fullname,
             isTyping,
           });
+        });
+
+        socket.on('disconnect', () => {
+          console.log(`Socket disconnected: ${socket.id}`);
+          // Find user and set isOnline to false
+          const user = onlineUsers.find((user) => user.id === socket.id);
+          if (user) {
+            user.isOnline = false;
+
+            // Notify all clients that the user has gone offline
+            io.emit('userLeave', user);
+          }
         });
       });
 
