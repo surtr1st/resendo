@@ -29,7 +29,6 @@ import {
   USER_EXCEPT_ID,
 } from './routes';
 import { validateUser } from './middlewares';
-import { UserService } from './services';
 
 dotenv.config({});
 const { HOST, PORT, MONGODB_URL } = process.env;
@@ -158,60 +157,15 @@ function main() {
         },
       });
 
-      interface UserStatus {
-        id: string;
-        name: string;
-        isOnline: boolean;
-      }
-
-      const onlineUsers: UserStatus[] = [];
-
       io.on('connection', (socket) => {
         // Joining a room
         socket.on('join-room', (data) => {
-          socket.join(data.room);
-
-          const user = {
-            id: socket.id,
-            name: data.userId,
-            isOnline: true,
-          };
-
-          onlineUsers.push(user);
-          io.emit('userJoin', user);
-
-          // Send list of online users to the client
-          socket.emit(
-            'userList',
-            onlineUsers.filter((user: UserStatus) => user.isOnline),
-          );
+          socket.join(data);
         });
 
         // Only show message to all users within room
         socket.on('from-client', (data) => {
           socket.to(data.room).emit('from-server', data.message);
-        });
-
-        socket.on('incoming-message-from-client', async (data) => {
-          const service = new UserService();
-          const { userId, room, isTyping } = data;
-          const { fullname } = await service.findById(userId);
-          socket.broadcast.to(room).emit('incoming-message-from-server', {
-            fullname,
-            isTyping,
-          });
-        });
-
-        socket.on('disconnect', () => {
-          console.log(`Socket disconnected: ${socket.id}`);
-          // Find user and set isOnline to false
-          const user = onlineUsers.find((user) => user.id === socket.id);
-          if (user) {
-            user.isOnline = false;
-
-            // Notify all clients that the user has gone offline
-            io.emit('userLeave', user);
-          }
         });
       });
 
