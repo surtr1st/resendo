@@ -9,3 +9,4 @@ export * from './Spacing';
 export * from './PageHeader';
 export * from './Container';
 export * from './User';
+export * from './Notify'
