@@ -1,6 +1,6 @@
 import './style.css';
 import React, { useState } from 'react';
-import { Button, Input, Spacing } from '../../components';
+import { Button, Input, Spacing, Notify } from '../../components';
 import { useAuth, useUser } from '../../services';
 
 export function LoginOrRegistrate() {
@@ -17,6 +17,7 @@ export function LoginOrRegistrate() {
       email: `${email.current?.value}`,
       // password: `${password.current?.value}`
     };
+
     authorize(account)
       .then(() => setTimeout(() => location.reload(), 1000))
       .catch((err) => console.log(err));
@@ -27,7 +28,6 @@ export function LoginOrRegistrate() {
     if (email.current?.value.length === 0) return;
     if (password.current?.value.length === 0) return;
     if (`${reEnterPassword.current?.value}`.includes(`${password.current?.value}`)) return;
-    console.log(4)
 
     const account = {
       fullname: `${fullname.current?.value}`,
