@@ -1,10 +1,15 @@
+@import '../../assets/animations.css';
+
 .sender, .receiver {
   width: auto;
   max-width: 40vw;
   word-wrap: break-word;
   margin: .15rem;
   padding: .5rem;
-  border-radius: .6rem;
+  border-radius: .6rem; 
+  animation-name: fadeup;
+  animation-duration: 250ms;
+  animation-timing-function: ease-in-out;
 }
 
 .sender {
@@ -29,6 +34,10 @@
   transition: 150ms ease-in-out all;
   height: 10vh;
   margin: .15rem;
+  animation-name: fadedown;
+  animation-duration: 150ms;
+  animation-timing-function: ease-in-out;
+  animation-fill-mode: forwards;
 }
 
 .card:hover {
@@ -51,3 +60,4 @@
 .card-detail > p {
   color: #e6e6e6;
 }
+

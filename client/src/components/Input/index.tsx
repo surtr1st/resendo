@@ -14,15 +14,22 @@ type Props = {
   value: string;
   className: string;
   children: ReactNode;
-  minRows: number;
-  maxRows: number;
   clearable: boolean;
-  onChange: (e: ChangeEvent) => void;
   onEnter: () => void;
-  onClear: () => void;
   onKeyDown: () => void
   onKeyUp: () => void;
 };
+
+type InputProps = Props & {
+  onChange: (e: ChangeEvent<HTMLInputElement>) => void;
+  onClear: () => void;
+}
+
+type TextAreaProps = Props & {
+  minRows: number;
+  maxRows: number;
+  onChange: (e: ChangeEvent<HTMLTextAreaElement>) => void;
+}
 
 export const Input = {
   Text: React.forwardRef(
@@ -36,7 +43,7 @@ export const Input = {
         onEnter,
         onChange,
         onClear,
-      }: Partial<Props>,
+      }: Partial<InputProps>,
       ref: ForwardedRef<HTMLInputElement>,
     ) => {
       function handleEnter(event: KeyboardEvent) {
@@ -81,7 +88,7 @@ export const Input = {
         onEnter,
         onChange,
         onClear,
-      }: Partial<Props>,
+      }: Partial<InputProps>,
       ref: ForwardedRef<HTMLInputElement>,
     ) => {
       function handleEnter(event: KeyboardEvent) {
@@ -118,7 +125,7 @@ export const Input = {
   ),
   TextArea: React.forwardRef(
     (
-      { label, name, value, children, onEnter, onChange, onKeyUp, onKeyDown }: Partial<Props>,
+      { label, name, value, children, onEnter, onChange, onKeyUp, onKeyDown }: Partial<TextAreaProps>,
       ref: ForwardedRef<HTMLTextAreaElement>,
     ) => {
       const handleInput = (e: ChangeEvent<HTMLTextAreaElement>) => {
@@ -172,7 +179,7 @@ export const Input = {
         onChange,
         onClear,
         onEnter
-      }: Partial<Props>,
+      }: Partial<InputProps>,
       ref: ForwardedRef<HTMLInputElement>,
     ) => {
       function handleEnter(event: KeyboardEvent) {
