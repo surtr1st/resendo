@@ -172,7 +172,7 @@ function main() {
         });
       });
 
-      httpServer.listen(port);
+      httpServer.listen(port, HOST);
       console.log(
         `-> Connected to database | Server running at port ${port} with host ${HOST}`,
       );
