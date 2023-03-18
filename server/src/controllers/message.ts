@@ -62,7 +62,7 @@ export function useMessageController() {
         user: await userService.findById(userId as string),
         sentAt: new Date(),
       });
-      Promise.resolve(roomService.patchMessage(roomId, newMessage));
+      await roomService.patchMessage(roomId, newMessage);
 
       onServerResponse({
         statusCode: 201,
