@@ -1,3 +1,4 @@
+@import '../../assets/color.css';
 @import '../../assets/animations.css';
 
 .sender, .receiver {
@@ -13,21 +14,28 @@
 }
 
 .sender {
-  background-color: #4f46e5;
-  color: white;
+  background: var(--primary);
   align-self: flex-end;
 }
 
+.sender > p {
+  background: inherit;
+}
+
 .receiver {
-  background-color: #e6e6e6;
+  background: var(--secondary);
   align-self: flex-start;
+}
+
+.receiver > p {
+  background: inherit;
 }
 
 .card {
   display: flex;
   justify-content: center;
   align-items: center;
-  border: 1px solid #e6e6e6;
+  border: 1px solid var(--border-alternative-color);
   border-radius: .3rem;
   padding: .5rem;
   background-color: transparent;
@@ -42,7 +50,7 @@
 
 .card:hover {
   cursor: pointer;
-  background-color: #e6e6e6;
+  background-color: var(--secondary);
 }
 
 .card-image {
@@ -55,9 +63,11 @@
   flex-direction: column;
   align-items: start;
   gap: .2rem;
+  background-color: inherit;
 }
 
-.card-detail > p {
-  color: #e6e6e6;
+.card-detail > h3 {
+  background-color: inherit;
+  color: inherit;
 }
 

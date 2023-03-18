@@ -56,7 +56,7 @@ export const Input = {
         }
       }
       return (
-        <div className='chat-box'>
+        <div className='chat-box-input'>
           <div className='input-label'>
             {label && <label htmlFor={name}>{label}</label>}
           </div>
@@ -101,7 +101,7 @@ export const Input = {
         }
       }
       return (
-        <div className='chat-box'>
+        <div className='chat-box-input'>
           <div className='input-label'>
             {label && <label htmlFor={name}>{label}</label>}
           </div>
@@ -192,7 +192,7 @@ export const Input = {
         }
       }
       return (
-        <div className='chat-box'>
+        <div className='chat-box-input'>
           <div className='input-label'>
             {label && <label htmlFor={name}>{label}</label>}
           </div>

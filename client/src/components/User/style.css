@@ -1,3 +1,4 @@
+@import '../../assets/color.css';
 @import '../../assets/animations.css';
 
 .user {
@@ -20,9 +21,13 @@
   border-radius: .3rem;
   border: 0px;
   transition: 250ms ease-in-out all;
-  background: #e6e6e6;
+  background: var(--darker-bg);
   color: black;
   display: grid;
   place-items: center;
+}
+
+.added > h4 {
+  background: inherit;
 }
 

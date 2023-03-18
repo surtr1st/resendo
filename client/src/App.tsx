@@ -10,6 +10,7 @@ import {
   List,
   Message,
   Modal,
+  PageHeader,
   Spacing,
   User,
 } from './components';
@@ -19,6 +20,7 @@ function App() {
   const [conversation, setConversation] = useState<MessageResponse[]>([]);
   const [openModalFind, setOpenModalFind] = useState(false);
   const [username, setUsername] = useState('');
+  const [fullname, setFullname] = useState('');
   const [users, setUsers] = useState<Array<Omit<TUser, 'password'>>>([]);
   const [friends, setFriends] = useState<Array<Omit<TUser, 'password'>>>([]);
   const [isMount, setIsMount] = useState(false)
@@ -57,7 +59,10 @@ function App() {
 
   function addFriend(filteredUserId: string) {
     updateFriend(userId, filteredUserId)
-      .then((res) => console.log(res))
+      .then((_) => {
+        const remainUsers = users.filter(user => user._id !== filteredUserId)
+        setUsers(remainUsers)
+      })
       .catch((err) => console.log(err));
   }
 
@@ -75,7 +80,11 @@ function App() {
     setIsMount(true)
     getConversationInRoom(userId, friendId)
       .then((res) => {
-        const { _id, messages } = res;
+        const { _id, user1, user2, messages } = res;
+        if (user1._id === userId)
+          setFullname(user2.fullname)
+        else
+          setFullname(user1.fullname)
         setRoom(_id);
         socket.emit('join-room', _id);
         setConversation(messages as MessageResponse[]);
@@ -181,7 +190,7 @@ function App() {
           {
             isMount && <Chat.Box type='container'>
               <Chat.Header>
-                <h1>Page Header</h1>
+                <PageHeader author={fullname} />
               </Chat.Header>
               <Chat.Body triggerScrollDown={isScrollDown}>
                 {conversation &&
