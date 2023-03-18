@@ -151,7 +151,7 @@ function main() {
         cors: {
           origin: [
             'http://localhost:5173',
-            'https://resendo-client.netlify.app',
+            'https://resendo-client.netlify.app/',
           ],
           credentials: true,
           optionsSuccessStatus: 200,
