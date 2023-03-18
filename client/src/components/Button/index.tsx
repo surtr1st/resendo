@@ -141,7 +141,7 @@ export const Button = {
       onClick={onClear}
       className='close'
     >
-      <div className='content'>
+      <div className='transparent-content'>
         <svg
           xmlns='http://www.w3.org/2000/svg'
           width='24'
@@ -161,7 +161,7 @@ export const Button = {
       onClick={onNavigate}
       className='close'
     >
-      <div className='content'>{label}</div>
+      <div className='transparent-content'>{label}</div>
     </button>
   ),
 };

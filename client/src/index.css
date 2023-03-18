@@ -1,6 +1,10 @@
+@import './assets/color.css';
+
 * {
+  background: var(--dark-bg);
+  color: var(--text-secondary);
   font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
-  font-weight: 400;
+  font-weight: 500;
   font-synthesis: none;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
@@ -11,12 +15,16 @@
   box-sizing: border-box;
 }
 
+svg {
+  background: inherit;
+}
+
 ::-webkit-scrollbar {
   width: 5px;
 }
 
 ::-webkit-scrollbar-thumb {
-  background-color: #f2f2f2;
+  background-color: var(--dark-bg);
   border-radius: 2rem;
 }
 

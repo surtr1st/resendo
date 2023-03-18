@@ -1,3 +1,5 @@
+@import '../../assets/color.css';
+
 button {
   height: 2.5rem;
   padding-left: 0.75rem;
@@ -12,12 +14,11 @@ button:hover {
 }
 
 .send, .create, .accept, .cancel {
-  background-color: #4f46e5;
-  color: white;
+  background: var(--primary);
 }
 
 .send:hover, .create:hover, .accept:hover, .cancel:hover {
-  background-color: #6366f1;
+  background: var(--primary-hover);
 }
 
 .content {
@@ -25,13 +26,21 @@ button:hover {
   justify-content: center;
   align-items: center;
   gap: .15rem;
+  background: inherit;
 }
 
 .close {
   background: transparent;
-  color: black;
 }
 
 .close:hover {
-  background: #e6e6e6;
+  background: var(--secondary);
+}
+
+.transparent-content {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: .15rem;
+  background: transparent;
 }

@@ -1,0 +1,15 @@
+:root {
+  --dark-bg: #282b30;
+  --darker-bg: #141414;
+  --light-bg: #fff;
+  --primary: #4f46e5;
+  --primary-hover: #916BBF;
+  --secondary: #191919;
+  --secondary-hover: #1F1D36;
+  --variant-text: transparent;
+  --text-primary: #4f46e5;
+  --text-secondary: #EEEEEE;
+  --border-color: #EEEEEE;
+  --border-alternative-color: #36393e;
+}
+

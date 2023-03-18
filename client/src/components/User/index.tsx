@@ -19,7 +19,9 @@ export function User({ name, addFriend, uid, isSelf }: Partial<Props>) {
   const { userId } = useAuth()
 
   checkIfAdded(userId, uid as string)
-    .then(res => setIsAdded(res))
+    .then(res => {
+      setIsAdded(res)
+    })
     .catch(err => console.log(err))
 
   return (
