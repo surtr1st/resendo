@@ -32,7 +32,6 @@ export function useRoomController() {
           const detailMessage = await messageService.findById(message._id);
           messagesInRoom.push(detailMessage);
         }
-
         const room = { _id, user1, user2, messages: messagesInRoom };
 
         onServerResponse({
@@ -44,12 +43,10 @@ export function useRoomController() {
   };
 
   const findRooms = async (res: ServerResponse) => {
-    const rooms = await service.findAll();
-
     onServerResponse({
       statusCode: 200,
       headers: { contentType: 'application/json' },
-      data: rooms,
+      data: await service.findAll(),
     })(res);
   };
 
@@ -64,7 +61,7 @@ export function useRoomController() {
       onServerResponse({
         statusCode: 500,
         headers: { contentType: 'application/json' },
-        data: err,
+        data: `${err}`,
       })(res);
     });
 
@@ -86,16 +83,15 @@ export function useRoomController() {
       const user2 = partnerId
         ? await userService.findById(partnerId as string)
         : undefined;
-      const room: Partial<IRoom> = {
+      const room = {
         user1,
         user2,
       };
-      const newRoom = await service.create(room);
 
       onServerResponse({
         statusCode: 201,
         headers: { contentType: 'application/json' },
-        data: newRoom,
+        data: await service.create(room),
       })(res);
     });
   };
@@ -114,29 +110,26 @@ export function useRoomController() {
       return onServerResponse({
         statusCode: 500,
         headers: { contentType: 'application/json' },
-        data: err,
+        data: `${err}`,
       })(res);
     });
 
     req.on('end', async () => {
       const { roomId, messageId } = JSON.parse(requestBody);
       const newMessage = await messageService.findById(messageId);
-      const updatedRoom = await service.patchMessage(roomId, newMessage);
-
       onServerResponse({
         statusCode: 201,
         headers: { contentType: 'application/json' },
-        data: updatedRoom,
+        data: await service.patchMessage(roomId, newMessage),
       })(res);
     });
   };
 
   const joinRoom = async (roomId: string | ObjectId, res: ServerResponse) => {
-    const room = await service.findById(roomId);
     onServerResponse({
       statusCode: 200,
       headers: { contentType: 'application/json' },
-      data: room,
+      data: await service.findById(roomId),
     })(res);
   };
 

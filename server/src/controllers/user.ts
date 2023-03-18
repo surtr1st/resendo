@@ -9,20 +9,18 @@ export function useUserController() {
   const { onServerResponse } = useResponse();
 
   const findUsers = async (res: ServerResponse) => {
-    const users = await service.findAll();
     onServerResponse({
       statusCode: 200,
       headers: { contentType: 'application/json' },
-      data: users,
+      data: await service.findAll(),
     })(res);
   };
 
   const findUser = async (userId: string | ObjectId, res: ServerResponse) => {
-    const user = await service.findById(userId);
     onServerResponse({
       statusCode: 200,
       headers: { contentType: 'application/json' },
-      data: user,
+      data: await service.findById(userId),
     })(res);
   };
 
@@ -30,20 +28,18 @@ export function useUserController() {
     userId: string | ObjectId,
     res: ServerResponse,
   ) => {
-    const users = await service.findExcludeSelf(userId);
     onServerResponse({
       statusCode: 200,
       headers: { contentType: 'application/json' },
-      data: users,
+      data: await service.findExcludeSelf(userId),
     })(res);
   };
 
   const findUserByName = async (keyword: string, res: ServerResponse) => {
-    const users = await service.findByName(keyword);
     onServerResponse({
       statusCode: 200,
       headers: { contentType: 'application/json' },
-      data: users,
+      data: await service.findByName(keyword),
     })(res);
   };
 
@@ -65,8 +61,7 @@ export function useUserController() {
     req.on('end', async () => {
       const user = JSON.parse(requestBody);
       const newUser = await service.create(user);
-      const fromNewUser = await service.findById(newUser);
-      await friendService.create({ user: fromNewUser });
+      await friendService.create({ user: await service.findById(newUser) });
 
       onServerResponse({
         statusCode: 201,

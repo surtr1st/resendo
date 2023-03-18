@@ -12,11 +12,10 @@ export function useFriendController() {
   const { onServerResponse } = useResponse();
 
   const findFriends = async (res: ServerResponse) => {
-    const friends = await service.findAll();
     onServerResponse({
       statusCode: 200,
       headers: { contentType: 'application/json' },
-      data: friends,
+      data: await service.findAll(),
     })(res);
   };
 
@@ -56,11 +55,10 @@ export function useFriendController() {
     req.on('end', async () => {
       const { userId, friendId } = JSON.parse(requestBody);
       const user = await userService.findById(userId);
-      const isAdded = await service.isAdded(user, friendId);
       onServerResponse({
         statusCode: 200,
         headers: { contentType: 'application/json' },
-        data: isAdded,
+        data: await service.isAdded(user, friendId),
       })(res);
     });
   };
@@ -80,7 +78,7 @@ export function useFriendController() {
       return onServerResponse({
         statusCode: 500,
         headers: { contentType: 'application/json' },
-        data: err,
+        data: `${err}`,
       })(res);
     });
 
@@ -92,7 +90,7 @@ export function useFriendController() {
       await service.patchFriend(user, friend);
       // Then update to other
       await service.patchFriend(friend, user);
-      const newRoom: Partial<IRoom> = {
+      const newRoom = {
         user1: user,
         user2: friend,
       };

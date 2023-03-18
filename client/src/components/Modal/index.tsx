@@ -1,5 +1,5 @@
 import './style.css';
-import React, { ReactNode } from 'react';
+import React, { ReactNode, KeyboardEvent } from 'react';
 import ReactDOM from 'react-dom';
 import { Button } from '../Button';
 
@@ -21,13 +21,22 @@ type CustomizableActionProps = {
   children: ReactNode;
 };
 
+const ESCAPE = 'Escape'
+
 export const Modal = {
   Default: ({ open, title, content, onClose }: Partial<DefaultProps>) => {
+    function closeOnEsc(e: KeyboardEvent) {
+      if (e.key === ESCAPE) {
+        e.preventDefault()
+        if (onClose)
+          onClose()
+      }
+    }
     return ReactDOM.createPortal(
       <React.Fragment>
         {open && (
           <>
-            <div className='modal'>
+            <div className='modal' onKeyDown={closeOnEsc}>
               <span className='modal-header'>
                 <h3>{title}</h3>
                 <Button.Close onClose={onClose} />
@@ -58,12 +67,19 @@ export const Modal = {
     onClose,
     title,
     children,
-  }: Partial<CustomizableProps>) =>
-    ReactDOM.createPortal(
+  }: Partial<CustomizableProps>) => {
+    function closeOnEsc(e: KeyboardEvent) {
+      if (e.key === ESCAPE) {
+        e.preventDefault()
+        if (onClose)
+          onClose()
+      }
+    }
+    return ReactDOM.createPortal(
       <React.Fragment>
         {open && (
           <>
-            <div className='modal'>
+            <div className='modal' onKeyDown={closeOnEsc}>
               <span className='modal-header'>
                 <h3>{title}</h3>
                 <Button.Close onClose={onClose} />
@@ -75,7 +91,8 @@ export const Modal = {
         )}
       </React.Fragment>,
       document.querySelector('body') as HTMLElement,
-    ),
+    )
+  },
   ContentBody: ({ children }: Partial<CustomizableContentProps>) => (
     <div className='modal-body'>{children}</div>
   ),

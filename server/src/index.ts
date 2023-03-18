@@ -89,7 +89,7 @@ function main() {
 
             case MESSAGE:
               if (req.method === METHOD.GET) await findMessages(res);
-              if (req.method === METHOD.POST) await createMessage(req, res);
+              if (req.method === METHOD.POST) createMessage(req, res);
               break;
 
             case `${MESSAGE_BY_USER_ID}=${userId}`:
@@ -149,7 +149,8 @@ function main() {
       // Initialize Socket server
       const io = new Server(httpServer, {
         cors: {
-          origin: 'https://resendo-client.netlify.app',
+          origin: 'http://localhost:5173',
+          // 'https://resendo-client.netlify.app',
           credentials: true,
           optionsSuccessStatus: 200,
           allowedHeaders: ['Content-Type', 'Accept', 'Authorization'],
