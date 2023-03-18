@@ -1,6 +1,5 @@
 import { User } from '../types';
-
-const BASE_URL = 'http://localhost:4000/api';
+import { BASE_URL } from '.';
 
 export function useUser() {
   const getUsersWithoutSelf = async (userId: string) => {

@@ -1,6 +1,5 @@
+import { BASE_URL } from '.';
 import type { AuthenticationArgs, AuthorizeResponse } from '../types';
-
-const BASE_URL = 'http://localhost:4000/api';
 
 export function useAuth() {
   const userId = sessionStorage.getItem('userId') as string;

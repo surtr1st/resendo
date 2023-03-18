@@ -1,7 +1,7 @@
 import { io } from 'socket.io-client';
 import React, { ChangeEvent, createRef, useCallback, useEffect, useState } from 'react';
 import { MessageResponse, User as TUser } from './types';
-import { useAuth, useFriend, useMessage, useRoom, useUser } from './services';
+import { BASE_URL, useAuth, useFriend, useMessage, useRoom, useUser } from './services';
 import {
   Button,
   Chat,
@@ -32,7 +32,7 @@ function App() {
   const { getFriendsByUserId, checkIfAdded, updateFriend } = useFriend();
   const { getConversationInRoom } = useRoom();
 
-  const socket = io('http://localhost:4000', { withCredentials: true, requestTimeout: 5000 });
+  const socket = io('https://resendo-server.up.railway.app', { withCredentials: true, requestTimeout: 5000 });
   const content = createRef<HTMLTextAreaElement>();
   const title = createRef<HTMLInputElement>();
 

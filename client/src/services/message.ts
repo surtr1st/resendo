@@ -1,6 +1,5 @@
+import { BASE_URL } from '.';
 import { Message } from '../types';
-
-const BASE_URL = 'http://localhost:4000/api';
 
 export function useMessage() {
   const getMessagesByUserId = async (userId: string) => {
