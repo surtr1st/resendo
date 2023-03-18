@@ -8,6 +8,16 @@
     "module": "CommonJS",
     "rootDir": "src",
     "esModuleInterop": true,
-    "skipDefaultLibCheck": true
-  }
+    "skipDefaultLibCheck": true,
+    "resolveJsonModule": true,
+    "strictPropertyInitialization": false,
+    "suppressExcessPropertyErrors": true
+  },
+  "include": [
+    "src/**/*"
+  ],
+  "exclude": [
+    "node_modules",
+    "**/*.spec.ts"
+  ]
 }
