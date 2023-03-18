@@ -21,8 +21,7 @@ export function useResponse() {
   const handleRequest = (res: ServerResponse) => {
     res.setHeader(
       'Access-Control-Allow-Origin',
-      '*',
-      // 'http://localhost:5173, https://resendo-client.netlify.app/',
+      'https://resendo-client.netlify.app/',
     );
     res.setHeader(
       'Access-Control-Allow-Methods',
@@ -40,7 +39,10 @@ export function useResponse() {
   const onServerResponse =
     ({ statusCode = 100, headers, data }: Response) =>
     (res: ServerResponse) => {
-      res.setHeader('Access-Control-Allow-Origin', 'http://localhost:5173');
+      res.setHeader(
+        'Access-Control-Allow-Origin',
+        'https://resendo-client.netlify.app/',
+      );
       res.setHeader(
         'Access-Control-Allow-Methods',
         'GET, POST, PUT, DELETE, OPTIONS',
