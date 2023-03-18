@@ -149,11 +149,10 @@ function main() {
       // Initialize Socket server
       const io = new Server(httpServer, {
         cors: {
-          origin: '*',
-          // origin: [
-          //   'http://localhost:5173',
-          //   'https://resendo-client.netlify.app/',
-          // ],
+          origin: [
+            'http://localhost:5173',
+            'https://resendo-client.netlify.app/',
+          ],
           credentials: true,
           optionsSuccessStatus: 200,
           allowedHeaders: ['Content-Type', 'Accept', 'Authorization'],

@@ -19,7 +19,10 @@ type Response = {
 
 export function useResponse() {
   const handleRequest = (res: ServerResponse) => {
-    res.setHeader('Access-Control-Allow-Origin', 'http://localhost:5173');
+    res.setHeader(
+      'Access-Control-Allow-Origin',
+      'http://localhost:5173, https://resendo-client.netlify.app/',
+    );
     res.setHeader(
       'Access-Control-Allow-Methods',
       'GET, POST, PUT, PATCH, DELETE, OPTIONS',
