@@ -15,7 +15,6 @@ export function useRoomController() {
     friendId: string | ObjectId,
     res: ServerResponse,
   ) => {
-    console.log(userId, friendId);
     const user = await userService.findById(userId);
     const friend = await userService.findById(friendId);
     let loggedUser = {};

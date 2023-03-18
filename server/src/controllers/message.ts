@@ -34,7 +34,7 @@ export function useMessageController() {
     })(res);
   };
 
-  const createMessage = (req: IncomingMessage, res: ServerResponse) => {
+  const createMessage = async (req: IncomingMessage, res: ServerResponse) => {
     let requestBody = '';
 
     req.on('data', (chunk) => {

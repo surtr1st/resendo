@@ -34,7 +34,9 @@ export const Chat = {
     }, [triggerScrollDown]);
     return (
       <div className='inner-box'>
-        <div ref={chatBody} className='chat'>{children}</div>
+        <div ref={chatBody} className='chat'>
+          {children}
+        </div>
       </div>
     )
   },

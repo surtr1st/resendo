@@ -1,5 +1,5 @@
 import { io } from 'socket.io-client';
-import React, { ChangeEvent, createRef, useEffect, useRef, useState } from 'react';
+import React, { ChangeEvent, createRef, useCallback, useEffect, useState } from 'react';
 import { MessageResponse, User as TUser } from './types';
 import { useAuth, useFriend, useMessage, useRoom, useUser } from './services';
 import {
@@ -16,7 +16,6 @@ import {
 
 function App() {
   const [room, setRoom] = useState('');
-  const [message, setMessage] = useState('');
   const [conversation, setConversation] = useState<MessageResponse[]>([]);
   const [openModalFind, setOpenModalFind] = useState(false);
   const [username, setUsername] = useState('');
@@ -31,7 +30,7 @@ function App() {
   const { getFriendsByUserId, checkIfAdded, updateFriend } = useFriend();
   const { getConversationInRoom } = useRoom();
 
-  const socket = io('http://localhost:4000', { withCredentials: true });
+  const socket = io('http://localhost:4000', { withCredentials: true, requestTimeout: 5000 });
   const content = createRef<HTMLTextAreaElement>();
   const title = createRef<HTMLInputElement>();
 
@@ -62,14 +61,8 @@ function App() {
       .catch((err) => console.log(err));
   }
 
-  function handleChatChange(e: ChangeEvent) {
-    const value = (e.target as HTMLTextAreaElement).value;
-    setMessage(value);
-  }
-
-  function handleInputKeyword(e: ChangeEvent) {
-    const value = (e.target as HTMLInputElement).value;
-    setUsername(value);
+  function handleInputKeyword(e: ChangeEvent<HTMLInputElement>) {
+    setUsername(e.target.value);
   }
 
   function handleFindPeople() {
@@ -89,25 +82,38 @@ function App() {
         setIsScrollDown(true)
       })
       .catch((err) => console.log(err));
-    setTimeout(() => setIsScrollDown(false), 0)
+    setTimeout(() => {
+      setIsScrollDown(false)
+    }, 0)
   }
 
-  function sendMessage() {
-    const value = content.current?.value as string;
-    createMessage({ content: value, userId, roomId: room })
+  const sendMessage = useCallback((content: string) => {
+    createMessage({ content, userId, roomId: room })
       .then((res) => {
         socket.emit('from-client', { message: res, room });
-        setMessage('');
         setIsScrollDown(!isScrollDown)
       })
       .catch((err) => console.log(err));
-  }
+  }, [socket])
+
+  const handleSendMessage = useCallback(
+    () => {
+      const value = content.current?.value as string;
+      sendMessage(value);
+      if (content.current) {
+        content.current!.value = ''
+      }
+    },
+    [sendMessage]
+  );
 
   useEffect(() => {
     socket.on('from-server', (data) => {
       setConversation((prev) => [...prev, data]);
     });
-  }, [socket]);
+    if (friends.length === 0)
+      retrieveFriends()
+  }, [socket, friends])
 
   return (
     <React.Fragment>
@@ -116,10 +122,6 @@ function App() {
           <List.Box>
             <List.Item>
               <Spacing.Horizontal>
-                <Button.Create
-                  label='Fetch'
-                  onCreate={() => retrieveFriends()}
-                />
                 <Button.Send
                   label='Find'
                   onSend={() => findPeople()}
@@ -136,7 +138,7 @@ function App() {
                     label='User Name'
                     name='room-input'
                     value={username}
-                    onChange={(e: ChangeEvent) => handleInputKeyword(e)}
+                    onChange={handleInputKeyword}
                     onClear={() => setUsername('')}
                     onEnter={handleFindPeople}
                   />
@@ -202,13 +204,11 @@ function App() {
               <Chat.Footer>
                 <Input.TextArea
                   ref={content}
-                  value={message}
-                  onChange={(e: ChangeEvent) => handleChatChange(e)}
-                  onEnter={() => sendMessage()}
+                  value={content.current?.value}
+                  onEnter={handleSendMessage}
                 >
                   <Button.Send
-                    label='Send'
-                    onSend={() => sendMessage()}
+                    onSend={handleSendMessage}
                   />
                 </Input.TextArea>
               </Chat.Footer>

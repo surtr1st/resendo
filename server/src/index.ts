@@ -89,7 +89,7 @@ function main() {
 
             case MESSAGE:
               if (req.method === METHOD.GET) await findMessages(res);
-              if (req.method === METHOD.POST) createMessage(req, res);
+              if (req.method === METHOD.POST) await createMessage(req, res);
               break;
 
             case `${MESSAGE_BY_USER_ID}=${userId}`:
