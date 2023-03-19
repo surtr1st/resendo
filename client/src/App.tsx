@@ -25,6 +25,7 @@ function App() {
   const [friends, setFriends] = useState<Array<Omit<TUser, 'password'>>>([]);
   const [isMount, setIsMount] = useState(false)
   const [isScrollDown, setIsScrollDown] = useState(false)
+  const [isClick, setIsClick] = useState(false)
 
   const { userId } = useAuth();
   const { createMessage } = useMessage();
@@ -119,10 +120,22 @@ function App() {
       })
       .catch((err) => console.log(err));
   }
-  const debounceSendMessage = debounce(sendMessage, 10)
+  const debounceSendMessage = debounce(sendMessage, 100)
+
+  function handleModalClose() {
+    setIsClick(true)
+    setTimeout(() => {
+      setOpenModalFind(false)
+      setIsClick(false)
+    }, 100)
+  }
 
   useEffect(() => {
   }, [listFriends])
+
+  useEffect(() => {
+    setIsScrollDown(!isScrollDown)
+  }, [conversation.length])
 
   useEffect(() => {
     socket.on('from-server', (data) => {
@@ -145,7 +158,8 @@ function App() {
               <Modal.Customizable
                 open={openModalFind}
                 title='Find People'
-                onClose={() => setOpenModalFind(false)}
+                onClose={handleModalClose}
+                classAnimation={isClick ? 'hide' : 'show'}
               >
                 <Modal.ContentBody>
                   <Input.Search
@@ -175,7 +189,7 @@ function App() {
                 <Modal.ActionFooter>
                   <Button.Cancel
                     label='Cancel'
-                    onCancel={() => setOpenModalFind(false)}
+                    onCancel={() => handleModalClose()}
                   />
                 </Modal.ActionFooter>
               </Modal.Customizable>
@@ -198,7 +212,7 @@ function App() {
           {
             isMount && <Chat.Box type='container'>
               <Chat.Header>
-                <PageHeader author={fullname} />
+                <PageHeader author={fullname} avatarSrc='' />
               </Chat.Header>
               <Chat.Body triggerScrollDown={isScrollDown}>
                 {conversation &&

@@ -13,10 +13,20 @@
   z-index: 10000;
   display: flex;
   flex-direction: column;
-  row-gap: 1rem;
-  animation-name: modal-fadedown;
+  row-gap: 1rem; 
+}
+
+.show {
+  animation-name: modal-fadein;
   animation-fill-mode: forwards;
-  animation-duration: 250ms;
+  animation-duration: 150ms;
+  animation-timing-function: ease-in-out;
+}
+
+.hide {
+  animation-name: modal-fadeout;
+  animation-fill-mode: forwards;
+  animation-duration: 150ms;
   animation-timing-function: ease-in-out;
 }
 
