@@ -27,9 +27,11 @@ export const Message = {
       className='card'
       onClick={onAction}
     >
-      <div className='card-image'></div>
+      <div className='card-image'>
+        <img src={avatarSrc} alt='#' />
+      </div>
       <span className='card-detail'>
-        <h3>{opponentName}</h3>
+        <h3>{opponentName.length > 12 ? `${opponentName.substring(0, 12)}...` : opponentName}</h3>
         <h5>
           {latestMessage.length > 10
             ? `${latestMessage.slice(0, 10)}...`

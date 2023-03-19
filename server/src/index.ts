@@ -62,7 +62,7 @@ function main() {
         async (req: IncomingMessage, res: ServerResponse) => {
           const urlParts = url.parse(`${req.url}`);
           const query = querystring.parse(`${urlParts.query}`);
-          const { userId, roomId, friendId, except, name } = query;
+          const { uid, rid, userId, friendId, except, name } = query;
 
           if (req.method === METHOD.OPTIONS) handleRequest(res);
 
@@ -72,7 +72,7 @@ function main() {
               if (req.method === METHOD.POST) createUser(req, res);
               break;
 
-            case `${USER_BY_ID}=${userId}`:
+            case `${USER_BY_ID}=${uid}`:
               if (req.method === METHOD.GET)
                 await findUser(userId as string, res);
               break;
@@ -117,7 +117,7 @@ function main() {
                 );
               break;
 
-            case `${ROOM_BY_ID}=${roomId}`:
+            case `${ROOM_BY_ID}=${rid}`:
               if (req.method === METHOD.PATCH)
                 updateConversationInRoom(req, res);
               break;

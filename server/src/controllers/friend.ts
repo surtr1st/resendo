@@ -1,7 +1,7 @@
 import { IncomingMessage, ServerResponse } from 'http';
 import { ObjectId } from 'mongoose';
 import { useResponse } from '../helpers';
-import { IRoom } from '../models';
+import { IUser } from '../models';
 import { RoomService, UserService } from '../services';
 import { FriendService } from '../services/friend';
 
@@ -27,7 +27,9 @@ export function useFriendController() {
     const friends = await service.findFriendsByUser(user);
     const userFriends = [];
     for (const friend of friends) {
-      const detailFriend = await userService.findById(friend._id);
+      const detailFriend = await userService.findByIdExcludePassword(
+        friend._id,
+      );
       userFriends.push(detailFriend);
     }
     onServerResponse({

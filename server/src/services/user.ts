@@ -21,6 +21,16 @@ export class UserService {
     }
   }
 
+  async findByIdExcludePassword(id: string | ObjectId) {
+    try {
+      const user = await User.findById(id).select('-password');
+      if (!user) throw new Error(`Cannot return user with id: ${id}`);
+      return user;
+    } catch (e) {
+      throw e;
+    }
+  }
+
   async findExcludeSelf(selfId: string | ObjectId) {
     try {
       return await User.find({ _id: { $ne: selfId } });

@@ -20,7 +20,7 @@ export function useUserController() {
     onServerResponse({
       statusCode: 200,
       headers: { contentType: 'application/json' },
-      data: await service.findById(userId),
+      data: await service.findByIdExcludePassword(userId),
     })(res);
   };
 

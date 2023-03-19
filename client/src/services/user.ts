@@ -22,7 +22,7 @@ export function useUser() {
       },
       credentials: 'include',
     };
-    const data = await fetch(`${BASE_URL}/users?id=${id}`, options);
+    const data = await fetch(`${BASE_URL}/users?uid=${id}`, options);
     const user = await data.json();
     return user;
   };

@@ -1,5 +1,4 @@
 import { BASE_URL } from '.';
-import { Friend, Room } from '../types';
 
 export function useFriend() {
   const getFriendsByUserId = async (userId: string) => {

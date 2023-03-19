@@ -1,4 +1,11 @@
+@import '../../assets/color.css';
+
 .page-header {
-  height: inherit;
-  text-align: center;
+  background: var(--darker-bg);
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+  height: 10vh;
+  padding-left: .5rem;
+  gap: 1rem;
 }

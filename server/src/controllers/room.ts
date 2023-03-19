@@ -1,7 +1,7 @@
 import { IncomingMessage, ServerResponse } from 'http';
 import { ObjectId } from 'mongoose';
 import { useResponse } from '../helpers';
-import { IRoom, TypeRoom } from '../models';
+import { TypeRoom } from '../models';
 import { MessageService, RoomService, UserService } from '../services';
 
 export function useRoomController() {
@@ -32,7 +32,12 @@ export function useRoomController() {
           const detailMessage = await messageService.findById(message._id);
           messagesInRoom.push(detailMessage);
         }
-        const room = { _id, user1, user2, messages: messagesInRoom };
+        const room = {
+          _id,
+          user1: await userService.findByIdExcludePassword(user1._id),
+          user2: await userService.findByIdExcludePassword(user2._id),
+          messages: messagesInRoom,
+        };
 
         onServerResponse({
           statusCode: 200,

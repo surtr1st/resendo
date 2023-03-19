@@ -87,14 +87,18 @@ function App() {
     getConversationInRoom(userId, friendId)
       .then((res) => {
         const { _id, user1, user2, messages } = res;
-        if (user1._id === userId)
-          setFullname(user2.fullname)
-        else
-          setFullname(user1.fullname)
         setRoom(_id);
         socket.emit('join-room', _id);
         setConversation(messages as MessageResponse[]);
         setIsScrollDown(true)
+        switch (userId) {
+          case user2._id:
+            setFullname(user1.fullname)
+            break
+          default:
+            setFullname(user2.fullname)
+            break
+        }
       })
       .catch((err) => console.log(err));
     setTimeout(() => {
