@@ -1,0 +1,15 @@
+.with-label {
+  border-radius: 50%;
+  border: 1px solid black;
+}
+
+.without-label {
+  border-radius: 50%;
+  border: 1px solid black;
+}
+
+.none-label {
+  display: grid;
+  place-items: center;
+  font-weight: bolder;
+}
