@@ -33,7 +33,8 @@
 
 .card {
   display: flex;
-  justify-content: center;
+  justify-content: space-evenly;
+  gap: 1rem;
   align-items: center;
   border: 1px solid var(--border-alternative-color);
   border-radius: .3rem;
@@ -55,6 +56,7 @@
 
 .card-image {
   display: grid;
+  width: 30%;
 }
 
 .card-detail {
@@ -64,6 +66,7 @@
   align-items: start;
   gap: .2rem;
   background-color: inherit;
+  width: 70%;
 }
 
 .card-detail > h3 {

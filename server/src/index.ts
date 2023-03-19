@@ -62,7 +62,7 @@ function main() {
         async (req: IncomingMessage, res: ServerResponse) => {
           const urlParts = url.parse(`${req.url}`);
           const query = querystring.parse(`${urlParts.query}`);
-          const { userId, roomId, friendId, except, name } = query;
+          const { uid, rid, userId, friendId, except, name } = query;
 
           if (req.method === METHOD.OPTIONS) handleRequest(res);
 
@@ -72,7 +72,7 @@ function main() {
               if (req.method === METHOD.POST) createUser(req, res);
               break;
 
-            case `${USER_BY_ID}=${userId}`:
+            case `${USER_BY_ID}=${uid}`:
               if (req.method === METHOD.GET)
                 await findUser(userId as string, res);
               break;
@@ -89,7 +89,7 @@ function main() {
 
             case MESSAGE:
               if (req.method === METHOD.GET) await findMessages(res);
-              if (req.method === METHOD.POST) await createMessage(req, res);
+              if (req.method === METHOD.POST) createMessage(req, res);
               break;
 
             case `${MESSAGE_BY_USER_ID}=${userId}`:
@@ -117,7 +117,7 @@ function main() {
                 );
               break;
 
-            case `${ROOM_BY_ID}=${roomId}`:
+            case `${ROOM_BY_ID}=${rid}`:
               if (req.method === METHOD.PATCH)
                 updateConversationInRoom(req, res);
               break;
@@ -149,7 +149,8 @@ function main() {
       // Initialize Socket server
       const io = new Server(httpServer, {
         cors: {
-          origin: 'https://resendo-client.netlify.app',
+          origin: 'http://localhost:5173',
+          // 'https://resendo-client.netlify.app',
           credentials: true,
           optionsSuccessStatus: 200,
           allowedHeaders: ['Content-Type', 'Accept', 'Authorization'],

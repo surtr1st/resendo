@@ -1,7 +1,7 @@
 import { IncomingMessage, ServerResponse } from 'http';
 import { ObjectId } from 'mongoose';
 import { useResponse } from '../helpers';
-import { IRoom } from '../models';
+import { IUser } from '../models';
 import { RoomService, UserService } from '../services';
 import { FriendService } from '../services/friend';
 
@@ -12,11 +12,10 @@ export function useFriendController() {
   const { onServerResponse } = useResponse();
 
   const findFriends = async (res: ServerResponse) => {
-    const friends = await service.findAll();
     onServerResponse({
       statusCode: 200,
       headers: { contentType: 'application/json' },
-      data: friends,
+      data: await service.findAll(),
     })(res);
   };
 
@@ -28,7 +27,9 @@ export function useFriendController() {
     const friends = await service.findFriendsByUser(user);
     const userFriends = [];
     for (const friend of friends) {
-      const detailFriend = await userService.findById(friend._id);
+      const detailFriend = await userService.findByIdExcludePassword(
+        friend._id,
+      );
       userFriends.push(detailFriend);
     }
     onServerResponse({
@@ -56,11 +57,10 @@ export function useFriendController() {
     req.on('end', async () => {
       const { userId, friendId } = JSON.parse(requestBody);
       const user = await userService.findById(userId);
-      const isAdded = await service.isAdded(user, friendId);
       onServerResponse({
         statusCode: 200,
         headers: { contentType: 'application/json' },
-        data: isAdded,
+        data: await service.isAdded(user, friendId),
       })(res);
     });
   };
@@ -80,7 +80,7 @@ export function useFriendController() {
       return onServerResponse({
         statusCode: 500,
         headers: { contentType: 'application/json' },
-        data: err,
+        data: `${err}`,
       })(res);
     });
 
@@ -92,7 +92,7 @@ export function useFriendController() {
       await service.patchFriend(user, friend);
       // Then update to other
       await service.patchFriend(friend, user);
-      const newRoom: Partial<IRoom> = {
+      const newRoom = {
         user1: user,
         user2: friend,
       };

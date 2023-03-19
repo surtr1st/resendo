@@ -2,12 +2,14 @@ import './style.css'
 
 type Props = {
   author: string
+  avatarSrc: string
 }
 
-export const PageHeader = ({ author }: Props) => {
+export const PageHeader = ({ author, avatarSrc }: Props) => {
   return (
     <div className="page-header">
-      <h1>{author}</h1>
+      <img src={avatarSrc} alt='#' />
+      <h2>{author}</h2>
     </div>
   );
 };

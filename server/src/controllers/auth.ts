@@ -22,7 +22,7 @@ export function useAuthController() {
         headers: {
           contentType: 'application/json',
         },
-        data: err,
+        data: `${err}`,
       })(res);
     });
 

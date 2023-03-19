@@ -1,7 +1,8 @@
 import './style.css';
 import React, { useState } from 'react';
-import { Button, Input, Spacing, Notify } from '../../components';
+import { Button, Input, Spacing } from '../../components';
 import { useAuth, useUser } from '../../services';
+import { debounce } from 'lodash';
 
 export function LoginOrRegistrate() {
   const [isSignUp, setIsSignUp] = useState(false);
@@ -11,17 +12,18 @@ export function LoginOrRegistrate() {
   const email = React.createRef<HTMLInputElement>();
   const password = React.createRef<HTMLInputElement>();
   const reEnterPassword = React.createRef<HTMLInputElement>();
+  const DURATION = 500
 
   function signin() {
     const account = {
       email: `${email.current?.value}`,
       // password: `${password.current?.value}`
     };
-
     authorize(account)
-      .then(() => setTimeout(() => location.reload(), 1000))
+      .then(() => setTimeout(() => location.reload(), 500))
       .catch((err) => console.log(err));
   }
+  const debounceLogin = debounce(signin, DURATION)
 
   function signup() {
     if (fullname.current?.value.length === 0) return;
@@ -38,6 +40,7 @@ export function LoginOrRegistrate() {
       .then(() => setIsSignUp(false))
       .catch((err) => console.log(err));
   }
+  const debounceRegistrate = debounce(signup, DURATION)
 
   return (
     <div className='login-bg'>
@@ -79,12 +82,12 @@ export function LoginOrRegistrate() {
           {isSignUp ? (
             <Button.Send
               label='Registrate'
-              onSend={signup}
+              onSend={debounceRegistrate}
             />
           ) : (
             <Button.Send
               label='Log in'
-              onSend={signin}
+              onSend={debounceLogin}
             />
           )}
           <Button.Link

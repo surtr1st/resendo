@@ -2,7 +2,6 @@ import { IncomingMessage, ServerResponse } from 'http';
 import { MessageService, RoomService, UserService } from '../services';
 import { ObjectId } from 'mongoose';
 import { useResponse } from '../helpers';
-import { IMessage } from '../models';
 
 export function useMessageController() {
   const service = new MessageService();
@@ -11,12 +10,10 @@ export function useMessageController() {
   const { onServerResponse } = useResponse();
 
   const findMessages = async (res: ServerResponse) => {
-    const messages = await service.findAll();
-
     onServerResponse({
       statusCode: 200,
       headers: { contentType: 'application/json' },
-      data: messages,
+      data: await service.findAll(),
     })(res);
   };
 
@@ -25,16 +22,14 @@ export function useMessageController() {
     res: ServerResponse,
   ) => {
     const user = await userService.findById(userId);
-    const messages = await service.findAllByUser(user);
-
     onServerResponse({
       statusCode: 200,
       headers: { contentType: 'application/json' },
-      data: messages,
+      data: await service.findAllByUser(user),
     })(res);
   };
 
-  const createMessage = async (req: IncomingMessage, res: ServerResponse) => {
+  const createMessage = (req: IncomingMessage, res: ServerResponse) => {
     let requestBody = '';
 
     req.on('data', (chunk) => {
@@ -45,7 +40,7 @@ export function useMessageController() {
       onServerResponse({
         statusCode: 500,
         headers: { contentType: 'application/json' },
-        data: err,
+        data: `${err}`,
       })(res);
     });
 
@@ -62,13 +57,11 @@ export function useMessageController() {
         })(res);
       }
       const { content, userId, roomId } = JSON.parse(requestBody);
-      const user = await userService.findById(userId as string);
-      const message: IMessage = {
+      const newMessage = await service.create({
         content,
-        user,
+        user: await userService.findById(userId as string),
         sentAt: new Date(),
-      };
-      const newMessage = await service.create(message);
+      });
       await roomService.patchMessage(roomId, newMessage);
 
       onServerResponse({

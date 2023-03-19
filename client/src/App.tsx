@@ -1,7 +1,8 @@
 import { io } from 'socket.io-client';
-import React, { ChangeEvent, createRef, useCallback, useEffect, useState } from 'react';
+import { debounce } from 'lodash';
+import React, { createRef, useEffect, useMemo, useState } from 'react';
 import { MessageResponse, User as TUser } from './types';
-import { BASE_URL, useAuth, useFriend, useMessage, useRoom, useUser } from './services';
+import { useAuth, useFriend, useMessage, useRoom, useUser } from './services';
 import {
   Button,
   Chat,
@@ -19,7 +20,6 @@ function App() {
   const [room, setRoom] = useState('');
   const [conversation, setConversation] = useState<MessageResponse[]>([]);
   const [openModalFind, setOpenModalFind] = useState(false);
-  const [username, setUsername] = useState('');
   const [fullname, setFullname] = useState('');
   const [users, setUsers] = useState<Array<Omit<TUser, 'password'>>>([]);
   const [friends, setFriends] = useState<Array<Omit<TUser, 'password'>>>([]);
@@ -32,9 +32,20 @@ function App() {
   const { getFriendsByUserId, checkIfAdded, updateFriend } = useFriend();
   const { getConversationInRoom } = useRoom();
 
-  const socket = io('https://resendo-server.up.railway.app', { withCredentials: true, requestTimeout: 5000 });
+  const socket = io('http://localhost:4000', { withCredentials: true, requestTimeout: 5000 });
   const content = createRef<HTMLTextAreaElement>();
   const title = createRef<HTMLInputElement>();
+  const username = createRef<HTMLInputElement>()
+  const DURATION = 500;
+
+  async function retrieveFriends() {
+    return await getFriendsByUserId(userId)
+  }
+
+  const listFriends = useMemo(async () => {
+    const data = await retrieveFriends()
+    setFriends(data)
+  }, [friends.length])
 
   function findPeople() {
     setOpenModalFind(true)
@@ -51,78 +62,73 @@ function App() {
       .catch((err) => console.log(err));
   }
 
-  function retrieveFriends() {
-    getFriendsByUserId(userId)
-      .then((res) => setFriends(res))
-      .catch((err) => console.log(err));
-  }
-
   function addFriend(filteredUserId: string) {
     updateFriend(userId, filteredUserId)
       .then((_) => {
         const remainUsers = users.filter(user => user._id !== filteredUserId)
         setUsers(remainUsers)
+        retrieveFriends().then(res => setFriends(res)).catch(err => console.log(err))
       })
       .catch((err) => console.log(err));
   }
+  const debounceAddFriend = debounce(addFriend, DURATION)
 
-  function handleInputKeyword(e: ChangeEvent<HTMLInputElement>) {
-    setUsername(e.target.value);
-  }
-
-  function handleFindPeople() {
-    findUserByName(username, userId)
+  function filterUser() {
+    const value = `${username.current?.value}`.trim()
+    if (value.length === 0) return
+    findUserByName(value, userId)
       .then(res => setUsers(res))
       .catch(err => console.log(err))
   }
+  const debounceFilterUser = debounce(filterUser, DURATION)
 
   function handleConversationInRoom(friendId: string) {
     setIsMount(true)
     getConversationInRoom(userId, friendId)
       .then((res) => {
         const { _id, user1, user2, messages } = res;
-        if (user1._id === userId)
-          setFullname(user2.fullname)
-        else
-          setFullname(user1.fullname)
         setRoom(_id);
         socket.emit('join-room', _id);
         setConversation(messages as MessageResponse[]);
         setIsScrollDown(true)
+        switch (userId) {
+          case user2._id:
+            setFullname(user1.fullname)
+            break
+          default:
+            setFullname(user2.fullname)
+            break
+        }
       })
       .catch((err) => console.log(err));
     setTimeout(() => {
       setIsScrollDown(false)
     }, 0)
   }
+  const debounceMessagesInRoom = debounce(handleConversationInRoom, DURATION)
 
-  const sendMessage = useCallback((content: string) => {
-    createMessage({ content, userId, roomId: room })
+  function sendMessage() {
+    const value = `${content.current?.value}`.trim();
+    if (value.length === 0) return
+    createMessage({ content: value, userId, roomId: room })
       .then((res) => {
         socket.emit('from-client', { message: res, room });
         setIsScrollDown(!isScrollDown)
+        if (content.current)
+          content.current!.value = ''
       })
       .catch((err) => console.log(err));
-  }, [socket])
+  }
+  const debounceSendMessage = debounce(sendMessage, 10)
 
-  const handleSendMessage = useCallback(
-    () => {
-      const value = content.current?.value as string;
-      sendMessage(value);
-      if (content.current) {
-        content.current!.value = ''
-      }
-    },
-    [sendMessage]
-  );
+  useEffect(() => {
+  }, [listFriends])
 
   useEffect(() => {
     socket.on('from-server', (data) => {
       setConversation((prev) => [...prev, data]);
     });
-    if (friends.length === 0)
-      retrieveFriends()
-  }, [socket, friends])
+  }, [socket])
 
   return (
     <React.Fragment>
@@ -146,10 +152,12 @@ function App() {
                     ref={title}
                     label='User Name'
                     name='room-input'
-                    value={username}
-                    onChange={handleInputKeyword}
-                    onClear={() => setUsername('')}
-                    onEnter={handleFindPeople}
+                    value={username.current?.value}
+                    onClear={() => {
+                      if (username.current)
+                        username.current.value = ''
+                    }}
+                    onEnter={debounceFilterUser}
                   />
                   <Spacing.Horizontal>
                     {users &&
@@ -158,7 +166,7 @@ function App() {
                           key={index}
                           uid={user._id as string}
                           name={user.fullname}
-                          addFriend={() => addFriend(user._id as string)}
+                          addFriend={() => debounceAddFriend(user._id as string)}
                           isSelf={user._id === userId}
                         />
                       ))}
@@ -179,7 +187,7 @@ function App() {
                     opponentName={friend.fullname}
                     latestMessage=''
                     onAction={() =>
-                      handleConversationInRoom(friend._id as string)
+                      debounceMessagesInRoom(friend._id as string)
                     }
                   />
                 ))}
@@ -214,10 +222,10 @@ function App() {
                 <Input.TextArea
                   ref={content}
                   value={content.current?.value}
-                  onEnter={handleSendMessage}
+                  onEnter={debounceSendMessage}
                 >
                   <Button.Send
-                    onSend={handleSendMessage}
+                    onSend={debounceSendMessage}
                   />
                 </Input.TextArea>
               </Chat.Footer>
