@@ -33,7 +33,7 @@ export function FriendController() {
   });
 
   // Update friends by user
-  router.put(FRIENDS_BY_USER_ID, async (req: Request, res: Response) => {
+  router.patch(FRIENDS_BY_USER_ID, async (req: Request, res: Response) => {
     const { userId } = req.query;
     const { friendId } = req.body;
     const user = await userService.findById(userId as string);

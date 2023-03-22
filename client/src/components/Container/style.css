@@ -1,4 +1,4 @@
-@import '../../assets/color.css';
+@import url('../../assets/color.css');
 
 .grid {
   display: grid;

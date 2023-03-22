@@ -25,6 +25,7 @@ export type User = {
   email: string;
   password: string;
 };
+export type InsensitiveUserInfo = Omit<User, 'password'>;
 export type Message = {
   content: string;
   userId: string;
@@ -49,7 +50,7 @@ export type Friend = {
 };
 export type RoomResponse = {
   _id: string;
-  user1: Omit<User, 'password'>;
-  user2: Omit<User, 'password'>;
+  user1: InsensitiveUserInfo;
+  user2: InsensitiveUserInfo;
   messages: Partial<MessageResponse[]>;
 };

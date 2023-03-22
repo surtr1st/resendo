@@ -28,9 +28,9 @@ export function UserController() {
   });
 
   // Find user by name
-  router.get(USER_BY_NAME, async (req: Request, res: Response) => {
-    const { keyword } = req.query;
-    res.status(200).json(await service.findByName(keyword as string));
+  router.post(USER_BY_NAME, async (req: Request, res: Response) => {
+    const { name } = req.query;
+    res.status(200).json(await service.findByName(name as string));
   });
 
   // Create user

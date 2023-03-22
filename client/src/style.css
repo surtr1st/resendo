@@ -1,4 +1,4 @@
-@import './assets/color.css';
+@import url('./assets/color.css');
 
 * {
   background: var(--dark-bg);
@@ -30,4 +30,17 @@ svg {
 
 ::-webkit-scrollbar-track {
   width: 5px;
+}
+
+button {
+  height: 2.5rem;
+  padding-left: 0.75rem;
+  padding-right: 0.75rem;
+  border-radius: .3rem;
+  border: 0px;
+  transition: 250ms ease-in-out all;
+}
+
+button:hover {
+  cursor: pointer;
 }

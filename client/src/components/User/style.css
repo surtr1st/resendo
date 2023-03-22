@@ -1,5 +1,5 @@
-@import '../../assets/color.css';
-@import '../../assets/animations.css';
+@import url('../../assets/color.css');
+@import url('../../assets/animation.css');
 
 .user {
   padding: .5rem;
@@ -30,4 +30,3 @@
 .added > h4 {
   background: inherit;
 }
-

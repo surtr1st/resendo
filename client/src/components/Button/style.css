@@ -1,21 +1,10 @@
-@import '../../assets/color.css';
-
-button {
-  height: 2.5rem;
-  padding-left: 0.75rem;
-  padding-right: 0.75rem;
-  border-radius: .3rem;
-  border: 0px;
-  transition: 250ms ease-in-out all;
-}
-
-button:hover {
-  cursor: pointer;
-}
+@import url('../../assets/color.css');
 
 .send, .create, .accept, .cancel {
   background: var(--primary);
 }
+
+
 
 .send:hover, .create:hover, .accept:hover, .cancel:hover {
   background: var(--primary-hover);
@@ -29,11 +18,11 @@ button:hover {
   background: inherit;
 }
 
-.close {
+.close, .send-transparent {
   background: transparent;
 }
 
-.close:hover {
+.close:hover, .send-transparent:hover {
   background: var(--secondary);
 }
 
