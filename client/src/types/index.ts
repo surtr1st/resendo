@@ -1,4 +1,15 @@
 export type AccessToken = string;
+export type FriendArgs = {
+  userId: string;
+  friendId: string;
+  accessToken: AccessToken;
+};
+export type RoomArgs = FriendArgs;
+export type UserFilter = {
+  keyword: string;
+  userId: string;
+  accessToken: AccessToken;
+};
 export type AuthenticationArgs = {
   email: string;
   password?: string;

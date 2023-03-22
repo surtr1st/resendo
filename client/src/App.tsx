@@ -25,21 +25,26 @@ function App() {
   const [friends, setFriends] = useState<Array<Omit<TUser, 'password'>>>([]);
   const [isMount, setIsMount] = useState(false)
   const [isScrollDown, setIsScrollDown] = useState(false)
+  const [isClick, setIsClick] = useState(false)
 
-  const { userId } = useAuth();
+  const { userId, accessToken } = useAuth();
   const { createMessage } = useMessage();
   const { getUsersWithoutSelf, findUserByName } = useUser();
   const { getFriendsByUserId, checkIfAdded, updateFriend } = useFriend();
   const { getConversationInRoom } = useRoom();
 
-  const socket = io('http://localhost:4000', { withCredentials: true, requestTimeout: 5000 });
+  const socket = io('http://localhost:4000', {
+    withCredentials: true,
+    requestTimeout: 5000,
+    reconnectionAttempts: 3,
+  });
   const content = createRef<HTMLTextAreaElement>();
   const title = createRef<HTMLInputElement>();
   const username = createRef<HTMLInputElement>()
   const DURATION = 500;
 
   async function retrieveFriends() {
-    return await getFriendsByUserId(userId)
+    return await getFriendsByUserId(userId, accessToken)
   }
 
   const listFriends = useMemo(async () => {
@@ -49,11 +54,14 @@ function App() {
 
   function findPeople() {
     setOpenModalFind(true)
-    getUsersWithoutSelf(userId)
+    getUsersWithoutSelf(userId, accessToken)
       .then(async (res: TUser[]) => {
         const filteredAddedUsers = []
         for await (const user of res) {
-          const isAdded = await checkIfAdded(userId, user._id as string)
+          const isAdded = await checkIfAdded(
+            userId,
+            user._id as string
+          )
           if (!isAdded)
             filteredAddedUsers.push(user)
         }
@@ -63,7 +71,7 @@ function App() {
   }
 
   function addFriend(filteredUserId: string) {
-    updateFriend(userId, filteredUserId)
+    updateFriend({ userId, friendId: filteredUserId, accessToken })
       .then((_) => {
         const remainUsers = users.filter(user => user._id !== filteredUserId)
         setUsers(remainUsers)
@@ -76,7 +84,7 @@ function App() {
   function filterUser() {
     const value = `${username.current?.value}`.trim()
     if (value.length === 0) return
-    findUserByName(value, userId)
+    findUserByName({ keyword: value, userId, accessToken })
       .then(res => setUsers(res))
       .catch(err => console.log(err))
   }
@@ -84,7 +92,7 @@ function App() {
 
   function handleConversationInRoom(friendId: string) {
     setIsMount(true)
-    getConversationInRoom(userId, friendId)
+    getConversationInRoom({ userId, friendId, accessToken })
       .then((res) => {
         const { _id, user1, user2, messages } = res;
         setRoom(_id);
@@ -110,24 +118,36 @@ function App() {
   function sendMessage() {
     const value = `${content.current?.value}`.trim();
     if (value.length === 0) return
-    createMessage({ content: value, userId, roomId: room })
+    createMessage({ content: value, userId, roomId: room }, accessToken)
       .then((res) => {
         socket.emit('from-client', { message: res, room });
         setIsScrollDown(!isScrollDown)
-        if (content.current)
-          content.current!.value = ''
       })
       .catch((err) => console.log(err));
+    if (content.current)
+      content.current!.value = ''
   }
-  const debounceSendMessage = debounce(sendMessage, 10)
+
+  function handleModalClose() {
+    setIsClick(true)
+    setTimeout(() => {
+      setOpenModalFind(false)
+      setIsClick(false)
+    }, 100)
+  }
 
   useEffect(() => {
   }, [listFriends])
 
   useEffect(() => {
-    socket.on('from-server', (data) => {
-      setConversation((prev) => [...prev, data]);
-    });
+    setIsScrollDown(!isScrollDown)
+  }, [conversation.length])
+
+  useEffect(() => {
+    socket.on('from-server', (data) => setConversation((prev) => [...prev, data]))
+    return () => {
+      socket.off('from-server', (data) => setConversation((prev) => [...prev, data]))
+    }
   }, [socket])
 
   return (
@@ -145,7 +165,8 @@ function App() {
               <Modal.Customizable
                 open={openModalFind}
                 title='Find People'
-                onClose={() => setOpenModalFind(false)}
+                onClose={handleModalClose}
+                classAnimation={isClick ? 'hide' : 'show'}
               >
                 <Modal.ContentBody>
                   <Input.Search
@@ -175,7 +196,7 @@ function App() {
                 <Modal.ActionFooter>
                   <Button.Cancel
                     label='Cancel'
-                    onCancel={() => setOpenModalFind(false)}
+                    onCancel={() => handleModalClose()}
                   />
                 </Modal.ActionFooter>
               </Modal.Customizable>
@@ -198,7 +219,7 @@ function App() {
           {
             isMount && <Chat.Box type='container'>
               <Chat.Header>
-                <PageHeader author={fullname} />
+                <PageHeader author={fullname} avatarSrc='' />
               </Chat.Header>
               <Chat.Body triggerScrollDown={isScrollDown}>
                 {conversation &&
@@ -222,10 +243,10 @@ function App() {
                 <Input.TextArea
                   ref={content}
                   value={content.current?.value}
-                  onEnter={debounceSendMessage}
+                  onEnter={sendMessage}
                 >
                   <Button.Send
-                    onSend={debounceSendMessage}
+                    onSend={sendMessage}
                   />
                 </Input.TextArea>
               </Chat.Footer>

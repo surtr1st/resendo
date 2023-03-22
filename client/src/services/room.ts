@@ -1,12 +1,13 @@
 import { BASE_URL } from '.';
-import { Room, RoomResponse } from '../types';
+import { AccessToken, Room, RoomArgs, RoomResponse } from '../types';
 
 export function useRoom() {
-  const getRoomsByUserId = async (userId: string) => {
+  const getRoomsByUserId = async (userId: string, accessToken: AccessToken) => {
     const options: RequestInit = {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
+        Authorization: `Bearer ${accessToken}`,
       },
       credentials: 'include',
     };
@@ -15,11 +16,16 @@ export function useRoom() {
     return rooms;
   };
 
-  const getConversationInRoom = async (userId: string, friendId: string) => {
+  const getConversationInRoom = async ({
+    userId,
+    friendId,
+    accessToken,
+  }: Required<RoomArgs>) => {
     const options: RequestInit = {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
+        Authorization: `Bearer ${accessToken}`,
       },
       credentials: 'include',
     };
@@ -31,11 +37,12 @@ export function useRoom() {
     return room;
   };
 
-  const createRoom = async (room: Partial<Room>) => {
+  const createRoom = async (room: Partial<Room>, accessToken: AccessToken) => {
     const options: RequestInit = {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
+        Authorization: `Bearer ${accessToken}`,
       },
       credentials: 'include',
       body: JSON.stringify(room),

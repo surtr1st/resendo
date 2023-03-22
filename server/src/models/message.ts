@@ -20,6 +20,7 @@ const schema = new Schema<TypeMessage>({
     type: Types.ObjectId,
     ref: User,
     required: true,
+    index: true,
   },
   sentAt: Date,
 });

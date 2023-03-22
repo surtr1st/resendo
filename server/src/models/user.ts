@@ -14,9 +14,16 @@ interface IUser {
 }
 
 const schema = new Schema<TypeUser>({
-  fullname: String,
+  fullname: {
+    type: String,
+    index: true,
+  },
   password: String,
-  email: String,
+  email: {
+    type: String,
+    unique: true,
+    index: true,
+  },
 });
 
 const User = model<TypeUser>('User', schema);

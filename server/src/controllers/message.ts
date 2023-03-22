@@ -1,80 +1,36 @@
-import { IncomingMessage, ServerResponse } from 'http';
+import { Request, Response, Router } from 'express';
 import { MessageService, RoomService, UserService } from '../services';
-import { ObjectId } from 'mongoose';
-import { useResponse } from '../helpers';
+import { MESSAGES, MESSAGE_BY_USER_ID } from '../routes';
 
-export function useMessageController() {
+export function MessageController() {
+  const router = Router();
   const service = new MessageService();
   const userService = new UserService();
   const roomService = new RoomService();
-  const { onServerResponse } = useResponse();
 
-  const findMessages = async (res: ServerResponse) => {
-    onServerResponse({
-      statusCode: 200,
-      headers: { contentType: 'application/json' },
-      data: await service.findAll(),
-    })(res);
-  };
+  // Find all messages
+  router.get(MESSAGES, async (req: Request, res: Response) =>
+    res.status(200).json(await service.findAll()),
+  );
 
-  const findMessagesByUser = async (
-    userId: string | ObjectId,
-    res: ServerResponse,
-  ) => {
-    const user = await userService.findById(userId);
-    onServerResponse({
-      statusCode: 200,
-      headers: { contentType: 'application/json' },
-      data: await service.findAllByUser(user),
-    })(res);
-  };
+  // Find messages by user
+  router.get(MESSAGE_BY_USER_ID, async (req: Request, res: Response) => {
+    const { userId } = req.query;
+    const user = await userService.findById(userId as string);
+    res.status(200).json(await service.findAllByUser(user));
+  });
 
-  const createMessage = (req: IncomingMessage, res: ServerResponse) => {
-    let requestBody = '';
-
-    req.on('data', (chunk) => {
-      requestBody += chunk;
+  // Create message
+  router.post(MESSAGES, async (req: Request, res: Response) => {
+    const { content, userId, roomId } = req.body;
+    const newMessage = await service.create({
+      content,
+      user: await userService.findById(userId as string),
+      sentAt: new Date(),
     });
+    await roomService.patchMessage(roomId, newMessage);
+    res.status(201).json(newMessage);
+  });
 
-    req.on('error', (err) => {
-      onServerResponse({
-        statusCode: 500,
-        headers: { contentType: 'application/json' },
-        data: `${err}`,
-      })(res);
-    });
-
-    req.on('end', async () => {
-      const requiredFields = ['userId', 'content', 'roomId'];
-      const missingFields = requiredFields.filter(
-        (field) => !JSON.parse(requestBody)[`${field}`],
-      );
-      if (missingFields.length > 0) {
-        return onServerResponse({
-          statusCode: 406,
-          headers: { contentType: 'application/json' },
-          data: '',
-        })(res);
-      }
-      const { content, userId, roomId } = JSON.parse(requestBody);
-      const newMessage = await service.create({
-        content,
-        user: await userService.findById(userId as string),
-        sentAt: new Date(),
-      });
-      await roomService.patchMessage(roomId, newMessage);
-
-      onServerResponse({
-        statusCode: 201,
-        headers: { contentType: 'application/json' },
-        data: newMessage,
-      })(res);
-    });
-  };
-
-  return {
-    findMessages,
-    findMessagesByUser,
-    createMessage,
-  };
+  return router;
 }

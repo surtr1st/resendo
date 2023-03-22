@@ -3,8 +3,12 @@ import { useResponse } from '../helpers';
 
 const { onServerResponse } = useResponse();
 
-export function validateUser(req: Request, res: Response, next: NextFunction) {
-  const requiredFields = ['fullname', 'email', 'password'];
+export function validateFriend(
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) {
+  const requiredFields = ['friendId'];
   const missingFields = requiredFields.filter((field) => !req.body[field]);
 
   if (missingFields.length > 0)

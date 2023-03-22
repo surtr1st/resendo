@@ -1,81 +1,44 @@
-import { IncomingMessage, ServerResponse } from 'http';
-import { ObjectId } from 'mongoose';
-import { useResponse } from '../helpers';
+import { Request, Response, Router } from 'express';
+import { validateUser } from '../middlewares';
+import { USERS, USER_BY_ID, USER_BY_NAME, USERS_EXCEPT_SELF } from '../routes';
 import { FriendService, UserService } from '../services';
 
-export function useUserController() {
+export function UserController() {
+  const router = Router();
   const service = new UserService();
   const friendService = new FriendService();
-  const { onServerResponse } = useResponse();
 
-  const findUsers = async (res: ServerResponse) => {
-    onServerResponse({
-      statusCode: 200,
-      headers: { contentType: 'application/json' },
-      data: await service.findAll(),
-    })(res);
-  };
+  // Find all users
+  router.get(USERS, async (req: Request, res: Response) =>
+    res.status(200).json(await service.findAll()),
+  );
 
-  const findUser = async (userId: string | ObjectId, res: ServerResponse) => {
-    onServerResponse({
-      statusCode: 200,
-      headers: { contentType: 'application/json' },
-      data: await service.findByIdExcludePassword(userId),
-    })(res);
-  };
+  // Find user by id
+  router.get(USER_BY_ID, async (req: Request, res: Response) => {
+    const { userId } = req.query;
+    res
+      .status(200)
+      .json(await service.findByIdExcludePassword(userId as string));
+  });
 
-  const findUsersWithoutSelf = async (
-    userId: string | ObjectId,
-    res: ServerResponse,
-  ) => {
-    onServerResponse({
-      statusCode: 200,
-      headers: { contentType: 'application/json' },
-      data: await service.findExcludeSelf(userId),
-    })(res);
-  };
+  // Find users except self
+  router.get(USERS_EXCEPT_SELF, async (req: Request, res: Response) => {
+    const { except } = req.query;
+    res.status(200).json(await service.findExcludeSelf(except as string));
+  });
 
-  const findUserByName = async (keyword: string, res: ServerResponse) => {
-    onServerResponse({
-      statusCode: 200,
-      headers: { contentType: 'application/json' },
-      data: await service.findByName(keyword),
-    })(res);
-  };
+  // Find user by name
+  router.get(USER_BY_NAME, async (req: Request, res: Response) => {
+    const { keyword } = req.query;
+    res.status(200).json(await service.findByName(keyword as string));
+  });
 
-  const createUser = (req: IncomingMessage, res: ServerResponse) => {
-    let requestBody = '';
+  // Create user
+  router.post(USERS, validateUser, async (req: Request, res: Response) => {
+    const newUser = await service.create(req.body);
+    await friendService.create({ user: await service.findById(newUser) });
+    res.status(201).json(newUser);
+  });
 
-    req.on('data', (chunk) => {
-      requestBody += chunk;
-    });
-
-    req.on('error', (err) => {
-      onServerResponse({
-        statusCode: 500,
-        headers: { contentType: 'application/json' },
-        data: err,
-      })(res);
-    });
-
-    req.on('end', async () => {
-      const user = JSON.parse(requestBody);
-      const newUser = await service.create(user);
-      await friendService.create({ user: await service.findById(newUser) });
-
-      onServerResponse({
-        statusCode: 201,
-        headers: { contentType: 'application/json' },
-        data: newUser,
-      })(res);
-    });
-  };
-
-  return {
-    findUsers,
-    findUser,
-    findUserByName,
-    findUsersWithoutSelf,
-    createUser,
-  };
+  return router;
 }

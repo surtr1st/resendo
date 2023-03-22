@@ -26,7 +26,7 @@ export function User({ name, addFriend, uid, isSelf }: Partial<Props>) {
 
   return (
     <div className='user'>
-      <h4>{name}</h4>
+      <h4>{name!.length > 12 ? `${name?.slice(0, 12)}...` : name}</h4>
       {!isSelf && !isAdded && <Button.Send
         label='Add'
         onSend={addFriend}

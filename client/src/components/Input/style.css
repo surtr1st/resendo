@@ -45,11 +45,7 @@ textarea {
 .chat-box-input {
   width: 100%;
   height: 100%;
-  background: var(--dark-bg);
-  animation-name: upward;
-  animation-duration: 250ms;
-  animation-timing-function: ease-in-out;
-  animation-fill-mode: forwards;
+  background: var(--dark-bg); 
 }
 
 .chat-box {

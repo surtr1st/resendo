@@ -1,5 +1,5 @@
 import './style.css';
-import React, { ReactNode, KeyboardEvent } from 'react';
+import React, { ReactNode, KeyboardEvent, useEffect, useRef } from 'react';
 import ReactDOM from 'react-dom';
 import { Button } from '../Button';
 
@@ -7,6 +7,7 @@ type Props = {
   title: string;
   open: boolean;
   onClose: () => void | boolean | Promise<void | boolean>;
+  classAnimation: string
 };
 type DefaultProps = Props & {
   content: string;
@@ -32,6 +33,7 @@ export const Modal = {
           onClose()
       }
     }
+
     return ReactDOM.createPortal(
       <React.Fragment>
         {open && (
@@ -67,19 +69,16 @@ export const Modal = {
     onClose,
     title,
     children,
-  }: Partial<CustomizableProps>) => {
-    function closeOnEsc(e: KeyboardEvent) {
-      if (e.key === ESCAPE) {
-        e.preventDefault()
-        if (onClose)
-          onClose()
-      }
-    }
+    classAnimation
+  }: CustomizableProps) => {
+    const modal = useRef<HTMLDivElement>(null)
+    modal.current?.focus()
+
     return ReactDOM.createPortal(
       <React.Fragment>
         {open && (
           <>
-            <div className='modal' onKeyDown={closeOnEsc}>
+            <div ref={modal} className={`modal ${classAnimation}`}>
               <span className='modal-header'>
                 <h3>{title}</h3>
                 <Button.Close onClose={onClose} />
