@@ -1,23 +1,28 @@
 import { BASE_URL } from '.';
-import { Message } from '../types';
+import { AccessToken, Message } from '../types';
 
 export function useMessage() {
-  const getMessagesByUserId = async (userId: string) => {
+  const getMessagesByUserId = async (
+    userId: string,
+    accessToken: AccessToken,
+  ) => {
     const options: RequestInit = {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
+        Authorization: `Bearer $${accessToken}`,
       },
       credentials: 'include',
     };
     await fetch(`${BASE_URL}/messages?userId=${userId}`, options);
   };
 
-  const createMessage = async (message: Message) => {
+  const createMessage = async (message: Message, accessToken: AccessToken) => {
     const options: RequestInit = {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
+        Authorization: `Bearer $${accessToken}`,
       },
       credentials: 'include',
       body: JSON.stringify(message),

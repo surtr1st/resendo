@@ -22,11 +22,13 @@ const schema = new Schema<TypeRoom>({
     type: Types.ObjectId,
     ref: User,
     required: true,
+    index: true,
   },
   user2: {
     type: Types.ObjectId,
     ref: User,
     required: true,
+    index: true,
   },
   messages: [
     {

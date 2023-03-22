@@ -1,11 +1,16 @@
 import { BASE_URL } from '.';
+import { AccessToken, FriendArgs } from '../types';
 
 export function useFriend() {
-  const getFriendsByUserId = async (userId: string) => {
+  const getFriendsByUserId = async (
+    userId: string,
+    accessToken: AccessToken,
+  ) => {
     const options: RequestInit = {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
+        Authorization: `Bearer ${accessToken}`,
       },
       credentials: 'include',
     };
@@ -28,11 +33,12 @@ export function useFriend() {
     return result;
   };
 
-  const createFriend = async (userId: string) => {
+  const createFriend = async (userId: string, accessToken: AccessToken) => {
     const options: RequestInit = {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
+        Authorization: `Bearer ${accessToken}`,
       },
       credentials: 'include',
     };
@@ -41,11 +47,16 @@ export function useFriend() {
     return id;
   };
 
-  const updateFriend = async (userId: string, friendId: string) => {
+  const updateFriend = async ({
+    userId,
+    friendId,
+    accessToken,
+  }: Required<FriendArgs>) => {
     const options: RequestInit = {
       method: 'PATCH',
       headers: {
         'Content-Type': 'application/json',
+        Authorization: `Bearer ${accessToken}`,
       },
       credentials: 'include',
       body: JSON.stringify({ friendId }),

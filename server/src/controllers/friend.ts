@@ -1,29 +1,19 @@
-import { IncomingMessage, ServerResponse } from 'http';
-import { ObjectId } from 'mongoose';
-import { useResponse } from '../helpers';
-import { IUser } from '../models';
+import { Request, Response, Router } from 'express';
+import { validateFriend } from '../middlewares';
+import { FRIENDS, FRIENDS_BY_USER_ID, FRIEND_BY_USER_ID } from '../routes';
 import { RoomService, UserService } from '../services';
 import { FriendService } from '../services/friend';
 
-export function useFriendController() {
+export function FriendController() {
+  const router = Router();
   const service = new FriendService();
   const userService = new UserService();
   const roomService = new RoomService();
-  const { onServerResponse } = useResponse();
 
-  const findFriends = async (res: ServerResponse) => {
-    onServerResponse({
-      statusCode: 200,
-      headers: { contentType: 'application/json' },
-      data: await service.findAll(),
-    })(res);
-  };
-
-  const findFriendsByUser = async (
-    userId: string | ObjectId,
-    res: ServerResponse,
-  ) => {
-    const user = await userService.findById(userId);
+  // Find friends by user
+  router.get(FRIEND_BY_USER_ID, async (req: Request, res: Response) => {
+    const { userId } = req.query;
+    const user = await userService.findById(userId as string);
     const friends = await service.findFriendsByUser(user);
     const userFriends = [];
     for (const friend of friends) {
@@ -32,83 +22,33 @@ export function useFriendController() {
       );
       userFriends.push(detailFriend);
     }
-    onServerResponse({
-      statusCode: 200,
-      headers: { contentType: 'application/json' },
-      data: userFriends,
-    })(res);
-  };
+    res.status(200).json(userFriends);
+  });
 
-  const checkIfAdded = (req: IncomingMessage, res: ServerResponse) => {
-    let requestBody = '';
+  // Check if user added
+  router.post(FRIENDS, validateFriend, async (req: Request, res: Response) => {
+    const { userId, friendId } = req.body;
+    const user = await userService.findById(userId);
+    res.status(200).json(await service.isAdded(user, friendId));
+  });
 
-    req.on('data', (chunk) => {
-      requestBody += chunk;
-    });
+  // Update friends by user
+  router.put(FRIENDS_BY_USER_ID, async (req: Request, res: Response) => {
+    const { userId } = req.query;
+    const { friendId } = req.body;
+    const user = await userService.findById(userId as string);
+    const friend = await userService.findById(friendId);
+    // Update to self first
+    await service.patchFriend(user, friend);
+    // Then update to other
+    await service.patchFriend(friend, user);
+    const newRoom = {
+      user1: user,
+      user2: friend,
+    };
+    await roomService.create(newRoom);
+    res.status(201).send();
+  });
 
-    req.on('error', (err) => {
-      onServerResponse({
-        statusCode: 500,
-        headers: { contentType: 'application/json' },
-        data: `${err}`,
-      })(res);
-    });
-
-    req.on('end', async () => {
-      const { userId, friendId } = JSON.parse(requestBody);
-      const user = await userService.findById(userId);
-      onServerResponse({
-        statusCode: 200,
-        headers: { contentType: 'application/json' },
-        data: await service.isAdded(user, friendId),
-      })(res);
-    });
-  };
-
-  const updateFriends = (
-    userId: string | ObjectId,
-    req: IncomingMessage,
-    res: ServerResponse,
-  ) => {
-    let requestBody: NonNullable<string> = '';
-
-    req.on('data', (chunk) => {
-      requestBody += chunk;
-    });
-
-    req.on('error', (err) => {
-      return onServerResponse({
-        statusCode: 500,
-        headers: { contentType: 'application/json' },
-        data: `${err}`,
-      })(res);
-    });
-
-    req.on('end', async () => {
-      const { friendId } = JSON.parse(requestBody);
-      const user = await userService.findById(userId);
-      const friend = await userService.findById(friendId);
-      // Update to self first
-      await service.patchFriend(user, friend);
-      // Then update to other
-      await service.patchFriend(friend, user);
-      const newRoom = {
-        user1: user,
-        user2: friend,
-      };
-      await roomService.create(newRoom);
-      onServerResponse({
-        statusCode: 200,
-        headers: { contentType: 'application/json' },
-        data: {},
-      })(res);
-    });
-  };
-
-  return {
-    findFriends,
-    findFriendsByUser,
-    checkIfAdded,
-    updateFriends,
-  };
+  return router;
 }

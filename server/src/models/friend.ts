@@ -17,12 +17,14 @@ const schema = new Schema<TypeFriend>({
     type: Types.ObjectId,
     ref: User,
     required: true,
+    index: true,
   },
   friends: [
     {
       type: Types.ObjectId,
       ref: User,
       required: true,
+      index: true,
     },
   ],
 });
