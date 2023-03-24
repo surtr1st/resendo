@@ -1,7 +1,6 @@
 <script setup lang="ts">
 type Props = {
   type?: 'container' | 'fluid';
-  triggerScrollDown?: boolean;
 };
 defineProps<Props>();
 </script>

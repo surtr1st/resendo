@@ -1,11 +1,20 @@
 <script setup lang="ts">
-import Chat from './views/Chat/Chat.vue';
-import LoginOrRegistrate from './views/LoginOrRegistrate/LoginOrRegistrate.vue';
+import { onMounted } from 'vue';
+import { useRouter } from 'vue-router';
 import { useAuth } from './services';
-const { isAuth } = useAuth();
+
+const { accessToken, isAuth } = useAuth();
+const router = useRouter();
+
+onMounted(() => {
+  const { fullPath } = router.currentRoute.value;
+  if ((isAuth || accessToken) && fullPath === '/')
+    router.replace({ path: '/chat', replace: true });
+  if ((!isAuth || !accessToken) && fullPath === '/')
+    router.replace({ path: '/', replace: true });
+});
 </script>
 
 <template>
-  <LoginOrRegistrate v-if="!isAuth" />
-  <Chat v-else />
+  <RouterView />
 </template>

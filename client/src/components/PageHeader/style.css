@@ -9,3 +9,7 @@
   padding-left: .5rem;
   gap: 1rem;
 }
+
+ .page-header > h2 {
+  background: inherit;
+ }

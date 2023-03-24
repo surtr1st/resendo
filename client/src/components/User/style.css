@@ -22,11 +22,10 @@
   border: 0px;
   transition: 250ms ease-in-out all;
   background: var(--darker-bg);
-  color: black;
   display: grid;
   place-items: center;
 }
 
-.added > h4 {
+.self-label > h4, .added > h4 {
   background: inherit;
 }
