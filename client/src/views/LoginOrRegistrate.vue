@@ -1,11 +1,12 @@
 <script setup lang="ts">
-import LinkButton from '../../components/Button/LinkButton.vue';
-import SendButton from '../../components/Button/SendButton.vue';
-import Input from '../../components/Input/Input.vue';
-import VerticalSpacing from '../../components/Spacing/VerticalSpacing.vue';
+import LinkButton from '../components/Button/LinkButton.vue';
+import SendButton from '../components/Button/SendButton.vue';
+import Input from '../components/Input/Input.vue';
+import VerticalSpacing from '../components/Spacing/VerticalSpacing.vue';
+import { ref } from 'vue';
 import { useDebounceFn } from '@vueuse/core';
-import { reactive, ref } from 'vue';
-import { useAuth, useUser } from '../../services';
+import { useAuth, useUser } from '../services';
+import { useRouter } from 'vue-router';
 
 const isSignUp = ref(false);
 const { authorize } = useAuth();
@@ -17,6 +18,7 @@ const user = ref({
   reEnterPassword: '',
 });
 const DURATION = 500;
+const router = useRouter();
 
 function signin() {
   if (user.value.email.length === 0) return;
@@ -26,7 +28,9 @@ function signin() {
   };
   console.log(user.value.email);
   authorize(account)
-    .then(() => setTimeout(() => location.reload(), 500))
+    .then(() =>
+      setTimeout(() => router.replace({ path: '/chat', replace: true }), 500),
+    )
     .catch((err) => console.log(err));
 }
 const debounceLogin = useDebounceFn(signin, DURATION);
@@ -122,5 +126,28 @@ const debounceRegistrate = useDebounceFn(signup, DURATION);
 </template>
 
 <style scoped>
-@import url('./style.css');
+.login-bg {
+  width: 100%;
+  display: grid;
+  place-items: center;
+  height: 100vh;
+}
+
+.login {
+  padding: 1rem;
+  border-radius: 7px;
+  width: 500px;
+  height: 500px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
+h2 {
+  font-weight: bold;
+}
+a {
+  text-decoration: none;
+}
 </style>

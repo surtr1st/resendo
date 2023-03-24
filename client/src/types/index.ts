@@ -1,7 +1,7 @@
 export type AccessToken = string;
 export type FriendArgs = {
   userId: string;
-  friendId: string;
+  friendId: string | string[];
   accessToken: AccessToken;
 };
 export type RoomArgs = FriendArgs;

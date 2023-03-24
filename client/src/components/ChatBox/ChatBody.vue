@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { onMounted, ref, watch } from 'vue';
+import { ref, watch } from 'vue';
 import { triggerScrollDown } from '../../helpers';
 
 const chatBody = ref<HTMLDivElement | null>(null);
@@ -13,7 +13,6 @@ function onScrollDown() {
 watch(triggerScrollDown, () => {
   onScrollDown();
 });
-onMounted(() => onScrollDown());
 </script>
 
 <template>
