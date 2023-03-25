@@ -1,5 +1,5 @@
 import { BASE_URL } from '.';
-import { AccessToken, User, UserFilter } from '../types';
+import type { AccessToken, User, UserFilter } from '../types';
 export function useUser() {
   const getUsersWithoutSelf = async (
     userId: string,

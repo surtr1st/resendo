@@ -1,5 +1,5 @@
 import { BASE_URL } from '.';
-import { AccessToken, Message } from '../types';
+import type { AccessToken, Message } from '../types';
 export function useMessage() {
   const getMessagesByUserId = async (
     userId: string,

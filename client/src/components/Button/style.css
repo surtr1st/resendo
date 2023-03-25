@@ -4,8 +4,6 @@
   background: var(--primary);
 }
 
-
-
 .send:hover, .create:hover, .accept:hover, .cancel:hover {
   background: var(--primary-hover);
 }

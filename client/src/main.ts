@@ -1,6 +1,8 @@
-import './style.css';
-import App from './App.vue';
-import { createApp } from 'vue';
-import { router } from './router';
+import './app.css';
+import AppWrapper from './AppWrapper.svelte';
 
-createApp(App).use(router).mount('#app');
+const app = new AppWrapper({
+  target: document.getElementById('app'),
+});
+
+export default app;
