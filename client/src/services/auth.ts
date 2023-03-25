@@ -1,10 +1,12 @@
 import { BASE_URL } from '.';
 import type { AuthenticationArgs, AuthorizeResponse } from '../types';
+
 export function useAuth() {
   const userId = sessionStorage.getItem('userId') as string;
   const isAuth = Boolean(sessionStorage.getItem('isAuth')) ? true : false;
   const accessToken = sessionStorage.getItem('Access-Token') ?? '';
   const refreshToken = sessionStorage.getItem('Refresh-Token');
+
   const setAuthorizing = (args: AuthorizeResponse) => {
     const { accessToken, refreshToken, userId } = args;
     sessionStorage.setItem('isAuth', `${true}`);
@@ -12,10 +14,13 @@ export function useAuth() {
     sessionStorage.setItem('Refresh-Token', refreshToken);
     sessionStorage.setItem('userId', userId);
   };
+
   const authorize = async (args: AuthenticationArgs) => {
     const options: RequestInit = {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: {
+        'Content-Type': 'application/json',
+      },
       credentials: 'include',
       body: JSON.stringify({ ...args }),
     };
@@ -24,5 +29,12 @@ export function useAuth() {
       setAuthorizing(data);
     });
   };
-  return { userId, isAuth, accessToken, refreshToken, authorize };
+
+  return {
+    userId,
+    isAuth,
+    accessToken,
+    refreshToken,
+    authorize,
+  };
 }

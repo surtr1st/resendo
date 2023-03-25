@@ -1,0 +1,33 @@
+@import './assets/color.css';
+
+* {
+  background: var(--dark-bg);
+  color: var(--text-secondary);
+  font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
+  font-weight: 500;
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  -webkit-text-size-adjust: 100%;
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+svg {
+  background: inherit;
+}
+
+::-webkit-scrollbar {
+  width: 5px;
+}
+
+::-webkit-scrollbar-thumb {
+  background-color: var(--dark-bg);
+  border-radius: 2rem;
+}
+
+::-webkit-scrollbar-track {
+  width: 5px;
+}

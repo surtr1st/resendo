@@ -1,13 +1,11 @@
 .with-label {
   border-radius: 50%;
   border: 1px solid black;
-  background: inherit;
 }
 
 .without-label {
   border-radius: 50%;
   border: 1px solid black;
-  background: inherit;
 }
 
 .none-label {

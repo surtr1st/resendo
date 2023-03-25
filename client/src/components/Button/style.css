@@ -1,4 +1,17 @@
-@import url('../../assets/color.css');
+@import '../../assets/color.css';
+
+button {
+  height: 2.5rem;
+  padding-left: 0.75rem;
+  padding-right: 0.75rem;
+  border-radius: .3rem;
+  border: 0px;
+  transition: 250ms ease-in-out all;
+}
+
+button:hover {
+  cursor: pointer;
+}
 
 .send, .create, .accept, .cancel {
   background: var(--primary);
@@ -16,11 +29,11 @@
   background: inherit;
 }
 
-.close, .send-transparent {
+.close {
   background: transparent;
 }
 
-.close:hover, .send-transparent:hover {
+.close:hover {
   background: var(--secondary);
 }
 

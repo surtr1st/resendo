@@ -1,4 +1,4 @@
-@import url('../../assets/color.css');
+@import '../../assets/color.css';
 
 .page-header {
   background: var(--darker-bg);
@@ -9,7 +9,3 @@
   padding-left: .5rem;
   gap: 1rem;
 }
-
- .page-header > h2 {
-  background: inherit;
- }

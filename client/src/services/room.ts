@@ -1,5 +1,5 @@
 import { BASE_URL } from '.';
-import type { AccessToken, Room, RoomArgs, RoomResponse } from '../types';
+import { AccessToken, Room, RoomArgs, RoomResponse } from '../types';
 
 export function useRoom() {
   const getRoomsByUserId = async (userId: string, accessToken: AccessToken) => {

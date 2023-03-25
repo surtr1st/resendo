@@ -1,5 +1,6 @@
 import { BASE_URL } from '.';
-import type { AccessToken, User, UserFilter } from '../types';
+import { AccessToken, User, UserFilter } from '../types';
+
 export function useUser() {
   const getUsersWithoutSelf = async (
     userId: string,
@@ -20,22 +21,28 @@ export function useUser() {
   const getUserById = async (id: string) => {
     const options: RequestInit = {
       method: 'GET',
-      headers: { 'Content-Type': 'application/json' },
+      headers: {
+        'Content-Type': 'application/json',
+      },
       credentials: 'include',
     };
     const data = await fetch(`${BASE_URL}/users?userId=${id}`, options);
     const user = await data.json();
     return user;
   };
+
   const createUser = async (user: User) => {
     const options: RequestInit = {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: {
+        'Content-Type': 'application/json',
+      },
       credentials: 'include',
       body: JSON.stringify(user),
     };
     await fetch(`${BASE_URL}/users`, options);
   };
+
   const findUserByName = async ({
     keyword,
     userId,
@@ -55,5 +62,11 @@ export function useUser() {
     const json = await data.json();
     return json;
   };
-  return { getUsersWithoutSelf, getUserById, createUser, findUserByName };
+
+  return {
+    getUsersWithoutSelf,
+    getUserById,
+    createUser,
+    findUserByName,
+  };
 }

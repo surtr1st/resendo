@@ -1,5 +1,5 @@
-@import url('../../assets/color.css');
-@import url('../../assets/animation.css');
+@import '../../assets/color.css';
+@import '../../assets/animations.css';
 
 .user {
   padding: .5rem;
@@ -22,10 +22,12 @@
   border: 0px;
   transition: 250ms ease-in-out all;
   background: var(--darker-bg);
+  color: black;
   display: grid;
   place-items: center;
 }
 
-.self-label > h4, .added > h4 {
+.added > h4 {
   background: inherit;
 }
+

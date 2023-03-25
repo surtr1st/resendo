@@ -1,4 +1,4 @@
-@import url('../../assets/color.css');
+@import '../../assets/color.css';
 
 .fluid {
   min-width: 30vw;
@@ -30,7 +30,7 @@
 
 .chat {
   position: relative;
-  padding: 0.5rem;
+  padding: .5rem;
   display: flex;
   flex-direction: column;
   background: var(--darker-bg);
@@ -38,7 +38,7 @@
 
 .chat-footer {
   height: 100%;
-  padding: 0.5rem;
+  padding: .5rem;
   display: flex;
   justify-content: center;
   background: var(--darker-bg);

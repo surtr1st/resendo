@@ -1,7 +1,7 @@
 export type AccessToken = string;
 export type FriendArgs = {
   userId: string;
-  friendId: string | string[];
+  friendId: string;
   accessToken: AccessToken;
 };
 export type RoomArgs = FriendArgs;
@@ -25,7 +25,6 @@ export type User = {
   email: string;
   password: string;
 };
-export type InsensitiveUserInfo = Omit<User, 'password'>;
 export type Message = {
   content: string;
   userId: string;
@@ -50,7 +49,7 @@ export type Friend = {
 };
 export type RoomResponse = {
   _id: string;
-  user1: InsensitiveUserInfo;
-  user2: InsensitiveUserInfo;
+  user1: Omit<User, 'password'>;
+  user2: Omit<User, 'password'>;
   messages: Partial<MessageResponse[]>;
 };

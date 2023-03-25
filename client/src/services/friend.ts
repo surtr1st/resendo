@@ -1,5 +1,5 @@
 import { BASE_URL } from '.';
-import type { AccessToken, FriendArgs } from '../types';
+import { AccessToken, FriendArgs } from '../types';
 
 export function useFriend() {
   const getFriendsByUserId = async (
