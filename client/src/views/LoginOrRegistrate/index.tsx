@@ -3,9 +3,11 @@ import React, { useState } from 'react';
 import { Button, Input, Spacing } from '../../components';
 import { useAuth, useUser } from '../../services';
 import { debounce } from 'lodash';
+import { useNavigate } from 'react-router-dom';
 
 export function LoginOrRegistrate() {
   const [isSignUp, setIsSignUp] = useState(false);
+  const navigate = useNavigate()
   const { authorize } = useAuth();
   const { createUser } = useUser();
   const fullname = React.createRef<HTMLInputElement>();
@@ -20,7 +22,7 @@ export function LoginOrRegistrate() {
       // password: `${password.current?.value}`
     };
     authorize(account)
-      .then(() => setTimeout(() => location.reload(), 500))
+      .then(() => setTimeout(() => navigate('/chat'), DURATION))
       .catch((err) => console.log(err));
   }
   const debounceLogin = debounce(signin, DURATION)
