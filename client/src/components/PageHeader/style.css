@@ -9,3 +9,8 @@
   padding-left: .5rem;
   gap: 1rem;
 }
+
+.page-header > h2 {
+  border-radius: 10px;
+  padding: .5rem;
+}

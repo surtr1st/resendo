@@ -11,7 +11,7 @@ export const PageHeader = ({ author, avatarSrc }: Props) => {
     <div className="page-header">
       {
         !avatarSrc
-          ? <Avatar.WithoutLabel name='A du' />
+          ? <Avatar.WithoutLabel name={author} />
           : <Avatar.WithLabel src={avatarSrc} alt={avatarSrc} />
       }
       <h2>{author}</h2>
