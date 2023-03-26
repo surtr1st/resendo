@@ -9,4 +9,5 @@ ul {
   list-style: none;
   border-right: 1px solid var(--border-alternative-color);
   padding-top: .1rem;
+  position: relative;
 }

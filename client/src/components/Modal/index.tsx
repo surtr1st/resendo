@@ -1,5 +1,5 @@
 import './style.css';
-import React, { ReactNode, KeyboardEvent, useEffect, useRef } from 'react';
+import React, { ReactNode, KeyboardEvent, useRef } from 'react';
 import ReactDOM from 'react-dom';
 import { Button } from '../Button';
 

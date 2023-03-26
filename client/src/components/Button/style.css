@@ -29,11 +29,11 @@ button:hover {
   background: inherit;
 }
 
-.close {
+.close, .send-transparent {
   background: transparent;
 }
 
-.close:hover {
+.close:hover, .send-transparent:hover {
   background: var(--secondary);
 }
 

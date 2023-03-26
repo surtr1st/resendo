@@ -1,3 +1,4 @@
+import { Avatar } from '../Avatar';
 import './style.css';
 
 type Props = {
@@ -28,7 +29,11 @@ export const Message = {
       onClick={onAction}
     >
       <div className='card-image'>
-        <img src={avatarSrc} alt='#' />
+        {
+          !avatarSrc
+            ? <Avatar.WithoutLabel name={opponentName} />
+            : <Avatar.WithLabel src={avatarSrc} alt={avatarSrc} />
+        }
       </div>
       <span className='card-detail'>
         <h3>{opponentName.length > 12 ? `${opponentName.substring(0, 12)}...` : opponentName}</h3>

@@ -4,6 +4,7 @@ type Props = {
   label: string;
 };
 type SendProps = Props & {
+  transparent?: boolean
   onSend: () => void | boolean | Promise<void | boolean>;
 };
 type CreateProps = Props & {
@@ -26,10 +27,10 @@ type LinkProps = Props & {
 };
 
 export const Button = {
-  Send: ({ label, onSend }: Partial<SendProps>) => (
+  Send: ({ transparent, label, onSend }: Partial<SendProps>) => (
     <button
       onClick={onSend}
-      className='send'
+      className={transparent ? 'send-transparent' : 'send'}
     >
       <div className='content'>
         <svg
