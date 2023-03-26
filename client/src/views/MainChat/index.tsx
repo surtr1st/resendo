@@ -1,4 +1,3 @@
-
 import { io } from 'socket.io-client';
 import { debounce } from 'lodash';
 import React, { createRef, useMemo, useEffect, useState } from 'react';
@@ -24,13 +23,12 @@ export function MainChat() {
   const { userId, accessToken } = useAuth();
   const { createMessage } = useMessage();
   const { getConversationInRoom } = useRoom();
-
   const socket = io('http://localhost:4000', {
     withCredentials: true,
-    requestTimeout: 1000,
-    reconnectionAttempts: 3,
+    reconnection: true,
   });
   const content = createRef<HTMLTextAreaElement>();
+
   const DURATION = 500;
 
   async function retrieveMessages() {
@@ -90,12 +88,19 @@ export function MainChat() {
     setIsScrollDown(!isScrollDown)
   }, [conversation.length])
 
+  function onReceive() {
+    socket.on('from-server', (data) => {
+      setConversation((prev) => [...prev, data])
+    })
+  }
+
   useEffect(() => {
-    socket.on('from-server', (data) => setConversation((prev) => [...prev, data]))
-    return () => {
-      socket.off('from-server', (data) => setConversation((prev) => [...prev, data]))
-    }
-  }, [socket])
+    socket.on('connect', () => {
+      if (socket.recovered)
+        onReceive()
+    })
+    onReceive()
+  }, [])
 
   return (
     <Container.GridItem type='article'>

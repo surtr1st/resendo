@@ -27,6 +27,7 @@ function App() {
   const DURATION = 500;
   const title = createRef<HTMLInputElement>();
   const username = createRef<HTMLInputElement>()
+
   async function retrieveFriends() {
     return await getFriendsByUserId(userId, accessToken)
   }

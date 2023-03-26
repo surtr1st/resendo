@@ -66,7 +66,7 @@ function main() {
         cors: corsOptions,
         connectionStateRecovery: {
           // the backup duration of the sessions and the packets
-          maxDisconnectionDuration: 2 * 60 * 1000,
+          maxDisconnectionDuration: 1 * 60 * 1000,
           // whether to skip middlewares upon successful recovery
           skipMiddlewares: true,
         },
@@ -74,22 +74,14 @@ function main() {
 
       const rateLimiter = new RateLimiterMemory({
         points: 5,
-        duration: 60,
+        duration: 10,
       });
 
       io.on('connection', (socket) => {
         // Joining a room
-        socket.on('join-room', async (data) => {
-          try {
-            await rateLimiter.consume(socket.handshake.address);
-            socket.join(data);
-          } catch (e) {
-            socket.emit('blocked', {
-              'retry-ms': (e as RateLimiterRes).msBeforeNext,
-            });
-          }
+        socket.on('join-room', (data) => {
+          socket.join(data);
         });
-
         // Only show message to all users within room
         socket.on('from-client', async (data) => {
           try {
