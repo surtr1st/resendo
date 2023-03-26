@@ -28,7 +28,12 @@ export function RoomController() {
         .then(async () => {
           const { _id, user1, user2, messages } = loggedUser as TypeRoom;
           const messagesInRoom = [];
-          for (const message of messages) {
+          // Response only 12 messages for each request
+          const limitedMessages =
+            messages.length > 0
+              ? messages.slice(messages.length - 12, messages.length)
+              : messages;
+          for (const message of limitedMessages) {
             const detailMessage = await messageService.findById(message._id);
             messagesInRoom.push(detailMessage);
           }

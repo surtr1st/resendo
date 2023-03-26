@@ -14,7 +14,6 @@ import {
 } from '../../components';
 
 export function MainChat() {
-  const [room, setRoom] = useState('');
   const [conversation, setConversation] = useState<MessageResponse[]>([]);
   const [fullname, setFullname] = useState('');
   const [isScrollDown, setIsScrollDown] = useState(false)
@@ -23,29 +22,31 @@ export function MainChat() {
   const { userId, accessToken } = useAuth();
   const { createMessage } = useMessage();
   const { getConversationInRoom } = useRoom();
-  const socket = io('http://localhost:4000', {
-    withCredentials: true,
-    reconnection: true,
-  });
+
+  const socket = io('http://localhost:4000')
+
   const content = createRef<HTMLTextAreaElement>();
 
-  const DURATION = 500;
+  const DURATION = 250;
 
-  async function retrieveMessages() {
-    return await getConversationInRoom({ userId, friendId: id as string, accessToken })
+  function onReceive() {
+    socket.on('from-server', (data) => {
+      setConversation((prev) => [...prev, data])
+    })
   }
 
-  const listMessages = useMemo(async () => {
-    const { messages } = await retrieveMessages()
-    setConversation(messages as MessageResponse[])
-  }, [conversation.length])
+  function onAbort() {
+    socket.off('from-server', (data) => {
+      setConversation((prev) => [...prev, data])
+    })
+  }
 
   function handleConversationInRoom() {
     getConversationInRoom({ userId, friendId: id as string, accessToken })
       .then((res) => {
         const { _id, user1, user2, messages } = res;
-        setRoom(_id);
-        socket.emit('join-room', _id);
+        sessionStorage.setItem('Room-Id', _id)
+        socket.emit('join-room', _id)
         setConversation(messages as MessageResponse[]);
         setIsScrollDown(true)
         switch (userId) {
@@ -66,19 +67,17 @@ export function MainChat() {
 
   function sendMessage() {
     const value = `${content.current?.value}`.trim();
+    const roomId = sessionStorage.getItem('Room-Id') as string
     if (value.length === 0) return
-    createMessage({ content: value, userId, roomId: room }, accessToken)
+    createMessage({ content: value, userId, roomId }, accessToken)
       .then((res) => {
-        socket.emit('from-client', { message: res, room });
+        socket.emit('from-client', { message: res, room: roomId })
         setIsScrollDown(!isScrollDown)
       })
       .catch((err) => console.log(err));
     if (content.current)
       content.current!.value = ''
   }
-
-  useEffect(() => {
-  }, [listMessages])
 
   useEffect(() => {
     debounceMessagesInRoom()
@@ -88,18 +87,11 @@ export function MainChat() {
     setIsScrollDown(!isScrollDown)
   }, [conversation.length])
 
-  function onReceive() {
-    socket.on('from-server', (data) => {
-      setConversation((prev) => [...prev, data])
-    })
-  }
-
   useEffect(() => {
-    socket.on('connect', () => {
-      if (socket.recovered)
-        onReceive()
-    })
     onReceive()
+    return () => {
+      onAbort()
+    }
   }, [])
 
   return (
@@ -133,6 +125,7 @@ export function MainChat() {
             onEnter={sendMessage}
           >
             <Button.Send
+              transparent
               onSend={sendMessage}
             />
           </Input.TextArea>

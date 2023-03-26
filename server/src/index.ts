@@ -14,6 +14,7 @@ import {
   AuthController,
   FriendController,
 } from './controllers';
+import { IMessage } from './models';
 
 dotenv.config({});
 const { HOST, PORT, MONGODB_URL } = process.env;
@@ -73,26 +74,39 @@ function main() {
       });
 
       const rateLimiter = new RateLimiterMemory({
-        points: 5,
-        duration: 10,
+        points: 7,
+        duration: 3,
       });
 
       io.on('connection', (socket) => {
-        // Joining a room
-        socket.on('join-room', (data) => {
-          socket.join(data);
-        });
-        // Only show message to all users within room
-        socket.on('from-client', async (data) => {
-          try {
-            await rateLimiter.consume(socket.handshake.address);
-            socket.to(data.room).emit('from-server', data.message);
-          } catch (e) {
-            socket.emit('blocked', {
-              'retry-ms': (e as RateLimiterRes).msBeforeNext,
-            });
-          }
-        });
+        function onJoinRoom() {
+          // Joining a room
+          socket.on('join-room', (data) => {
+            socket.join(data);
+          });
+        }
+
+        function onReceiveAndSendBack() {
+          // Only show message to all users within room
+          socket.on('from-client', async (data) => {
+            try {
+              await rateLimiter.consume(socket.handshake.address);
+              socket.to(data.room).emit('from-server', data.message);
+            } catch (e) {
+              socket.emit('blocked', {
+                'retry-ms': (e as RateLimiterRes).msBeforeNext,
+              });
+            }
+          });
+        }
+
+        if (socket.recovered) {
+          onJoinRoom();
+          onReceiveAndSendBack();
+          return;
+        }
+        onJoinRoom();
+        onReceiveAndSendBack();
       });
 
       httpServer.listen(port, HOST);

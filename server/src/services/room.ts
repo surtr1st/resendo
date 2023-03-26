@@ -25,6 +25,7 @@ export class RoomService {
         user1: user,
         user2: friend,
       });
+
       if (!room) throw new Error('Cannot return messages of room by user');
       return room;
     } catch (e) {

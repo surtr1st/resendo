@@ -32,9 +32,8 @@ function App() {
     return await getFriendsByUserId(userId, accessToken)
   }
 
-  const listFriends = useMemo(async () => {
-    const data = await retrieveFriends()
-    setFriends(data)
+  const listFriends = useMemo(() => {
+    retrieveFriends().then(res => setFriends(res)).catch(err => console.log(err))
   }, [friends.length])
 
   function findPeople() {
