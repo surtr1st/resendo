@@ -4,6 +4,7 @@ import {
   MessageService,
   RoomService,
   UserService,
+  MediaService,
 } from '../services';
 import { CREATE_MESSAGE, MESSAGES_BY_USER_ID } from '../routes';
 
@@ -13,6 +14,7 @@ export function MessageController() {
   const userService = new UserService();
   const roomService = new RoomService();
   const groupService = new GroupService();
+  const mediaService = new MediaService();
 
   // Find messages by user
   router.get(MESSAGES_BY_USER_ID, async (req: Request, res: Response) => {

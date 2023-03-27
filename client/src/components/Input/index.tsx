@@ -223,4 +223,32 @@ export const Input = {
       );
     },
   ),
+  File: React.forwardRef(
+    (
+      {
+        label,
+        name,
+        value,
+        onChange,
+      }: Partial<InputProps>,
+      ref: ForwardedRef<HTMLInputElement>,
+    ) => {
+      return (
+        <div className='chat-box-input'>
+          <div className='file-label'>
+            <label htmlFor={name}>{label}</label>
+          </div>
+          <input
+            type='file'
+            id={name}
+            ref={ref}
+            name={name}
+            value={value}
+            className='text'
+            onChange={onChange}
+          />
+        </div>
+      );
+    },
+  )
 };

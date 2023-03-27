@@ -28,7 +28,7 @@ export class MessageService {
     }
   }
 
-  async create(message: IMessage) {
+  async create(message: Partial<IMessage>) {
     try {
       const createdMessage = await Message.create(message);
       return createdMessage;

@@ -13,6 +13,7 @@ import {
   RoomController,
   AuthController,
   FriendController,
+  MediaController,
 } from './controllers';
 import { GroupController } from './controllers/group';
 
@@ -47,18 +48,12 @@ function main() {
       app.use(bodyParser.json());
       app.use(limiter);
 
-      // User
       app.use(UserController());
-      // Message
       app.use(MessageController());
-      // Room
       app.use(RoomController());
-      // Friend
       app.use(FriendController());
-      // Media
-      // Group
       app.use(GroupController());
-      // Auth
+      app.use(MediaController());
       app.use(AuthController());
 
       const httpServer = createServer(app);

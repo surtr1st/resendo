@@ -1,10 +1,11 @@
-import React from 'react';
-import { Avatar } from '../Avatar';
 import './style.css';
+import { useRef } from 'react';
+import { Avatar } from '../Avatar';
 
 type Props = {
   author?: string
   content: string;
+  mediaSrc?: string
 };
 
 type CardProps = {
@@ -15,22 +16,30 @@ type CardProps = {
 };
 
 export const Message = {
-  Sender: ({ author, content }: Props) => (
-    <React.Fragment>
+  Sender: ({ author, content, mediaSrc }: Props) => {
+    const image = useRef<HTMLImageElement | null>(null)
+    const width = (image.current?.width as number) / 2
+    const height = (image.current?.height as number) / 2
+    return (
       <div className='sender'>
         {author && <h5 className='sender-label'>{author}</h5>}
         <p>{content}</p>
+        {mediaSrc && <img src={mediaSrc} ref={image} width={width} height={height} />}
       </div>
-    </React.Fragment>
-  ),
-  Receiver: ({ author, content }: Props) => (
-    <React.Fragment>
+    )
+  },
+  Receiver: ({ author, content, mediaSrc }: Props) => {
+    const image = useRef<HTMLImageElement | null>(null)
+    const width = (image.current?.width as number) / 2
+    const height = (image.current?.height as number) / 2
+    return (
       <div className='receiver'>
         {author && <h5 className='receiver-label'>{author}</h5>}
         <p>{content}</p>
+        {mediaSrc && <img src={mediaSrc} ref={image} width={width} height={height} />}
       </div>
-    </React.Fragment>
-  ),
+    )
+  },
   Card: ({ avatarSrc, opponentName, latestMessage, onAction }: CardProps) => (
     <div
       className='card'

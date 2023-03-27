@@ -13,6 +13,15 @@ button:hover {
   cursor: pointer;
 }
 
+button:disabled {
+  background: var(--secondary);
+}
+
+button:disabled:hover {
+  background: var(--secondary);
+}
+
+
 .send, .create, .accept, .cancel {
   background: var(--primary);
 }

@@ -11,8 +11,9 @@ import {
   Input,
   Message,
   PageHeader,
+  Loading,
+  Floater
 } from '../../components';
-import { Loading } from '../../components/Loading';
 
 export function MainChat() {
   const [conversation, setConversation] = useState<MessageResponse[]>([]);
@@ -119,15 +120,18 @@ export function MainChat() {
                       <Message.Sender
                         key={index}
                         content={message.content}
+                        mediaSrc=''
                       />
                     ) : (
                       <Message.Receiver
                         key={index}
                         content={message.content}
+                        mediaSrc=''
                       />
                     )}
                   </React.Fragment>
                 ))}
+              <Floater.Media />
             </Chat.Body>
             <Chat.Footer>
               <Input.TextArea

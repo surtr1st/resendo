@@ -30,6 +30,20 @@ export function useGroup() {
     return group;
   };
 
+  const checkIfAdded = async (userId: string) => {
+    const options: RequestInit = {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      credentials: 'include',
+      body: JSON.stringify({ userId }),
+    };
+    const data = await fetch(`${BASE_URL}/group/joined`, options);
+    const result = await data.json();
+    return result;
+  };
+
   const createGroup = async (group: Group, accessToken: AccessToken) => {
     const options: RequestInit = {
       method: 'POST',
@@ -95,6 +109,7 @@ export function useGroup() {
     createGroup,
     addMembers,
     removeMembers,
+    checkIfAdded,
     deleteGroup,
   };
 }

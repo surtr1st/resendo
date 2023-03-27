@@ -1,0 +1,10 @@
+.floater {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+}
+
+.item {
+  display: flex;
+  gap: 1rem;
+}

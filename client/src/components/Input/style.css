@@ -71,3 +71,11 @@ textarea {
   margin-bottom: .3rem;
   background-color: var(--dark-bg);
 }
+
+input[type='file'] {
+  display: none;
+}
+
+.file-label {
+  background: white;
+}

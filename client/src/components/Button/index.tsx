@@ -2,6 +2,7 @@ import './style.css';
 
 type Props = {
   label: string;
+  disabled: boolean
 };
 type SendProps = Props & {
   transparent?: boolean
@@ -27,8 +28,9 @@ type LinkProps = Props & {
 };
 
 export const Button = {
-  Send: ({ transparent, label, onSend }: Partial<SendProps>) => (
+  Send: ({ disabled, transparent, label, onSend }: Partial<SendProps>) => (
     <button
+      disabled={disabled}
       onClick={onSend}
       className={transparent ? 'send-transparent' : 'send'}
     >

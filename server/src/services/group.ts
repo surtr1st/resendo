@@ -42,6 +42,18 @@ export class GroupService {
     }
   }
 
+  async isJoined(id: string | Object, user: string | ObjectId) {
+    try {
+      const joined = await Group.findOne({
+        _id: id,
+        users: { _id: user },
+      });
+      return joined ? true : false;
+    } catch (e) {
+      throw e;
+    }
+  }
+
   async addMember(id: string | ObjectId, user: TypeUser) {
     try {
       return await Group.updateOne({ _id: id }, { $push: { users: user } });

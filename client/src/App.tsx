@@ -104,6 +104,9 @@ function App() {
           setIsCreatedLoading(false)
           setOpenCreateGroup(false)
           setMembers([])
+          retrieveGroupsByUser()
+            .then(res => setGroups(res))
+            .catch((err) => console.log(err))
         }, DURATION)
       }).catch(err => console.log(err))
   }
@@ -170,7 +173,7 @@ function App() {
                   <Spacing.Horizontal>
                     {users &&
                       users.map((user, index) => (
-                        <User
+                        <User.StrangerList
                           key={index}
                           uid={user._id as string}
                           name={user.fullname}
@@ -215,11 +218,12 @@ function App() {
                         <Spacing.Horizontal>
                           {friends &&
                             friends.map((user, index) => (
-                              <User
+                              <User.FriendList
                                 key={index}
                                 uid={user._id as string}
                                 name={user.fullname}
                                 onAction={() => debounceAddToGroup(user._id as string)}
+                                disabled={members.includes(user._id as string)}
                               />
                             ))}
                         </Spacing.Horizontal>

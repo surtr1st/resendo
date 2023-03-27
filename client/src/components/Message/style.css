@@ -22,9 +22,10 @@
   background: inherit;
   color: rgb(244,244,245);
   font-weight: bolder;
+  margin-bottom: .15rem;
 }
 
-.sender > p {
+.sender > p, img {
   background: inherit;
 }
 
@@ -33,7 +34,7 @@
   align-self: flex-start;
 }
 
-.receiver > p {
+.receiver > p, img {
   background: inherit;
 }
 

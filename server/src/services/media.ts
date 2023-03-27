@@ -1,15 +1,16 @@
-import { Media, TypeMedia, TypeMessage } from '../models';
+import { ObjectId } from 'mongoose';
+import { IMedia, Media } from '../models';
 
 export class MediaService {
-  async findAllByMessage(message: TypeMessage) {
+  async findAllById(id: string | ObjectId) {
     try {
-      return await Media.find({ message });
+      return await Media.find({ _id: id });
     } catch (e) {
-      throw new Error('Cannot return list of medias by message');
+      throw new Error(`Cannot return list of media by id: ${id}`);
     }
   }
 
-  async create(media: TypeMedia) {
+  async create(media: IMedia) {
     try {
       const createdMedia = await Media.create(media);
       return createdMedia.id;

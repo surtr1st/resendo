@@ -1,4 +1,5 @@
 import mongo, { model, ObjectId, Schema, Types } from 'mongoose';
+import { Media, TypeMedia } from './media';
 import { TypeUser, User } from './user';
 
 type TypeMessage = mongo.Document & {
@@ -7,12 +8,14 @@ type TypeMessage = mongo.Document & {
   user: Omit<TypeUser, 'password'>;
   author: string;
   sentAt: Date;
+  media: TypeMedia;
 };
 
 interface IMessage {
   content: string;
   user: Omit<TypeUser, 'password'>;
   sentAt: Date;
+  media: TypeMedia;
 }
 
 const schema = new Schema<TypeMessage>({
@@ -25,6 +28,11 @@ const schema = new Schema<TypeMessage>({
   },
   author: String,
   sentAt: Date,
+  media: {
+    type: Types.ObjectId,
+    ref: Media,
+    index: true,
+  },
 });
 
 const Message = model<TypeMessage>('Message', schema);

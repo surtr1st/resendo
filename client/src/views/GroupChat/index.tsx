@@ -70,7 +70,7 @@ export function GroupChat() {
     const value = `${content.current?.value}`.trim();
     const groupId = sessionStorage.getItem('Group-Id') as string
     if (value.length === 0) return
-    createMessage({ content: value, userId, groupId }, accessToken)
+    createMessage({ content: value, userId, groupId, type: 'text' }, accessToken)
       .then((res) => {
         socket.emit('from-client', { message: res, room: groupId })
         setIsScrollDown(!isScrollDown)
@@ -111,12 +111,13 @@ export function GroupChat() {
                     {message.user === userId ? (
                       <Message.Sender
                         key={index}
-                        author={message.author}
+                        type={message.type as string}
                         content={message.content}
                       />
                     ) : (
                       <Message.Receiver
                         key={index}
+                        type={message.type as string}
                         author={message.author}
                         content={message.content}
                       />

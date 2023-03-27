@@ -5,6 +5,7 @@ import {
   CREATE_GROUP,
   GROUPS_BY_USER_ID,
   GROUP_BY_ID,
+  IS_JOINED_GROUP,
   REMOVE_MEMBERS,
 } from '../routes';
 import { GroupService, MessageService, UserService } from '../services';
@@ -65,6 +66,12 @@ export function GroupController() {
     };
     const newGroup = service.create(group);
     res.status(201).json(newGroup);
+  });
+
+  router.post(IS_JOINED_GROUP, async (req: Request, res: Response) => {
+    const { id } = req.query;
+    const { userId } = req.body;
+    res.status(200).json(await service.isJoined(id as string, userId));
   });
 
   router.patch(ADD_MEMBERS, async (req: Request, res: Response) => {
