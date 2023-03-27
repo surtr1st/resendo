@@ -2,14 +2,14 @@ import ReactDOM from 'react-dom/client';
 import App from './App';
 import './index.css';
 import { LoginOrRegistrate } from './views/LoginOrRegistrate';
-import { createBrowserRouter, RouterProvider } from 'react-router-dom'
+import { createBrowserRouter, RouterProvider } from 'react-router-dom';
 import { MainChat } from './views/MainChat';
 import { GroupChat } from './views/GroupChat';
 
 const router = createBrowserRouter([
   {
     path: '/',
-    element: <LoginOrRegistrate />
+    element: <LoginOrRegistrate />,
   },
   {
     path: '/chat',
@@ -17,16 +17,16 @@ const router = createBrowserRouter([
     children: [
       {
         path: ':id',
-        element: <MainChat />
+        element: <MainChat />,
       },
       {
         path: 'group/:id',
-        element: <GroupChat />
+        element: <GroupChat />,
       },
-    ]
-  }
-])
+    ],
+  },
+]);
 
 ReactDOM.createRoot(document.getElementById('root') as HTMLElement).render(
-  <RouterProvider router={router} />
+  <RouterProvider router={router} />,
 );

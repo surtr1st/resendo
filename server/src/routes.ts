@@ -10,6 +10,7 @@ export const USERS_EXCEPT_SELF = `${BASE_URL}/users/filter`;
 export const CREATE_MESSAGE = `${BASE_URL}/message`;
 export const MESSAGE_BY_ID = `${BASE_URL}/message`;
 export const MESSAGES_BY_USER_ID = `${BASE_URL}/messages/filter`;
+export const UPLOAD_MEDIA = `${BASE_URL}/message/media`;
 
 export const CREATE_ROOM = `${BASE_URL}/room`;
 export const ROOM_BY_ID = `${BASE_URL}/room`;
@@ -25,8 +26,6 @@ export const GROUP_BY_ID = `${BASE_URL}/group`;
 export const ADD_MEMBERS = `${BASE_URL}/group/member/add`;
 export const REMOVE_MEMBERS = `${BASE_URL}/group/member/remove`;
 export const GROUPS_BY_USER_ID = `${BASE_URL}/groups`;
-
-export const UPLOAD_MEDIA = `${BASE_URL}/media/upload`;
 
 export const METHOD = {
   GET: 'GET',

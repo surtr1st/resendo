@@ -9,6 +9,5 @@ export * from './Spacing';
 export * from './PageHeader';
 export * from './Container';
 export * from './User';
-export * from './Notify'
-export * from './Floater'
-export * from './Loading'
+export * from './Notify';
+export * from './Loading';

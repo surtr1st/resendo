@@ -37,6 +37,7 @@ export type MessageResponse = {
   content: string;
   user: string;
   author?: string;
+  media?: string;
   type?: string;
   sentAt: Date;
 };

@@ -1,5 +1,5 @@
 import './style.css';
-import React, { ReactNode, KeyboardEvent, useRef } from 'react';
+import React, { ReactNode, KeyboardEvent, useRef, useEffect } from 'react';
 import ReactDOM from 'react-dom';
 import { Button } from '../Button';
 
@@ -7,7 +7,6 @@ type Props = {
   title: string;
   open: boolean;
   onClose: () => void | boolean | Promise<void | boolean>;
-  classAnimation: string
 };
 type DefaultProps = Props & {
   content: string;
@@ -22,15 +21,14 @@ type CustomizableActionProps = {
   children: ReactNode;
 };
 
-const ESCAPE = 'Escape'
+const ESCAPE = 'Escape';
 
 export const Modal = {
   Default: ({ open, title, content, onClose }: Partial<DefaultProps>) => {
     function closeOnEsc(e: KeyboardEvent) {
       if (e.key === ESCAPE) {
-        e.preventDefault()
-        if (onClose)
-          onClose()
+        e.preventDefault();
+        if (onClose) onClose();
       }
     }
 
@@ -38,7 +36,10 @@ export const Modal = {
       <React.Fragment>
         {open && (
           <>
-            <div className='modal' onKeyDown={closeOnEsc}>
+            <div
+              className='modal'
+              onKeyDown={closeOnEsc}
+            >
               <span className='modal-header'>
                 <h3>{title}</h3>
                 <Button.Close onClose={onClose} />
@@ -64,21 +65,24 @@ export const Modal = {
       document.querySelector('body') as HTMLElement,
     );
   },
-  Customizable: ({
-    open,
-    onClose,
-    title,
-    children,
-    classAnimation
-  }: CustomizableProps) => {
-    const modal = useRef<HTMLDivElement>(null)
-    modal.current?.focus()
+  Customizable: ({ open, onClose, title, children }: CustomizableProps) => {
+    const modal = useRef<HTMLDivElement>(null);
+    useEffect(() => {
+      modal.current?.focus();
+      modal.current?.classList.add('show');
+      return () => {
+        modal.current?.classList.remove('show');
+      };
+    }, []);
 
     return ReactDOM.createPortal(
       <React.Fragment>
         {open && (
           <>
-            <div ref={modal} className={`modal ${classAnimation}`}>
+            <div
+              ref={modal}
+              className='modal'
+            >
               <span className='modal-header'>
                 <h3>{title}</h3>
                 <Button.Close onClose={onClose} />
@@ -90,7 +94,7 @@ export const Modal = {
         )}
       </React.Fragment>,
       document.querySelector('body') as HTMLElement,
-    )
+    );
   },
   ContentBody: ({ children }: Partial<CustomizableContentProps>) => (
     <div className='modal-body'>{children}</div>

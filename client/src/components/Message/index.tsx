@@ -1,11 +1,10 @@
 import './style.css';
-import { useRef } from 'react';
 import { Avatar } from '../Avatar';
 
 type Props = {
-  author?: string
+  author?: string;
   content: string;
-  mediaSrc?: string
+  mediaSrc?: string;
 };
 
 type CardProps = {
@@ -17,28 +16,36 @@ type CardProps = {
 
 export const Message = {
   Sender: ({ author, content, mediaSrc }: Props) => {
-    const image = useRef<HTMLImageElement | null>(null)
-    const width = (image.current?.width as number) / 2
-    const height = (image.current?.height as number) / 2
     return (
       <div className='sender'>
         {author && <h5 className='sender-label'>{author}</h5>}
-        <p>{content}</p>
-        {mediaSrc && <img src={mediaSrc} ref={image} width={width} height={height} />}
+        {content && <p>{content}</p>}
+        {mediaSrc && (
+          <div className='img-container'>
+            <img
+              loading='lazy'
+              src={`${mediaSrc}.png`}
+            />
+          </div>
+        )}
       </div>
-    )
+    );
   },
   Receiver: ({ author, content, mediaSrc }: Props) => {
-    const image = useRef<HTMLImageElement | null>(null)
-    const width = (image.current?.width as number) / 2
-    const height = (image.current?.height as number) / 2
     return (
       <div className='receiver'>
         {author && <h5 className='receiver-label'>{author}</h5>}
-        <p>{content}</p>
-        {mediaSrc && <img src={mediaSrc} ref={image} width={width} height={height} />}
+        {content && <p>{content}</p>}
+        {mediaSrc && (
+          <div className='img-container'>
+            <img
+              loading='lazy'
+              src={`${mediaSrc}.png`}
+            />
+          </div>
+        )}
       </div>
-    )
+    );
   },
   Card: ({ avatarSrc, opponentName, latestMessage, onAction }: CardProps) => (
     <div
@@ -46,14 +53,21 @@ export const Message = {
       onClick={onAction}
     >
       <div className='card-image'>
-        {
-          !avatarSrc
-            ? <Avatar.WithoutLabel name={opponentName} />
-            : <Avatar.WithLabel src={avatarSrc} alt={avatarSrc} />
-        }
+        {!avatarSrc ? (
+          <Avatar.WithoutLabel name={opponentName} />
+        ) : (
+          <Avatar.WithLabel
+            src={avatarSrc}
+            alt={avatarSrc}
+          />
+        )}
       </div>
       <span className='card-detail'>
-        <h3>{opponentName.length > 12 ? `${opponentName.substring(0, 12)}...` : opponentName}</h3>
+        <h3>
+          {opponentName.length > 12
+            ? `${opponentName.substring(0, 12)}...`
+            : opponentName}
+        </h3>
         <h5>
           {latestMessage.length > 10
             ? `${latestMessage.slice(0, 10)}...`

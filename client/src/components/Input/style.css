@@ -77,5 +77,24 @@ input[type='file'] {
 }
 
 .file-label {
-  background: white;
+  background: var(--dark-bg);
+  height: 2.5rem;
+  padding-left: 0.75rem;
+  padding-right: 0.75rem;
+  border-radius: .3rem;
+  border: 0px;
+  transition: 250ms ease-in-out all;
+  display: grid;
+  place-items: center;
+}
+
+.file-label:hover, .file-label > label:hover , .file-label > label > svg:hover {
+  cursor: pointer;
+  background: var(--secondary);
+}
+
+.file-label > label {
+  background: inherit;
+  display: flex;
+  gap: .25rem;
 }

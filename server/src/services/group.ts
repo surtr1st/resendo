@@ -46,8 +46,9 @@ export class GroupService {
     try {
       const joined = await Group.findOne({
         _id: id,
-        users: { _id: user },
+        users: { $in: [user] },
       });
+      console.log(joined);
       return joined ? true : false;
     } catch (e) {
       throw e;

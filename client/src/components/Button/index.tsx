@@ -2,10 +2,10 @@ import './style.css';
 
 type Props = {
   label: string;
-  disabled: boolean
+  disabled: boolean;
 };
 type SendProps = Props & {
-  transparent?: boolean
+  transparent?: boolean;
   onSend: () => void | boolean | Promise<void | boolean>;
 };
 type CreateProps = Props & {

@@ -30,7 +30,7 @@ export function useGroup() {
     return group;
   };
 
-  const checkIfAdded = async (userId: string) => {
+  const checkIfAdded = async (groupId: string, userId: string) => {
     const options: RequestInit = {
       method: 'POST',
       headers: {
@@ -39,7 +39,7 @@ export function useGroup() {
       credentials: 'include',
       body: JSON.stringify({ userId }),
     };
-    const data = await fetch(`${BASE_URL}/group/joined`, options);
+    const data = await fetch(`${BASE_URL}/group/joined?id=${groupId}`, options);
     const result = await data.json();
     return result;
   };

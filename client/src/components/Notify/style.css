@@ -1,19 +1,36 @@
-.hide-notify {
-  display: none;
-}
+@import url('../../assets/animations.css');
 
-.success {
+.notify {
+  visibility: hidden;
   top: 0;
   right: 0;
   position: absolute;
+  display: none;
   margin: 1rem;
   padding: 1.2rem;
+  border-radius: 7px;
+}
+
+.notify.show {
+  visibility: visible;
+  animation: slide-fade-left, slide-fade-up;
+  animation-duration: 250ms;
+  animation-timing-function: ease-in-out;
+  animation-fill-mode: forwards;
+}
+
+.success {
   background: #03fc9d;
   border: 3px solid #00ab69;
-  border-radius: 7px;
   color: #00452a;
 }
 
-.content {
+.error {
+  background: #f5113f;
+  border: 3px solid #3d0410;
+  color: #260008;
+}
 
+.content > h3 {
+  background: inherit;
 }

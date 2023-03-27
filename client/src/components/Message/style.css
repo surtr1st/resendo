@@ -29,6 +29,11 @@
   background: inherit;
 }
 
+.img-container > img {
+  width: 380px;
+  height: auto;
+}
+
 .receiver {
   background: var(--secondary);
   align-self: flex-start;

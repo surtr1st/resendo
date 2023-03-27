@@ -13,7 +13,6 @@ import {
   RoomController,
   AuthController,
   FriendController,
-  MediaController,
 } from './controllers';
 import { GroupController } from './controllers/group';
 
@@ -53,7 +52,6 @@ function main() {
       app.use(RoomController());
       app.use(FriendController());
       app.use(GroupController());
-      app.use(MediaController());
       app.use(AuthController());
 
       const httpServer = createServer(app);

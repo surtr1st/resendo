@@ -1,36 +1,54 @@
-import './style.css'
-import React, { useEffect, useRef, useState } from "react"
+import './style.css';
+import { useEffect, useRef } from 'react';
 
 type Props = {
-  message: string
-  duration: number
-  onTrigger: () => void
-}
+  message: string;
+  duration: number;
+};
 
 export const Notify = {
-  Success: ({ message, duration, onTrigger }: Props) => {
-    const notify = useRef<HTMLDivElement>(null)
-    const [hasTrigger, setHasTrigger] = useState(false)
+  Success: ({ message, duration }: Props) => {
+    const notify = useRef<HTMLDivElement>(null);
+    useEffect(() => {
+      if (notify.current) {
+        notify.current.className = 'show';
+        setTimeout(
+          () => notify.current?.className.replace('show', ''),
+          duration,
+        );
+      }
+    }, []);
     return (
-      <React.Fragment>
-        {
-          hasTrigger && <div ref={notify} className="success">
-            <span className="content">
-              <h3>{message}</h3>
-            </span>
-          </div>
-        }
-      </React.Fragment>
-    )
-  },
-  Error: ({ message, duration, onTrigger }: Props) => {
-    const notify = useRef<HTMLDivElement>(null)
-    return (
-      <div ref={notify} className="success hide-notify">
-        <span className="content">
+      <div
+        ref={notify}
+        className='notify success'
+      >
+        <span className='content'>
           <h3>{message}</h3>
         </span>
       </div>
-    )
-  }
-}
+    );
+  },
+  Error: ({ message, duration }: Props) => {
+    const notify = useRef<HTMLDivElement>(null);
+    useEffect(() => {
+      if (notify.current) {
+        notify.current.className = 'show';
+        setTimeout(
+          () => notify.current?.className.replace('show', ''),
+          duration,
+        );
+      }
+    }, []);
+    return (
+      <div
+        ref={notify}
+        className='notify error show'
+      >
+        <span className='content'>
+          <h3>{message}</h3>
+        </span>
+      </div>
+    );
+  },
+};
