@@ -14,7 +14,7 @@ import {
   AuthController,
   FriendController,
 } from './controllers';
-import { IMessage } from './models';
+import { GroupController } from './controllers/group';
 
 dotenv.config({});
 const { HOST, PORT, MONGODB_URL } = process.env;
@@ -36,8 +36,8 @@ function main() {
       };
 
       const limiter = rateLimit({
-        windowMs: 7 * 60 * 1000, // 7 minutes
-        max: 100, // Limit each IP to 100 requests per `window` (here, per 7 minutes)
+        windowMs: 3 * 60 * 1000, // 3 minutes
+        max: 100, // Limit each IP to 100 requests per `window` (here, per 3 minutes)
         standardHeaders: true, // Return rate limit info in the `RateLimit-*` headers
         legacyHeaders: false, // Disable the `X-RateLimit-*` headers
       });
@@ -57,6 +57,7 @@ function main() {
       app.use(FriendController());
       // Media
       // Group
+      app.use(GroupController());
       // Auth
       app.use(AuthController());
 

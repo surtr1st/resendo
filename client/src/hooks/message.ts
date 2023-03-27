@@ -27,7 +27,7 @@ export function useMessage() {
       credentials: 'include',
       body: JSON.stringify(message),
     };
-    const data = await fetch(`${BASE_URL}/messages`, options);
+    const data = await fetch(`${BASE_URL}/message`, options);
     const json = await data.json();
     return json;
   };

@@ -4,25 +4,22 @@ import { TypeUser, User } from './user';
 
 type TypeGroup = mongo.Document & {
   _id: ObjectId;
-  inviteId: string;
   title: string;
   owner: Omit<TypeUser, 'password'>;
   users: Array<Omit<TypeUser, 'password'>>;
   messages: Array<TypeMessage>;
-  type: string;
+  type: 'PRIVATE';
 };
 
 interface IGroup {
-  inviteId: string;
   title: string;
   owner: Omit<TypeUser, 'password'>;
   users: Array<Omit<TypeUser, 'password'>>;
   messages: Array<TypeMessage>;
-  type: string;
+  type: 'PRIVATE';
 }
 
 const schema = new Schema<TypeGroup>({
-  inviteId: String,
   title: String,
   owner: {
     type: Types.ObjectId,

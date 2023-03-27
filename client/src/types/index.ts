@@ -28,17 +28,18 @@ export type User = {
 export type Message = {
   content: string;
   userId: string;
-  roomId: string;
+  roomId?: string;
+  groupId?: string;
   sentAt?: Date;
 };
 export type MessageResponse = {
   _id: string;
   content: string;
   user: string;
+  author?: string;
   sentAt: Date;
 };
 export type Room = {
-  title: string;
   userId: string;
   partnerId: string;
   messages: Partial<Message[]>;
@@ -51,5 +52,17 @@ export type RoomResponse = {
   _id: string;
   user1: Omit<User, 'password'>;
   user2: Omit<User, 'password'>;
+  messages: Partial<MessageResponse[]>;
+};
+export type Group = {
+  title: string;
+  owner: string;
+  users: string[];
+};
+export type GroupResponse = {
+  _id: string;
+  title: string;
+  owner: Omit<User, 'password'>;
+  users: Omit<User, 'password'>[];
   messages: Partial<MessageResponse[]>;
 };

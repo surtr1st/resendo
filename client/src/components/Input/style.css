@@ -52,7 +52,7 @@ textarea {
   width: 100%;
   height: 100%;
   background: var(--darker-bg);
-  animation-name: upward;
+  animation-name: fadein;
   animation-duration: 150ms;
   animation-timing-function: ease-in-out;
   animation-fill-mode: forwards;

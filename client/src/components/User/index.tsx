@@ -1,17 +1,18 @@
 import './style.css';
 import { Button } from '../Button';
-import { useAuth, useFriend } from '../../services';
-import { useState } from 'react';
+import { useAuth, useFriend } from '../../hooks';
+import React, { useState } from 'react';
 
 type Props = {
+  type: 'add-friend' | 'add-to-group'
   name: string;
   avatarSrc: string;
-  addFriend: () => void | Promise<void>;
+  onAction: () => void | Promise<void>;
   uid: string
   isSelf: boolean
 };
 
-export function User({ name, addFriend, uid, isSelf }: Partial<Props>) {
+export function User({ type, name, onAction, uid, isSelf }: Partial<Props>) {
 
   const [isAdded, setIsAdded] = useState(false)
 
@@ -26,17 +27,29 @@ export function User({ name, addFriend, uid, isSelf }: Partial<Props>) {
 
   return (
     <div className='user'>
-      <h4>{name!.length > 12 ? `${name?.slice(0, 12)}...` : name}</h4>
-      {!isSelf && !isAdded && <Button.Send
-        label='Add'
-        onSend={addFriend}
-      />}
-      {isSelf && <div className='self-label'>
-        <h4>Self</h4>
-      </div>}
-      {isAdded && <div className='added'>
-        <h4>Added</h4>
-      </div>}
+      {
+        type === 'add-friend'
+          ? <React.Fragment>
+            <h4>{name!.length > 12 ? `${name?.slice(0, 12)}...` : name}</h4>
+            {!isSelf && !isAdded && <Button.Send
+              label='Add'
+              onSend={onAction}
+            />}
+            {isSelf && <div className='self-label'>
+              <h4>Self</h4>
+            </div>}
+            {isAdded && <div className='added'>
+              <h4>Added</h4>
+            </div>}
+          </React.Fragment>
+          : <React.Fragment>
+            <h4>{name!.length > 12 ? `${name?.slice(0, 12)}...` : name}</h4>
+            <Button.Send
+              label='Add'
+              onSend={onAction}
+            />
+          </React.Fragment>
+      }
     </div>
   );
 }

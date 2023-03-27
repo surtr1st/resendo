@@ -1,8 +1,8 @@
 import { Request, Response, Router } from 'express';
 import { TypeRoom } from '../models';
 import { MessageService, RoomService, UserService } from '../services';
-import { ROOMS, ROOM_BY_ID, ROOM_BY_USER_ID_AND_FRIEND_ID } from '../routes';
-import { validateRoom, validateUpdateRoom } from '../middlewares';
+import { CREATE_ROOM, ROOM_BY_USER_ID_AND_FRIEND_ID } from '../routes';
+import { validateRoom } from '../middlewares';
 
 export function RoomController() {
   const router = Router();
@@ -15,22 +15,23 @@ export function RoomController() {
     ROOM_BY_USER_ID_AND_FRIEND_ID,
     async (req: Request, res: Response) => {
       const { userId, friendId } = req.query;
-      const user = await userService.findById(userId as string);
-      const friend = await userService.findById(friendId as string);
       let loggedUser = {};
       service
-        .findRoomByUserAndFriend(user, friend)
+        .findRoomByUserAndFriend(userId as string, friendId as string)
         .then((res) => (loggedUser = res))
         .catch(
           async () =>
-            (loggedUser = await service.findRoomByUserAndFriend(friend, user)),
+            (loggedUser = await service.findRoomByUserAndFriend(
+              friendId as string,
+              userId as string,
+            )),
         )
         .then(async () => {
           const { _id, user1, user2, messages } = loggedUser as TypeRoom;
           const messagesInRoom = [];
           // Response only 12 messages for each request
           const limitedMessages =
-            messages.length > 0
+            messages.length > 12
               ? messages.slice(messages.length - 12, messages.length)
               : messages;
           for (const message of limitedMessages) {
@@ -48,42 +49,24 @@ export function RoomController() {
     },
   );
 
-  // Find all rooms
-  router.get(ROOMS, async (req: Request, res: Response) =>
-    res.status(200).json(await service.findAll()),
-  );
-
   // Create room
-  router.post(ROOMS, validateRoom, async (req: Request, res: Response) => {
-    const { userId, partnerId } = req.body;
-    const user1 = await userService.findById(userId as string);
-    const user2 = partnerId
-      ? await userService.findById(partnerId as string)
-      : undefined;
-    const room = {
-      user1,
-      user2,
-    };
-
-    res.status(201).json(await service.create(room));
-  });
-
-  // Update message within room
-  router.patch(
-    ROOMS,
-    validateUpdateRoom,
+  router.post(
+    CREATE_ROOM,
+    validateRoom,
     async (req: Request, res: Response) => {
-      const { roomId, messageId } = req.body;
-      const newMessage = await messageService.findById(messageId);
-      res.status(201).json(await service.patchMessage(roomId, newMessage));
+      const { userId, partnerId } = req.body;
+      const user1 = await userService.findById(userId as string);
+      const user2 = partnerId
+        ? await userService.findById(partnerId as string)
+        : undefined;
+      const room = {
+        user1,
+        user2,
+      };
+
+      res.status(201).json(await service.create(room));
     },
   );
-
-  // Join room
-  router.get(ROOM_BY_ID, async (req: Request, res: Response) => {
-    const { roomId } = req.query;
-    res.status(200).json(await service.findById(roomId as string));
-  });
 
   return router;
 }

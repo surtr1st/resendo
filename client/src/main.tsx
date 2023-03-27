@@ -4,6 +4,7 @@ import './index.css';
 import { LoginOrRegistrate } from './views/LoginOrRegistrate';
 import { createBrowserRouter, RouterProvider } from 'react-router-dom'
 import { MainChat } from './views/MainChat';
+import { GroupChat } from './views/GroupChat';
 
 const router = createBrowserRouter([
   {
@@ -17,7 +18,11 @@ const router = createBrowserRouter([
       {
         path: ':id',
         element: <MainChat />
-      }
+      },
+      {
+        path: 'group/:id',
+        element: <GroupChat />
+      },
     ]
   }
 ])

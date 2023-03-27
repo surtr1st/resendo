@@ -5,6 +5,7 @@ type TypeMessage = mongo.Document & {
   _id: ObjectId;
   content: string;
   user: Omit<TypeUser, 'password'>;
+  author: string;
   sentAt: Date;
 };
 
@@ -22,6 +23,7 @@ const schema = new Schema<TypeMessage>({
     required: true,
     index: true,
   },
+  author: String,
   sentAt: Date,
 });
 

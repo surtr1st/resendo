@@ -18,6 +18,12 @@
   align-self: flex-end;
 }
 
+.sender-label, .receiver-label {
+  background: inherit;
+  color: rgb(244,244,245);
+  font-weight: bolder;
+}
+
 .sender > p {
   background: inherit;
 }

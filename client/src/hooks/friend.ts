@@ -33,20 +33,6 @@ export function useFriend() {
     return result;
   };
 
-  const createFriend = async (userId: string, accessToken: AccessToken) => {
-    const options: RequestInit = {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${accessToken}`,
-      },
-      credentials: 'include',
-    };
-    const data = await fetch(`${BASE_URL}/friends?userId=${userId}`, options);
-    const id = await data.json();
-    return id;
-  };
-
   const updateFriend = async ({
     userId,
     friendId,
@@ -66,7 +52,6 @@ export function useFriend() {
   return {
     getFriendsByUserId,
     checkIfAdded,
-    createFriend,
     updateFriend,
   };
 }

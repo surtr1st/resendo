@@ -1,7 +1,7 @@
 import './style.css';
 import React, { useState } from 'react';
 import { Button, Input, Spacing } from '../../components';
-import { useAuth, useUser } from '../../services';
+import { useAuth, useUser } from '../../hooks';
 import { debounce } from 'lodash';
 import { useNavigate } from 'react-router-dom';
 import { Loading } from '../../components/Loading';
@@ -45,6 +45,7 @@ export function LoginOrRegistrate() {
       email: `${email.current?.value}`,
       password: `${password.current?.value}`,
     };
+    console.log(account)
     createUser(account)
       .then(() => setIsSignUp(false))
       .catch((err) => console.log(err));

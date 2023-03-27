@@ -30,7 +30,7 @@ export function useRoom() {
       credentials: 'include',
     };
     const data = await fetch(
-      `${BASE_URL}/rooms?userId=${userId}&friendId=${friendId}`,
+      `${BASE_URL}/room/filter?userId=${userId}&friendId=${friendId}`,
       options,
     );
     const room: RoomResponse = await data.json();
@@ -47,7 +47,7 @@ export function useRoom() {
       credentials: 'include',
       body: JSON.stringify(room),
     };
-    const data = await fetch(`${BASE_URL}/rooms`, options);
+    const data = await fetch(`${BASE_URL}/room`, options);
     const id = await data.json();
     return id;
   };

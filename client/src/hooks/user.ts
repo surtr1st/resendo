@@ -14,7 +14,10 @@ export function useUser() {
       },
       credentials: 'include',
     };
-    const data = await fetch(`${BASE_URL}/users?except=${userId}`, options);
+    const data = await fetch(
+      `${BASE_URL}/users/filter?except=${userId}`,
+      options,
+    );
     const user = await data.json();
     return user;
   };
@@ -26,8 +29,8 @@ export function useUser() {
       },
       credentials: 'include',
     };
-    const data = await fetch(`${BASE_URL}/users?userId=${id}`, options);
-    const user = await data.json();
+    const data = await fetch(`${BASE_URL}/user?id=${id}`, options);
+    const user: Omit<User, 'password'> = await data.json();
     return user;
   };
 
@@ -40,7 +43,7 @@ export function useUser() {
       credentials: 'include',
       body: JSON.stringify(user),
     };
-    await fetch(`${BASE_URL}/users`, options);
+    await fetch(`${BASE_URL}/user`, options);
   };
 
   const findUserByName = async ({
@@ -58,7 +61,10 @@ export function useUser() {
     };
     if (keyword.length === 0)
       return await getUsersWithoutSelf(userId, accessToken);
-    const data = await fetch(`${BASE_URL}/users?name=${keyword}`, options);
+    const data = await fetch(
+      `${BASE_URL}/users/search?name=${keyword}`,
+      options,
+    );
     const json = await data.json();
     return json;
   };

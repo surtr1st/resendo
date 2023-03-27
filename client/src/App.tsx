@@ -1,7 +1,7 @@
 import { debounce } from 'lodash';
-import { useAuth, useFriend, useUser } from './services';
+import { useAuth, useFriend, useGroup, useUser } from './hooks';
 import React, { createRef, useMemo, useEffect, useState } from 'react';
-import { User as TUser } from './types';
+import { Group, GroupResponse, User as TUser } from './types';
 import {
   Button,
   Container,
@@ -13,31 +13,48 @@ import {
   User,
 } from './components';
 import { Outlet, useNavigate } from 'react-router-dom';
+import { Loading } from './components/Loading';
 
 function App() {
   const [users, setUsers] = useState<Array<Omit<TUser, 'password'>>>([]);
   const [friends, setFriends] = useState<Array<Omit<TUser, 'password'>>>([]);
-  const [openModalFind, setOpenModalFind] = useState(false);
+  const [groups, setGroups] = useState<GroupResponse[]>([])
+  const [openFindPeople, setOpenFindPeople] = useState(false);
+  const [openCreateGroup, setOpenCreateGroup] = useState(false);
   const [isClick, setIsClick] = useState(false)
+  const [isCreatedLoading, setIsCreatedLoading] = useState(false)
+  const [members, setMembers] = useState<string[]>([])
+
   const { getUsersWithoutSelf, findUserByName } = useUser();
   const { getFriendsByUserId, checkIfAdded, updateFriend } = useFriend();
   const { userId, accessToken } = useAuth();
+  const { getGroupsByUser, createGroup } = useGroup()
   const navigate = useNavigate()
 
   const DURATION = 500;
-  const title = createRef<HTMLInputElement>();
+  const groupTitle = createRef<HTMLInputElement>();
   const username = createRef<HTMLInputElement>()
 
   async function retrieveFriends() {
     return await getFriendsByUserId(userId, accessToken)
   }
 
+  async function retrieveGroupsByUser() {
+    return await getGroupsByUser(userId, accessToken)
+  }
+
   const listFriends = useMemo(() => {
     retrieveFriends().then(res => setFriends(res)).catch(err => console.log(err))
   }, [friends.length])
 
+  const listGroups = useMemo(() => {
+    retrieveGroupsByUser()
+      .then(res => setGroups(res))
+      .catch((err) => console.log(err))
+  }, [groups.length])
+
   function findPeople() {
-    setOpenModalFind(true)
+    setOpenFindPeople(true)
     getUsersWithoutSelf(userId, accessToken)
       .then(async (res: TUser[]) => {
         const filteredAddedUsers = []
@@ -74,16 +91,47 @@ function App() {
   }
   const debounceFilterUser = debounce(filterUser, DURATION)
 
-  function handleModalClose() {
+  function handleCreateGroup() {
+    setIsCreatedLoading(true)
+    const group: Group = {
+      title: groupTitle.current?.value as string,
+      owner: userId,
+      users: members
+    }
+    createGroup(group, accessToken)
+      .then(() => {
+        setTimeout(() => {
+          setIsCreatedLoading(false)
+          setOpenCreateGroup(false)
+          setMembers([])
+        }, DURATION)
+      }).catch(err => console.log(err))
+  }
+  const debounceCreateGroup = debounce(handleCreateGroup, DURATION)
+
+  function handleAddToGroup(user: string) {
+    setMembers((prev) => [...prev, user])
+  }
+  const debounceAddToGroup = debounce(handleAddToGroup, DURATION)
+
+  function handleModalFindClose() {
     setIsClick(true)
     setTimeout(() => {
-      setOpenModalFind(false)
+      setOpenFindPeople(false)
+      setIsClick(false)
+    }, 100)
+  }
+
+  function handleModalCreateClose() {
+    setIsClick(true)
+    setTimeout(() => {
+      setOpenCreateGroup(false)
       setIsClick(false)
     }, 100)
   }
 
   useEffect(() => {
-  }, [listFriends])
+  }, [listFriends, listGroups])
 
   return (
     <React.Fragment>
@@ -96,16 +144,20 @@ function App() {
                   label='Find'
                   onSend={() => findPeople()}
                 />
+                <Button.Send
+                  label='Create Group'
+                  onSend={() => setOpenCreateGroup(true)}
+                />
               </Spacing.Horizontal>
               <Modal.Customizable
-                open={openModalFind}
+                open={openFindPeople}
                 title='Find People'
-                onClose={handleModalClose}
+                onClose={handleModalFindClose}
                 classAnimation={isClick ? 'hide' : 'show'}
               >
                 <Modal.ContentBody>
                   <Input.Search
-                    ref={title}
+                    ref={username}
                     label='User Name'
                     name='room-input'
                     value={username.current?.value}
@@ -122,7 +174,7 @@ function App() {
                           key={index}
                           uid={user._id as string}
                           name={user.fullname}
-                          addFriend={() => debounceAddFriend(user._id as string)}
+                          onAction={() => debounceAddFriend(user._id as string)}
                           isSelf={user._id === userId}
                         />
                       ))}
@@ -131,9 +183,59 @@ function App() {
                 <Modal.ActionFooter>
                   <Button.Cancel
                     label='Cancel'
-                    onCancel={() => handleModalClose()}
+                    onCancel={() => handleModalFindClose()}
                   />
                 </Modal.ActionFooter>
+              </Modal.Customizable>
+              <Modal.Customizable
+                open={openCreateGroup}
+                title='Create a group'
+                onClose={() => setOpenCreateGroup(false)}
+                classAnimation={isClick ? 'hide' : 'show'}
+              >
+                {
+                  isCreatedLoading
+                    ? <Loading.Swap />
+                    : <React.Fragment>
+                      <Modal.ContentBody>
+                        <Input.Text
+                          ref={groupTitle}
+                          label='Group Title'
+                          name='group-creator'
+                          value={groupTitle.current?.value}
+                          onClear={() => {
+                            if (groupTitle.current)
+                              groupTitle.current.value = ''
+                          }}
+                          onEnter={debounceCreateGroup}
+                        />
+                        <Spacing.Vertical>
+                          <h3>{`Members: ${members.length}`}</h3>
+                        </Spacing.Vertical>
+                        <Spacing.Horizontal>
+                          {friends &&
+                            friends.map((user, index) => (
+                              <User
+                                key={index}
+                                uid={user._id as string}
+                                name={user.fullname}
+                                onAction={() => debounceAddToGroup(user._id as string)}
+                              />
+                            ))}
+                        </Spacing.Horizontal>
+                      </Modal.ContentBody>
+                      <Modal.ActionFooter>
+                        <Button.Cancel
+                          label='Create'
+                          onCancel={debounceCreateGroup}
+                        />
+                        <Button.Cancel
+                          label='Cancel'
+                          onCancel={() => handleModalCreateClose()}
+                        />
+                      </Modal.ActionFooter>
+                    </React.Fragment>
+                }
               </Modal.Customizable>
               {friends &&
                 friends.map((friend, index) => (
@@ -143,6 +245,16 @@ function App() {
                     opponentName={friend.fullname}
                     latestMessage=''
                     onAction={() => navigate(`/chat/${friend._id}`)}
+                  />
+                ))}
+              {groups &&
+                groups.map((group, index) => (
+                  <Message.Card
+                    key={index}
+                    avatarSrc=''
+                    opponentName={group.title}
+                    latestMessage=''
+                    onAction={() => navigate(`/chat/group/${group._id}`)}
                   />
                 ))}
             </List.Item>

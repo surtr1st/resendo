@@ -3,7 +3,7 @@ import { debounce } from 'lodash';
 import React, { createRef, useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom'
 import { MessageResponse } from '../../types';
-import { useAuth, useMessage, useRoom } from '../../hooks';
+import { useAuth, useGroup, useMessage } from '../../hooks';
 import {
   Button,
   Chat,
@@ -14,20 +14,20 @@ import {
 } from '../../components';
 import { Loading } from '../../components/Loading';
 
-export function MainChat() {
+export function GroupChat() {
   const [conversation, setConversation] = useState<MessageResponse[]>([]);
-  const [fullname, setFullname] = useState('');
+  const [title, setTitle] = useState('');
   const [isScrollDown, setIsScrollDown] = useState(false)
   const [isLoading, setIsLoading] = useState(true)
 
   const { id } = useParams()
   const { userId, accessToken } = useAuth();
   const { createMessage } = useMessage();
-  const { getConversationInRoom } = useRoom();
+  const { getGroupById } = useGroup()
 
   const socket = io('http://localhost:4000', {
     auth: {
-      token: '@AuthToken'
+      token: '@AuthGroupToken'
     }
   })
 
@@ -49,24 +49,17 @@ export function MainChat() {
 
   function handleConversationInRoom() {
     setIsLoading(true)
-    getConversationInRoom({ userId, friendId: id as string, accessToken })
+    getGroupById(id as string, accessToken)
       .then((res) => {
-        const { _id, user1, user2, messages } = res;
-        sessionStorage.setItem('Room-Id', _id)
+        const { _id, title, messages } = res
+        sessionStorage.setItem('Group-Id', _id)
         socket.emit('join-room', _id)
         setConversation(messages as MessageResponse[]);
         setIsScrollDown(true)
-        switch (userId) {
-          case user2._id:
-            setFullname(user1.fullname)
-            break
-          default:
-            setFullname(user2.fullname)
-            break
-        }
+        setTitle(title)
         setIsLoading(false)
       })
-      .catch((err) => console.log(err));
+      .catch(err => console.log(err))
     setTimeout(() => {
       setIsScrollDown(false)
     }, 0)
@@ -75,11 +68,11 @@ export function MainChat() {
 
   function sendMessage() {
     const value = `${content.current?.value}`.trim();
-    const roomId = sessionStorage.getItem('Room-Id') as string
+    const groupId = sessionStorage.getItem('Group-Id') as string
     if (value.length === 0) return
-    createMessage({ content: value, userId, roomId }, accessToken)
+    createMessage({ content: value, userId, groupId }, accessToken)
       .then((res) => {
-        socket.emit('from-client', { message: res, room: roomId })
+        socket.emit('from-client', { message: res, room: groupId })
         setIsScrollDown(!isScrollDown)
       })
       .catch((err) => console.log(err));
@@ -109,7 +102,7 @@ export function MainChat() {
           ? <Loading.Swap />
           : <Chat.Box type='container'>
             <Chat.Header>
-              <PageHeader author={fullname} avatarSrc='' />
+              <PageHeader author={title} avatarSrc='' />
             </Chat.Header>
             <Chat.Body triggerScrollDown={isScrollDown}>
               {conversation &&
@@ -118,11 +111,13 @@ export function MainChat() {
                     {message.user === userId ? (
                       <Message.Sender
                         key={index}
+                        author={message.author}
                         content={message.content}
                       />
                     ) : (
                       <Message.Receiver
                         key={index}
+                        author={message.author}
                         content={message.content}
                       />
                     )}

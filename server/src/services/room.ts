@@ -1,5 +1,5 @@
 import { ObjectId } from 'mongoose';
-import { TypeUser, Room, IRoom, TypeMessage } from '../models';
+import { Room, IRoom, TypeMessage } from '../models';
 
 export class RoomService {
   async findAll() {
@@ -12,14 +12,17 @@ export class RoomService {
 
   async findById(id: string | ObjectId) {
     try {
-      const room = await Room.findOne({ id });
+      const room = await Room.findOne({ _id: id });
       return room;
     } catch (e) {
       throw new Error(`Cannot find room by id: ${id}`);
     }
   }
 
-  async findRoomByUserAndFriend(user: TypeUser, friend: TypeUser) {
+  async findRoomByUserAndFriend(
+    user: string | ObjectId,
+    friend: string | ObjectId,
+  ) {
     try {
       const room = await Room.findOne({
         user1: user,
@@ -42,15 +45,6 @@ export class RoomService {
     }
   }
 
-  async update(room: Partial<IRoom>) {
-    try {
-      const updatedRoom = await Room.updateOne(room);
-      return updatedRoom.modifiedCount;
-    } catch (e) {
-      throw new Error('Cannot update room');
-    }
-  }
-
   async patchMessage(id: string | ObjectId, message: TypeMessage) {
     try {
       const updatedRoom = await Room.updateOne(
@@ -65,7 +59,7 @@ export class RoomService {
 
   async remove(id: ObjectId) {
     try {
-      return await Room.deleteOne({ id });
+      return await Room.deleteOne({ _id: id });
     } catch (e) {
       throw new Error('Cannot remove room');
     }

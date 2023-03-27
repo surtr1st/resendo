@@ -1,6 +1,6 @@
 import { Request, Response, Router } from 'express';
 import { validateFriend } from '../middlewares';
-import { FRIENDS, FRIENDS_BY_USER_ID, FRIEND_BY_USER_ID } from '../routes';
+import { FRIENDS_BY_USER_ID, IS_ADDED_FRIEND } from '../routes';
 import { RoomService, UserService } from '../services';
 import { FriendService } from '../services/friend';
 
@@ -11,7 +11,7 @@ export function FriendController() {
   const roomService = new RoomService();
 
   // Find friends by user
-  router.get(FRIEND_BY_USER_ID, async (req: Request, res: Response) => {
+  router.get(FRIENDS_BY_USER_ID, async (req: Request, res: Response) => {
     const { userId } = req.query;
     const user = await userService.findById(userId as string);
     const friends = await service.findFriendsByUser(user);
@@ -26,11 +26,15 @@ export function FriendController() {
   });
 
   // Check if user added
-  router.post(FRIENDS, validateFriend, async (req: Request, res: Response) => {
-    const { userId, friendId } = req.body;
-    const user = await userService.findById(userId);
-    res.status(200).json(await service.isAdded(user, friendId));
-  });
+  router.post(
+    IS_ADDED_FRIEND,
+    validateFriend,
+    async (req: Request, res: Response) => {
+      const { userId, friendId } = req.body;
+      const user = await userService.findById(userId);
+      res.status(200).json(await service.isAdded(user, friendId));
+    },
+  );
 
   // Update friends by user
   router.patch(FRIENDS_BY_USER_ID, async (req: Request, res: Response) => {

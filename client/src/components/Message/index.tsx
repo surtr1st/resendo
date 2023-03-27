@@ -1,7 +1,9 @@
+import React from 'react';
 import { Avatar } from '../Avatar';
 import './style.css';
 
 type Props = {
+  author?: string
   content: string;
 };
 
@@ -13,15 +15,21 @@ type CardProps = {
 };
 
 export const Message = {
-  Sender: ({ content }: Props) => (
-    <div className='sender'>
-      <p>{content}</p>
-    </div>
+  Sender: ({ author, content }: Props) => (
+    <React.Fragment>
+      <div className='sender'>
+        {author && <h5 className='sender-label'>{author}</h5>}
+        <p>{content}</p>
+      </div>
+    </React.Fragment>
   ),
-  Receiver: ({ content }: Props) => (
-    <div className='receiver'>
-      <p>{content}</p>
-    </div>
+  Receiver: ({ author, content }: Props) => (
+    <React.Fragment>
+      <div className='receiver'>
+        {author && <h5 className='receiver-label'>{author}</h5>}
+        <p>{content}</p>
+      </div>
+    </React.Fragment>
   ),
   Card: ({ avatarSrc, opponentName, latestMessage, onAction }: CardProps) => (
     <div

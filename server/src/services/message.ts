@@ -1,5 +1,5 @@
 import { ObjectId } from 'mongoose';
-import { TypeUser, Message, IMessage } from '../models';
+import { Message, IMessage } from '../models';
 
 export class MessageService {
   async findAll() {
@@ -10,7 +10,7 @@ export class MessageService {
     }
   }
 
-  async findAllByUser(user: Omit<TypeUser, 'password'>) {
+  async findAllByUserId(user: string | ObjectId) {
     try {
       return await Message.find({ user });
     } catch (e) {
