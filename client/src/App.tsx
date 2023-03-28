@@ -1,6 +1,8 @@
-import { debounce } from 'lodash';
-import { useAuth, useFriend, useGroup, useRoom, useUser } from './hooks';
 import React, { createRef, useState } from 'react';
+import { debounce } from 'lodash';
+import { Outlet, useNavigate } from 'react-router-dom';
+import { useQuery } from 'react-query';
+import { useAuth, useFriend, useGroup, useUser } from './hooks';
 import { Group, GroupResponse, User as TUser } from './types';
 import {
   Button,
@@ -15,10 +17,9 @@ import {
   PeopleTeamIcon,
   Spacing,
   User,
+  Loading
 } from './components';
-import { Outlet, useNavigate } from 'react-router-dom';
-import { Loading } from './components/Loading';
-import { useQuery } from 'react-query';
+
 
 function App() {
   const [users, setUsers] = useState<Array<Omit<TUser, 'password'>>>([]);
@@ -30,26 +31,29 @@ function App() {
   const { getUsersWithoutSelf, findUserByName } = useUser();
   const { getFriendsByUserId, checkIfAdded, updateFriend } = useFriend();
   const { userId, accessToken } = useAuth();
-  const { getLatestMessageWithinRoom } = useRoom();
-  const { getGroupsByUser, createGroup, getLatestMessageWithinGroup } =
+  const { getGroupsByUser, createGroup } =
     useGroup();
   const navigate = useNavigate();
 
   const DURATION = 500;
   const groupTitle = createRef<HTMLInputElement>();
   const username = createRef<HTMLInputElement>();
-  const { data: friendsData, isLoading: isLoadingFriends } = useQuery(
+  const { data: friends, isLoading: isLoadingFriends } = useQuery(
     'FriendsByUserId',
     () => getFriendsByUserId(userId, accessToken),
     {
       staleTime: 5000,
+      cacheTime: 30000,
+      refetchOnMount: true
     },
   );
-  const { data: groupsData, isLoading: isLoadingGroups } = useQuery(
+  const { data: groups, isLoading: isLoadingGroups } = useQuery(
     'GroupsByUserId',
     () => getGroupsByUser(userId, accessToken),
     {
       staleTime: 5000,
+      cacheTime: 30000,
+      refetchOnMount: true
     },
   );
 
@@ -209,7 +213,7 @@ function App() {
                     {isLoadingFriends ? (
                       <Loading.Swap />
                     ) : (
-                      friendsData.map(
+                      friends.map(
                         (user: Omit<TUser, 'password'>, index: number) => (
                           <User.FriendList
                             key={index}
@@ -248,13 +252,13 @@ function App() {
                 avatarSrc=''
                 opponentName=''
                 latestMessage=''
-                onAction={() => {}}
+                onAction={() => { }}
                 invisible
               />
               {isLoadingFriends ? (
                 <Loading.FlipSquare partialStyle />
               ) : (
-                friendsData.map(
+                friends.map(
                   (friend: Omit<TUser, 'password'>, index: number) => (
                     <Message.Card
                       key={index}
@@ -267,18 +271,16 @@ function App() {
                 )
               )}
               {isLoadingGroups ? (
-                <Loading.FlipSquare />
+                <Loading.FlipSquare partialStyle />
               ) : (
-                groupsData.map((group: GroupResponse, index: number) => (
+                groups.map((group: GroupResponse, index: number) => (
                   <Message.Card
                     key={index}
                     avatarSrc=''
                     opponentName={group.title}
-                    latestMessage={`${group.lastMessage.sender && '@'}${
-                      group.lastMessage.sender
-                    }${group.lastMessage.sender && ': '}${
-                      group.lastMessage.content
-                    }`}
+                    latestMessage={`${group.lastMessage.sender && '@'}${group.lastMessage.sender
+                      }${group.lastMessage.sender && ': '}${group.lastMessage.content
+                      }`}
                     onAction={() => navigate(`/chat/group/${group._id}`)}
                   />
                 ))

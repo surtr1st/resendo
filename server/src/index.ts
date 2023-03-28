@@ -1,4 +1,3 @@
-import dotenv from 'dotenv';
 import express from 'express';
 import cors, { CorsOptions } from 'cors';
 import bodyParser from 'body-parser';
@@ -7,18 +6,15 @@ import { Server } from 'socket.io';
 import { createServer } from 'http';
 import { RateLimiterMemory, RateLimiterRes } from 'rate-limiter-flexible';
 import { connect } from 'mongoose';
+import { MONGODB_URL, PORT, HOST } from './config';
 import {
   UserController,
   MessageController,
   RoomController,
   AuthController,
   FriendController,
+  GroupController,
 } from './controllers';
-import { GroupController } from './controllers/group';
-
-dotenv.config({});
-const { HOST, PORT, MONGODB_URL } = process.env;
-const port = parseInt(PORT as string);
 
 function main() {
   connect(`${MONGODB_URL}`).then(
@@ -85,7 +81,6 @@ function main() {
           socket.on('from-client', async (data) => {
             try {
               await rateLimiter.consume(socket.handshake.address);
-              console.log(data);
               socket.to(data.room).emit('from-server', data.message);
             } catch (e) {
               socket.emit('blocked', {
@@ -104,9 +99,9 @@ function main() {
         onReceiveAndSendBack();
       });
 
-      httpServer.listen(port, HOST);
+      httpServer.listen(PORT, HOST);
       console.log(
-        `-> Connected to database | Server running at port ${port} with host ${HOST}`,
+        `-> Connected to database | Server running at port ${PORT} with host ${HOST}`,
       );
     },
     (err) => console.log(err),

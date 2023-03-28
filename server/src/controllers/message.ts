@@ -9,6 +9,11 @@ import {
   UserService,
 } from '../services';
 import { CREATE_MESSAGE, MESSAGES_BY_USER_ID, UPLOAD_MEDIA } from '../routes';
+import {
+  CLOUDINARY_API_KEY,
+  CLOUDINARY_API_SECRET,
+  CLOUDINARY_CLOUD_NAME,
+} from '../config';
 
 export function MessageController() {
   const router = Router();
@@ -16,8 +21,6 @@ export function MessageController() {
   const userService = new UserService();
   const roomService = new RoomService();
   const groupService = new GroupService();
-  const { CLOUDINARY_CLOUD_NAME, CLOUDINARY_API_KEY, CLOUDINARY_API_SECRET } =
-    process.env;
 
   const MEDIA_FOLDER = 'media';
   if (!fs.existsSync(MEDIA_FOLDER)) fs.mkdirSync(MEDIA_FOLDER);

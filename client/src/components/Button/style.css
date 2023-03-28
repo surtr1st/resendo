@@ -30,6 +30,10 @@ button:disabled:hover {
   background: var(--success);
 }
 
+.accept-disabled {
+  background: var(--success-hover);
+}
+
 .cancel {
   background: var(--danger);
 }

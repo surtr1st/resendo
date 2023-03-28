@@ -57,7 +57,6 @@ export function MainChat() {
         sessionStorage.setItem('Room-Id', _id);
         socket.emit('join-room', _id);
         setConversation(messages as MessageResponse[]);
-        setIsScrollDown(true);
         switch (userId) {
           case user2._id:
             setFullname(user1.fullname);
@@ -67,11 +66,9 @@ export function MainChat() {
             break;
         }
         setIsLoading(false);
+        setIsScrollDown(!isScrollDown);
       })
       .catch((err) => console.log(err));
-    setTimeout(() => {
-      setIsScrollDown(false);
-    }, 0);
   }
   const debounceMessagesInRoom = debounce(handleConversationInRoom, DURATION);
 

@@ -1,5 +1,5 @@
-import { ReactNode } from 'react';
 import './style.css';
+import { ReactNode } from 'react';
 
 type Props = {
   label: string;
@@ -59,10 +59,11 @@ export const Button = {
       </div>
     </button>
   ),
-  Accept: ({ icon, label, onAccept }: Partial<AcceptProps>) => (
+  Accept: ({ icon, label, onAccept, disabled }: Partial<AcceptProps>) => (
     <button
       onClick={onAccept}
-      className='accept'
+      className={disabled ? 'accept-disabled' : 'accept'}
+      disabled={disabled}
     >
       <div className='content'>
         {icon}
