@@ -6,10 +6,14 @@
   --primary-hover: #916BBF;
   --secondary: #191919;
   --secondary-hover: #1F1D36;
+  --danger: #e11d48;
+  --danger-hover: #fb7185;
+  --success: #047857;
+  --success-hover: #10b981;
   --variant-text: transparent;
   --text-primary: #4f46e5;
   --text-secondary: #EEEEEE;
   --border-color: #EEEEEE;
-  --border-alternative-color: #36393e;
+  --border-alternative-color: #424549;
 }
 

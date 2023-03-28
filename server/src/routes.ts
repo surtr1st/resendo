@@ -16,6 +16,7 @@ export const CREATE_ROOM = `${BASE_URL}/room`;
 export const ROOM_BY_ID = `${BASE_URL}/room`;
 export const ROOMS_BY_USER_ID = `${BASE_URL}/rooms`;
 export const ROOM_BY_USER_ID_AND_FRIEND_ID = `${BASE_URL}/room/filter`;
+export const LATEST_MESSAGE_IN_ROOM_BY_USER = `${BASE_URL}/room/latest`;
 
 export const IS_ADDED_FRIEND = `${BASE_URL}/friends`;
 export const FRIENDS_BY_USER_ID = `${BASE_URL}/friends`;
@@ -26,6 +27,7 @@ export const GROUP_BY_ID = `${BASE_URL}/group`;
 export const ADD_MEMBERS = `${BASE_URL}/group/member/add`;
 export const REMOVE_MEMBERS = `${BASE_URL}/group/member/remove`;
 export const GROUPS_BY_USER_ID = `${BASE_URL}/groups`;
+export const LATEST_MESSAGE_IN_GROUP_BY_USER = `${BASE_URL}/group/latest`;
 
 export const METHOD = {
   GET: 'GET',

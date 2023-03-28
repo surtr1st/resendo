@@ -1,24 +1,27 @@
 import { debounce } from 'lodash';
-import { useAuth, useFriend, useGroup, useUser } from './hooks';
-import React, { createRef, useMemo, useEffect, useState } from 'react';
+import { useAuth, useFriend, useGroup, useRoom, useUser } from './hooks';
+import React, { createRef, useState } from 'react';
 import { Group, GroupResponse, User as TUser } from './types';
 import {
   Button,
+  CancelIcon,
   Container,
+  CreateIcon,
+  FindIcon,
   Input,
   List,
   Message,
   Modal,
+  PeopleTeamIcon,
   Spacing,
   User,
 } from './components';
 import { Outlet, useNavigate } from 'react-router-dom';
 import { Loading } from './components/Loading';
+import { useQuery } from 'react-query';
 
 function App() {
   const [users, setUsers] = useState<Array<Omit<TUser, 'password'>>>([]);
-  const [friends, setFriends] = useState<Array<Omit<TUser, 'password'>>>([]);
-  const [groups, setGroups] = useState<GroupResponse[]>([]);
   const [openFindPeople, setOpenFindPeople] = useState(false);
   const [openCreateGroup, setOpenCreateGroup] = useState(false);
   const [isCreatedLoading, setIsCreatedLoading] = useState(false);
@@ -27,32 +30,28 @@ function App() {
   const { getUsersWithoutSelf, findUserByName } = useUser();
   const { getFriendsByUserId, checkIfAdded, updateFriend } = useFriend();
   const { userId, accessToken } = useAuth();
-  const { getGroupsByUser, createGroup } = useGroup();
+  const { getLatestMessageWithinRoom } = useRoom();
+  const { getGroupsByUser, createGroup, getLatestMessageWithinGroup } =
+    useGroup();
   const navigate = useNavigate();
 
   const DURATION = 500;
   const groupTitle = createRef<HTMLInputElement>();
   const username = createRef<HTMLInputElement>();
-
-  async function retrieveFriends() {
-    return await getFriendsByUserId(userId, accessToken);
-  }
-
-  async function retrieveGroupsByUser() {
-    return await getGroupsByUser(userId, accessToken);
-  }
-
-  const listFriends = useMemo(() => {
-    retrieveFriends()
-      .then((res) => setFriends(res))
-      .catch((err) => console.log(err));
-  }, [friends.length]);
-
-  const listGroups = useMemo(() => {
-    retrieveGroupsByUser()
-      .then((res) => setGroups(res))
-      .catch((err) => console.log(err));
-  }, [groups.length]);
+  const { data: friendsData, isLoading: isLoadingFriends } = useQuery(
+    'FriendsByUserId',
+    () => getFriendsByUserId(userId, accessToken),
+    {
+      staleTime: 5000,
+    },
+  );
+  const { data: groupsData, isLoading: isLoadingGroups } = useQuery(
+    'GroupsByUserId',
+    () => getGroupsByUser(userId, accessToken),
+    {
+      staleTime: 5000,
+    },
+  );
 
   function findPeople() {
     setOpenFindPeople(true);
@@ -73,9 +72,6 @@ function App() {
       .then((_) => {
         const remainUsers = users.filter((user) => user._id !== filteredUserId);
         setUsers(remainUsers);
-        retrieveFriends()
-          .then((res) => setFriends(res))
-          .catch((err) => console.log(err));
       })
       .catch((err) => console.log(err));
   }
@@ -93,7 +89,7 @@ function App() {
   function handleCreateGroup() {
     setIsCreatedLoading(true);
     const group: Group = {
-      title: groupTitle.current?.value as string,
+      title: groupTitle.current!.value,
       owner: userId,
       users: members,
     };
@@ -103,9 +99,6 @@ function App() {
           setIsCreatedLoading(false);
           setOpenCreateGroup(false);
           setMembers([]);
-          retrieveGroupsByUser()
-            .then((res) => setGroups(res))
-            .catch((err) => console.log(err));
         }, DURATION);
       })
       .catch((err) => console.log(err));
@@ -113,147 +106,183 @@ function App() {
   const debounceCreateGroup = debounce(handleCreateGroup, DURATION);
 
   function handleAddToGroup(user: string) {
-    setMembers((prev) =>
-      members.length === 0
-        ? [...prev, user]
-        : prev.filter((member) => user !== member),
-    );
+    if (members.length === 0) {
+      setMembers((prev) => [...prev, user]);
+      return;
+    }
+    if (!members.includes(user)) {
+      setMembers((prev) => [...prev, user]);
+      return;
+    }
+    setMembers((prev) => prev.filter((member) => member !== user));
   }
   const debounceAddToGroup = debounce(handleAddToGroup, DURATION);
-
-  useEffect(() => {}, [listFriends, listGroups]);
 
   return (
     <React.Fragment>
       <Container.Grid>
         <Container.GridItem type='side'>
-          <List.Box>
-            <List.Item>
+          <Spacing.Horizontal floated>
+            <Button.Send
+              label='Find'
+              icon={<FindIcon />}
+              onSend={() => findPeople()}
+            />
+            <Button.Send
+              label='Create Group'
+              icon={<CreateIcon />}
+              onSend={() => setOpenCreateGroup(true)}
+            />
+          </Spacing.Horizontal>
+          <Modal.Customizable
+            open={openFindPeople}
+            title='Find People'
+            onClose={() => setOpenFindPeople(false)}
+          >
+            <Modal.ContentBody>
+              <Input.Search
+                ref={username}
+                label='User Name'
+                name='room-input'
+                value={username.current?.value}
+                onClear={() => {
+                  if (username.current) username.current.value = '';
+                }}
+                onEnter={debounceFilterUser}
+              />
               <Spacing.Horizontal>
-                <Button.Send
-                  label='Find'
-                  onSend={() => findPeople()}
-                />
-                <Button.Send
-                  label='Create Group'
-                  onSend={() => setOpenCreateGroup(true)}
-                />
+                {users &&
+                  users.map((user, index) => (
+                    <User.StrangerList
+                      key={index}
+                      uid={user._id as string}
+                      name={user.fullname}
+                      onAction={() => debounceAddFriend(user._id as string)}
+                      isSelf={user._id === userId}
+                    />
+                  ))}
               </Spacing.Horizontal>
-              <Modal.Customizable
-                open={openFindPeople}
-                title='Find People'
-                onClose={() => setOpenFindPeople(false)}
-              >
+            </Modal.ContentBody>
+            <Modal.ActionFooter>
+              <Button.Cancel
+                label='Cancel'
+                icon={<CancelIcon />}
+                onCancel={() => setOpenFindPeople(false)}
+              />
+            </Modal.ActionFooter>
+          </Modal.Customizable>
+          <Modal.Customizable
+            open={openCreateGroup}
+            title='Create a group'
+            onClose={() => setOpenCreateGroup(false)}
+          >
+            {isCreatedLoading ? (
+              <Loading.Swap />
+            ) : (
+              <React.Fragment>
                 <Modal.ContentBody>
-                  <Input.Search
-                    ref={username}
-                    label='User Name'
-                    name='room-input'
-                    value={username.current?.value}
+                  <Input.Text
+                    ref={groupTitle}
+                    label='Group Title'
+                    name='group-creator'
+                    value={groupTitle.current?.value}
                     onClear={() => {
-                      if (username.current) username.current.value = '';
+                      if (groupTitle.current) groupTitle.current.value = '';
                     }}
-                    onEnter={debounceFilterUser}
+                    onEnter={debounceCreateGroup}
                   />
+                  <Spacing.Vertical>
+                    <h3
+                      style={{
+                        background: 'var(--darker-bg)',
+                        borderRadius: '10px',
+                        padding: '.5rem',
+                        display: 'flex',
+                        gap: '.2rem',
+                      }}
+                    >
+                      <PeopleTeamIcon />
+                      {`Members: ${members.length}`}
+                    </h3>
+                  </Spacing.Vertical>
                   <Spacing.Horizontal>
-                    {users &&
-                      users.map((user, index) => (
-                        <User.StrangerList
-                          key={index}
-                          uid={user._id as string}
-                          name={user.fullname}
-                          onAction={() => debounceAddFriend(user._id as string)}
-                          isSelf={user._id === userId}
-                        />
-                      ))}
+                    {isLoadingFriends ? (
+                      <Loading.Swap />
+                    ) : (
+                      friendsData.map(
+                        (user: Omit<TUser, 'password'>, index: number) => (
+                          <User.FriendList
+                            key={index}
+                            uid={user._id as string}
+                            name={user.fullname}
+                            onAction={() =>
+                              debounceAddToGroup(user._id as string)
+                            }
+                            temporaryDisabled={members.includes(
+                              user._id as string,
+                            )}
+                          />
+                        ),
+                      )
+                    )}
                   </Spacing.Horizontal>
                 </Modal.ContentBody>
                 <Modal.ActionFooter>
+                  <Button.Accept
+                    label='Create'
+                    icon={<CreateIcon />}
+                    onAccept={debounceCreateGroup}
+                  />
                   <Button.Cancel
                     label='Cancel'
-                    onCancel={() => setOpenFindPeople(false)}
+                    icon={<CancelIcon />}
+                    onCancel={() => setOpenCreateGroup(false)}
                   />
                 </Modal.ActionFooter>
-              </Modal.Customizable>
-              <Modal.Customizable
-                open={openCreateGroup}
-                title='Create a group'
-                onClose={() => setOpenCreateGroup(false)}
-              >
-                {isCreatedLoading ? (
-                  <Loading.Swap />
-                ) : (
-                  <React.Fragment>
-                    <Modal.ContentBody>
-                      <Input.Text
-                        ref={groupTitle}
-                        label='Group Title'
-                        name='group-creator'
-                        value={groupTitle.current?.value}
-                        onClear={() => {
-                          if (groupTitle.current) groupTitle.current.value = '';
-                        }}
-                        onEnter={debounceCreateGroup}
-                      />
-                      <Spacing.Vertical>
-                        <h3
-                          style={{
-                            background: 'var(--darker-bg)',
-                            borderRadius: '10px',
-                            padding: '.5rem',
-                          }}
-                        >{`Members: ${members.length}`}</h3>
-                      </Spacing.Vertical>
-                      <Spacing.Horizontal>
-                        {friends &&
-                          friends.map((user, index) => (
-                            <User.FriendList
-                              key={index}
-                              uid={user._id as string}
-                              name={user.fullname}
-                              onAction={() =>
-                                debounceAddToGroup(user._id as string)
-                              }
-                              temporaryDisabled={members.includes(
-                                user._id as string,
-                              )}
-                            />
-                          ))}
-                      </Spacing.Horizontal>
-                    </Modal.ContentBody>
-                    <Modal.ActionFooter>
-                      <Button.Cancel
-                        label='Create'
-                        onCancel={debounceCreateGroup}
-                      />
-                      <Button.Cancel
-                        label='Cancel'
-                        onCancel={() => setOpenCreateGroup(false)}
-                      />
-                    </Modal.ActionFooter>
-                  </React.Fragment>
-                )}
-              </Modal.Customizable>
-              {friends &&
-                friends.map((friend, index) => (
-                  <Message.Card
-                    key={index}
-                    avatarSrc=''
-                    opponentName={friend.fullname}
-                    latestMessage=''
-                    onAction={() => navigate(`/chat/${friend._id}`)}
-                  />
-                ))}
-              {groups &&
-                groups.map((group, index) => (
+              </React.Fragment>
+            )}
+          </Modal.Customizable>
+          <List.Box>
+            <List.Item>
+              <Message.Card
+                avatarSrc=''
+                opponentName=''
+                latestMessage=''
+                onAction={() => {}}
+                invisible
+              />
+              {isLoadingFriends ? (
+                <Loading.FlipSquare partialStyle />
+              ) : (
+                friendsData.map(
+                  (friend: Omit<TUser, 'password'>, index: number) => (
+                    <Message.Card
+                      key={index}
+                      avatarSrc=''
+                      opponentName={friend.fullname}
+                      latestMessage={friend.lastMessage as string}
+                      onAction={() => navigate(`/chat/${friend._id}`)}
+                    />
+                  ),
+                )
+              )}
+              {isLoadingGroups ? (
+                <Loading.FlipSquare />
+              ) : (
+                groupsData.map((group: GroupResponse, index: number) => (
                   <Message.Card
                     key={index}
                     avatarSrc=''
                     opponentName={group.title}
-                    latestMessage=''
+                    latestMessage={`${group.lastMessage.sender && '@'}${
+                      group.lastMessage.sender
+                    }${group.lastMessage.sender && ': '}${
+                      group.lastMessage.content
+                    }`}
                     onAction={() => navigate(`/chat/group/${group._id}`)}
                   />
-                ))}
+                ))
+              )}
             </List.Item>
           </List.Box>
         </Container.GridItem>

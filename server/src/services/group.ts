@@ -1,5 +1,5 @@
 import { ObjectId } from 'mongoose';
-import { Group, IGroup, TypeMessage, TypeUser } from '../models';
+import { Group, IGroup, LatestMessage, TypeMessage, TypeUser } from '../models';
 
 export class GroupService {
   async findAllByOwner(owner: string | ObjectId) {
@@ -42,19 +42,6 @@ export class GroupService {
     }
   }
 
-  async isJoined(id: string | Object, user: string | ObjectId) {
-    try {
-      const joined = await Group.findOne({
-        _id: id,
-        users: { $in: [user] },
-      });
-      console.log(joined);
-      return joined ? true : false;
-    } catch (e) {
-      throw e;
-    }
-  }
-
   async addMember(id: string | ObjectId, user: TypeUser) {
     try {
       return await Group.updateOne({ _id: id }, { $push: { users: user } });
@@ -89,6 +76,19 @@ export class GroupService {
         { _id: id },
         { $push: { messages: message } },
       );
+      return updatedGroup.modifiedCount;
+    } catch (e) {
+      throw new Error('Cannot update group');
+    }
+  }
+
+  async patchLatestMessage(id: string | ObjectId, lastMessage: LatestMessage) {
+    try {
+      const updatedGroup = await Group.updateOne(
+        { _id: id },
+        { $set: { lastMessage } },
+      );
+      console.log(updatedGroup.modifiedCount);
       return updatedGroup.modifiedCount;
     } catch (e) {
       throw new Error('Cannot update group');

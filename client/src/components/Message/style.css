@@ -3,6 +3,7 @@
 
 .sender, .receiver {
   width: auto;
+  min-width: 4vw;
   max-width: 40vw;
   word-wrap: break-word;
   margin: .15rem;
@@ -39,6 +40,17 @@
   align-self: flex-start;
 }
 
+.author-avatar {
+  display: flex;
+  flex-direction: row;
+  align-self: flex-start;
+  background: inherit;
+}
+
+.author-avatar:first-child:first-child {
+  margin-top: 1rem;
+}
+
 .receiver > p, img {
   background: inherit;
 }
@@ -66,9 +78,17 @@
   background-color: var(--secondary);
 }
 
+.invisible {
+  display: flex;
+  justify-content: space-evenly;
+  visibility: hidden;
+  align-items: center;
+  height: 9vh;
+}
+
 .card-image {
   display: grid;
-  width: 30%;
+  background: inherit;
 }
 
 .card-detail {

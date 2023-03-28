@@ -38,8 +38,16 @@ export function MessageController() {
       author: user!.fullname,
       sentAt: new Date(),
     });
-    if (groupId) await groupService.patchMessage(groupId, newMessage);
-    else await roomService.patchMessage(roomId, newMessage);
+    if (groupId) {
+      await groupService.patchMessage(groupId, newMessage);
+      await groupService.patchLatestMessage(groupId, {
+        sender: user.fullname,
+        content,
+      });
+    } else {
+      await userService.findAndPatch(userId as string, content);
+      await roomService.patchMessage(roomId, newMessage);
+    }
     res.status(201).json(newMessage);
   });
 

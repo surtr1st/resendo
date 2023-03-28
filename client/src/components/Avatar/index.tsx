@@ -32,7 +32,7 @@ export const Avatar = {
           title={name}
           style={{ background }}
         >
-          <h3>{name.slice(0, 1).toUpperCase()}</h3>
+          <h3>{name && name.slice(0, 1).toUpperCase()}</h3>
         </div>
       </div>
     );

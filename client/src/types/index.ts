@@ -24,6 +24,7 @@ export type User = {
   fullname: string;
   email: string;
   password: string;
+  lastMessage?: string;
 };
 export type Message = {
   content: string;
@@ -50,6 +51,10 @@ export type Friend = {
   userId: string;
   friendId?: string;
 };
+export type LatestMessage = {
+  sender: string;
+  content: string;
+};
 export type RoomResponse = {
   _id: string;
   user1: Omit<User, 'password'>;
@@ -67,4 +72,5 @@ export type GroupResponse = {
   owner: Omit<User, 'password'>;
   users: Omit<User, 'password'>[];
   messages: Partial<MessageResponse[]>;
+  lastMessage: LatestMessage;
 };

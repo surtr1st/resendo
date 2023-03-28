@@ -22,12 +22,28 @@ button:disabled:hover {
 }
 
 
-.send, .create, .accept, .cancel {
+.send, .create {
   background: var(--primary);
 }
 
-.send:hover, .create:hover, .accept:hover, .cancel:hover {
+.accept {
+  background: var(--success);
+}
+
+.cancel {
+  background: var(--danger);
+}
+
+.send:hover, .create:hover {
   background: var(--primary-hover);
+}
+
+.accept:hover {
+  background: var(--success-hover);
+}
+
+.cancel:hover {
+  background: var(--danger-hover);
 }
 
 .content {

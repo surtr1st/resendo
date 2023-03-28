@@ -11,3 +11,4 @@ export * from './Container';
 export * from './User';
 export * from './Notify';
 export * from './Loading';
+export * from './Icon';

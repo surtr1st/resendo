@@ -5,12 +5,14 @@ type TypeUser = mongo.Document & {
   fullname: string;
   password: string;
   email: string;
+  lastMessage: string;
 };
 
 interface IUser {
   fullname: string;
   password: string;
   email: string;
+  lastMessage: string;
 }
 
 const schema = new Schema<TypeUser>({
@@ -24,6 +26,7 @@ const schema = new Schema<TypeUser>({
     unique: true,
     index: true,
   },
+  lastMessage: String,
 });
 
 const User = model<TypeUser>('User', schema);

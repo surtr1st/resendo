@@ -85,6 +85,7 @@ function main() {
           socket.on('from-client', async (data) => {
             try {
               await rateLimiter.consume(socket.handshake.address);
+              console.log(data);
               socket.to(data.room).emit('from-server', data.message);
             } catch (e) {
               socket.emit('blocked', {

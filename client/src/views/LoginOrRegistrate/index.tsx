@@ -1,6 +1,13 @@
 import './style.css';
 import React, { useState } from 'react';
-import { Button, Input, Spacing, Loading, Notify } from '../../components';
+import {
+  Button,
+  Input,
+  Spacing,
+  Loading,
+  Notify,
+  LogInIcon,
+} from '../../components';
 import { useAuth, useUser } from '../../hooks';
 import { debounce } from 'lodash';
 import { useNavigate } from 'react-router-dom';
@@ -127,6 +134,7 @@ export function LoginOrRegistrate() {
               ) : (
                 <Button.Send
                   label='Log in'
+                  icon={<LogInIcon />}
                   onSend={debounceLogin}
                 />
               )}

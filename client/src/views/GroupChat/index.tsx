@@ -11,6 +11,7 @@ import {
   Input,
   Message,
   PageHeader,
+  SendIcon,
 } from '../../components';
 import { Loading } from '../../components/Loading';
 
@@ -156,6 +157,7 @@ export function GroupChat() {
               </div>
               <Button.Send
                 transparent
+                icon={<SendIcon />}
                 onSend={sendMessage}
               />
             </Input.TextArea>

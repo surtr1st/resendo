@@ -38,6 +38,12 @@ export function RoomController() {
             const detailMessage = await messageService.findById(message._id);
             messagesInRoom.push(detailMessage);
           }
+          const userLastSent =
+            messagesInRoom.at(-1)?.user === user1 ? user1._id : user2._id;
+          await userService.findAndPatch(
+            userLastSent,
+            messagesInRoom.at(-1)?.content as string,
+          );
           const room = {
             _id,
             user1: await userService.findByIdExcludePassword(user1._id),

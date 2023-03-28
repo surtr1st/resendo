@@ -5,6 +5,9 @@ import { LoginOrRegistrate } from './views/LoginOrRegistrate';
 import { createBrowserRouter, RouterProvider } from 'react-router-dom';
 import { MainChat } from './views/MainChat';
 import { GroupChat } from './views/GroupChat';
+import { QueryClientProvider, QueryClient } from 'react-query';
+
+const query = new QueryClient();
 
 const router = createBrowserRouter([
   {
@@ -28,5 +31,7 @@ const router = createBrowserRouter([
 ]);
 
 ReactDOM.createRoot(document.getElementById('root') as HTMLElement).render(
-  <RouterProvider router={router} />,
+  <QueryClientProvider client={query}>
+    <RouterProvider router={router} />
+  </QueryClientProvider>,
 );

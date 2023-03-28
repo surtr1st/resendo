@@ -44,6 +44,25 @@ export function useGroup() {
     return result;
   };
 
+  const getLatestMessageWithinGroup = async (
+    groupId: string,
+    userId: string,
+    accessToken: AccessToken,
+  ) => {
+    const options: RequestInit = {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${accessToken}`,
+      },
+      credentials: 'include',
+      body: JSON.stringify({ userId }),
+    };
+    const data = await fetch(`${BASE_URL}/group/latest?id=${groupId}`, options);
+    const result = await data.json();
+    return result;
+  };
+
   const createGroup = async (group: Group, accessToken: AccessToken) => {
     const options: RequestInit = {
       method: 'POST',
@@ -106,6 +125,7 @@ export function useGroup() {
   return {
     getGroupsByUser,
     getGroupById,
+    getLatestMessageWithinGroup,
     createGroup,
     addMembers,
     removeMembers,

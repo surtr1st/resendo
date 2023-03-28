@@ -12,6 +12,7 @@ import {
   Message,
   PageHeader,
   Loading,
+  SendIcon,
 } from '../../components';
 
 export function MainChat() {
@@ -163,6 +164,7 @@ export function MainChat() {
               </div>
               <Button.Send
                 transparent
+                icon={<SendIcon />}
                 onSend={sendMessage}
               />
             </Input.TextArea>

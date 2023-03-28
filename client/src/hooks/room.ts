@@ -37,6 +37,26 @@ export function useRoom() {
     return room;
   };
 
+  const getLatestMessageWithinRoom = async (
+    userId: string,
+    accessToken: AccessToken,
+  ) => {
+    const options: RequestInit = {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${accessToken}`,
+      },
+      credentials: 'include',
+    };
+    const data = await fetch(
+      `${BASE_URL}/room/latest?userId=${userId}`,
+      options,
+    );
+    const result = await data.json();
+    return result;
+  };
+
   const createRoom = async (room: Partial<Room>, accessToken: AccessToken) => {
     const options: RequestInit = {
       method: 'POST',
@@ -55,6 +75,7 @@ export function useRoom() {
   return {
     getRoomsByUserId,
     getConversationInRoom,
+    getLatestMessageWithinRoom,
     createRoom,
   };
 }

@@ -21,7 +21,7 @@ export class MessageService {
   async findById(id: string | ObjectId) {
     try {
       const message = await Message.findOne({ _id: id });
-      if (!message) throw new Error('Cannot return list of messages by user');
+      if (!message) throw new Error(`Cannot return message by id: ${id}`);
       return message;
     } catch (e) {
       throw e;

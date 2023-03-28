@@ -2,6 +2,12 @@ import './style.css';
 import { Button } from '../Button';
 import { useAuth, useFriend } from '../../hooks';
 import { useState } from 'react';
+import {
+  CircleTickIcon,
+  FilledBookmarkAddedIcon,
+  FilledBookmarkRemoveIcon,
+  OutlinePersonAddIcon,
+} from '../Icon';
 
 type Props = {
   name: string;
@@ -28,12 +34,16 @@ export const User = {
         {!isSelf && !isAdded ? (
           <Button.Send
             label='Add'
+            icon={<OutlinePersonAddIcon />}
             onSend={onAction}
           />
         ) : (
-          <div className='added'>
-            <h4>Added</h4>
-          </div>
+          <Button.Send
+            label='Added'
+            disabled
+            icon={<CircleTickIcon />}
+            onSend={onAction}
+          />
         )}
         {isSelf && (
           <div className='self-label'>
@@ -48,6 +58,13 @@ export const User = {
       <h4>{name!.length > 12 ? `${name?.slice(0, 12)}...` : name}</h4>
       <Button.Send
         label={temporaryDisabled ? 'Added' : 'Add'}
+        icon={
+          temporaryDisabled ? (
+            <FilledBookmarkRemoveIcon />
+          ) : (
+            <FilledBookmarkAddedIcon />
+          )
+        }
         onSend={onAction}
       />
     </div>

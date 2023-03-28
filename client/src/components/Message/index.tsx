@@ -1,16 +1,19 @@
 import './style.css';
+import React from 'react';
 import { Avatar } from '../Avatar';
 
 type Props = {
   author?: string;
   content: string;
   mediaSrc?: string;
+  authorAvatarSrc?: string;
 };
 
 type CardProps = {
   avatarSrc: string;
   opponentName: string;
   latestMessage: string;
+  invisible?: boolean;
   onAction: () => void;
 };
 
@@ -31,25 +34,41 @@ export const Message = {
       </div>
     );
   },
-  Receiver: ({ author, content, mediaSrc }: Props) => {
+  Receiver: ({ authorAvatarSrc, author, content, mediaSrc }: Props) => {
     return (
-      <div className='receiver'>
-        {author && <h5 className='receiver-label'>{author}</h5>}
-        {content && <p>{content}</p>}
-        {mediaSrc && (
-          <div className='img-container'>
-            <img
-              loading='lazy'
-              src={`${mediaSrc}.png`}
-            />
-          </div>
+      <div className='author-avatar'>
+        {authorAvatarSrc ? (
+          <Avatar.WithLabel
+            src={authorAvatarSrc as string}
+            alt='#'
+          />
+        ) : (
+          <Avatar.WithoutLabel name={author as string} />
         )}
+        <div className='receiver'>
+          {author && <h5 className='receiver-label'>{author}</h5>}
+          {content && <p>{content}</p>}
+          {mediaSrc && (
+            <div className='img-container'>
+              <img
+                loading='lazy'
+                src={`${mediaSrc}.png`}
+              />
+            </div>
+          )}
+        </div>
       </div>
     );
   },
-  Card: ({ avatarSrc, opponentName, latestMessage, onAction }: CardProps) => (
+  Card: ({
+    avatarSrc,
+    opponentName,
+    latestMessage,
+    invisible,
+    onAction,
+  }: CardProps) => (
     <div
-      className='card'
+      className={`${invisible ? 'invisible' : 'card'}`}
       onClick={onAction}
     >
       <div className='card-image'>
@@ -63,14 +82,14 @@ export const Message = {
         )}
       </div>
       <span className='card-detail'>
-        <h3>
-          {opponentName.length > 12
+        <h3 style={{ fontWeight: 'bold' }}>
+          {opponentName && opponentName.length > 12
             ? `${opponentName.substring(0, 12)}...`
             : opponentName}
         </h3>
-        <h5>
-          {latestMessage.length > 10
-            ? `${latestMessage.slice(0, 10)}...`
+        <h5 style={{ color: '#6b7280' }}>
+          {latestMessage && latestMessage?.length > 20
+            ? `${latestMessage.slice(0, 20)}...`
             : latestMessage}
         </h5>
       </span>

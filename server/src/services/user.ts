@@ -21,6 +21,19 @@ export class UserService {
     }
   }
 
+  async findAndPatch(id: string | ObjectId, message: string) {
+    try {
+      const patched = await User.updateOne(
+        { _id: id },
+        { $set: { lastMessage: message } },
+      );
+      if (!patched) throw new Error(`Cannot patch user with id: ${id}`);
+      return patched.modifiedCount;
+    } catch (e) {
+      throw e;
+    }
+  }
+
   async findByIdExcludePassword(id: string | ObjectId) {
     try {
       const user = await User.findById(id).select('-password');

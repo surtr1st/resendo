@@ -1,23 +1,37 @@
 import '../../assets/loading.css';
 
 export const Loading = {
-  FlipSquare: () => (
+  FlipSquare: ({ partialStyle }: { partialStyle?: boolean }) => (
     <div
-      style={{
-        display: 'grid',
-        placeItems: 'center',
-        height: '100vh',
-        background: 'inherit',
-      }}
+      style={
+        partialStyle
+          ? {
+              display: 'grid',
+              placeItems: 'center',
+              height: '50vh',
+              background: 'inherit',
+            }
+          : {
+              display: 'grid',
+              placeItems: 'center',
+              height: '100vh',
+              background: 'inherit',
+            }
+      }
     >
       <div className='flip-square' />
     </div>
   ),
-  Swap: ({ disabledStyle }: { disabledStyle?: boolean }) => (
+  Swap: ({ partialStyle }: { partialStyle?: boolean }) => (
     <div
       style={
-        disabledStyle
-          ? {}
+        partialStyle
+          ? {
+              display: 'grid',
+              placeItems: 'stretch',
+              height: '50vh',
+              background: 'inherit',
+            }
           : {
               display: 'grid',
               placeItems: 'center',
