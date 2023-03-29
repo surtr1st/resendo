@@ -73,7 +73,7 @@ export function useGroup() {
       credentials: 'include',
       body: JSON.stringify(group),
     };
-    await fetch(`${BASE_URL}/group`, options);
+    return await fetch(`${BASE_URL}/group`, options);
   };
 
   const addMembers = async (
@@ -90,7 +90,7 @@ export function useGroup() {
       credentials: 'include',
       body: JSON.stringify({ groupId, users }),
     };
-    await fetch(`${BASE_URL}/group/member/add`, options);
+    return await fetch(`${BASE_URL}/group/member/add`, options);
   };
 
   const removeMembers = async (
@@ -107,7 +107,7 @@ export function useGroup() {
       credentials: 'include',
       body: JSON.stringify({ groupId, users }),
     };
-    await fetch(`${BASE_URL}/group/member/remove`, options);
+    return await fetch(`${BASE_URL}/group/member/remove`, options);
   };
 
   const deleteGroup = async (groupId: string, accessToken: AccessToken) => {
@@ -119,7 +119,7 @@ export function useGroup() {
       },
       credentials: 'include',
     };
-    await fetch(`${BASE_URL}/group?id=${groupId}`, options);
+    return await fetch(`${BASE_URL}/group?id=${groupId}`, options);
   };
 
   return {

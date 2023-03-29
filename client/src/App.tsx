@@ -2,6 +2,7 @@ import React, { createRef, useState } from 'react';
 import { debounce } from 'lodash';
 import { Outlet, useNavigate } from 'react-router-dom';
 import { useQuery } from 'react-query';
+import { DEBOUNCE_DURATION } from './helpers';
 import { useAuth, useFriend, useGroup, useUser } from './hooks';
 import { Group, GroupResponse, User as TUser } from './types';
 import {
@@ -17,25 +18,25 @@ import {
   PeopleTeamIcon,
   Spacing,
   User,
-  Loading
+  Loading,
+  Notify
 } from './components';
-
 
 function App() {
   const [users, setUsers] = useState<Array<Omit<TUser, 'password'>>>([]);
   const [openFindPeople, setOpenFindPeople] = useState(false);
   const [openCreateGroup, setOpenCreateGroup] = useState(false);
   const [isCreatedLoading, setIsCreatedLoading] = useState(false);
+  const [isSuccessCreated, setIsSuccessCreated] = useState(false);
+  const [isErrorCreated, setIsErrorCreated] = useState(false);
   const [members, setMembers] = useState<string[]>([]);
 
+  const navigate = useNavigate();
   const { getUsersWithoutSelf, findUserByName } = useUser();
   const { getFriendsByUserId, checkIfAdded, updateFriend } = useFriend();
   const { userId, accessToken } = useAuth();
-  const { getGroupsByUser, createGroup } =
-    useGroup();
-  const navigate = useNavigate();
+  const { getGroupsByUser, createGroup } = useGroup();
 
-  const DURATION = 500;
   const groupTitle = createRef<HTMLInputElement>();
   const username = createRef<HTMLInputElement>();
   const { data: friends, isLoading: isLoadingFriends } = useQuery(
@@ -73,13 +74,13 @@ function App() {
 
   function addFriend(filteredUserId: string) {
     updateFriend({ userId, friendId: filteredUserId, accessToken })
-      .then((_) => {
+      .then(() => {
         const remainUsers = users.filter((user) => user._id !== filteredUserId);
         setUsers(remainUsers);
       })
       .catch((err) => console.log(err));
   }
-  const debounceAddFriend = debounce(addFriend, DURATION);
+  const debounceAddFriend = debounce(addFriend, DEBOUNCE_DURATION);
 
   function filterUser() {
     const value = `${username.current?.value}`.trim();
@@ -88,26 +89,32 @@ function App() {
       .then((res) => setUsers(res))
       .catch((err) => console.log(err));
   }
-  const debounceFilterUser = debounce(filterUser, DURATION);
+  const debounceFilterUser = debounce(filterUser, DEBOUNCE_DURATION);
 
   function handleCreateGroup() {
+    if (!groupTitle.current)
+      return
     setIsCreatedLoading(true);
+    if (groupTitle.current.value.length === 0) {
+      setIsCreatedLoading(false);
+      setIsErrorCreated(true)
+      return
+    }
     const group: Group = {
-      title: groupTitle.current!.value,
+      title: groupTitle.current.value,
       owner: userId,
       users: members,
     };
     createGroup(group, accessToken)
       .then(() => {
-        setTimeout(() => {
-          setIsCreatedLoading(false);
-          setOpenCreateGroup(false);
-          setMembers([]);
-        }, DURATION);
+        setIsCreatedLoading(false);
+        setIsSuccessCreated(true)
+        setOpenCreateGroup(false);
+        setMembers([]);
       })
       .catch((err) => console.log(err));
   }
-  const debounceCreateGroup = debounce(handleCreateGroup, DURATION);
+  const debounceCreateGroup = debounce(handleCreateGroup, DEBOUNCE_DURATION);
 
   function handleAddToGroup(user: string) {
     if (members.length === 0) {
@@ -120,10 +127,12 @@ function App() {
     }
     setMembers((prev) => prev.filter((member) => member !== user));
   }
-  const debounceAddToGroup = debounce(handleAddToGroup, DURATION);
+  const debounceAddToGroup = debounce(handleAddToGroup, DEBOUNCE_DURATION);
 
   return (
     <React.Fragment>
+      {isSuccessCreated && <Notify.Success message='Created group!' duration={3000} reset={() => setIsSuccessCreated(false)} />}
+      {isErrorCreated && <Notify.Error message='Cannot create a group with an empty title!' duration={3000} reset={() => setIsErrorCreated(false)} />}
       <Container.Grid>
         <Container.GridItem type='side'>
           <Spacing.Horizontal floated>
@@ -290,6 +299,7 @@ function App() {
             </List.Item>
           </List.Box>
         </Container.GridItem>
+
         <Container.GridItem type='article'>
           <Outlet />
         </Container.GridItem>

@@ -88,7 +88,6 @@ export class GroupService {
         { _id: id },
         { $set: { lastMessage } },
       );
-      console.log(updatedGroup.modifiedCount);
       return updatedGroup.modifiedCount;
     } catch (e) {
       throw new Error('Cannot update group');

@@ -1,9 +1,10 @@
+import React, { createRef, useEffect, useState } from 'react';
 import { io } from 'socket.io-client';
 import { debounce } from 'lodash';
-import React, { createRef, useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { MessageResponse } from '../../types';
-import { useAuth, useGroup, useMessage } from '../../hooks';
+import { DEBOUNCE_DURATION } from '../../helpers';
+import { SERVER_URL, SOCKET_AUTH_TOKEN, useAuth, useGroup, useMessage } from '../../hooks';
 import {
   Button,
   Chat,
@@ -25,16 +26,12 @@ export function GroupChat() {
   const { createMessage, uploadMedia } = useMessage();
   const { getGroupById } = useGroup();
 
-  const socket = io('http://localhost:4000', {
-    auth: {
-      token: '@AuthGroupToken',
-    },
+  const socket = io(SERVER_URL, {
+    auth: { token: SOCKET_AUTH_TOKEN },
   });
 
   const content = createRef<HTMLTextAreaElement>();
   const files = createRef<HTMLInputElement>();
-
-  const DURATION = 250;
 
   function onReceive() {
     socket.on('from-server', (data) => {
@@ -61,11 +58,8 @@ export function GroupChat() {
         setIsLoading(false);
       })
       .catch((err) => console.log(err));
-    setTimeout(() => {
-      setIsScrollDown(false);
-    }, 0);
   }
-  const debounceMessagesInRoom = debounce(handleConversationInRoom, DURATION);
+  const debounceMessagesInRoom = debounce(handleConversationInRoom, DEBOUNCE_DURATION);
 
   function sendMessage() {
     const value = `${content.current?.value}`.trim();
@@ -91,7 +85,7 @@ export function GroupChat() {
         })
         .catch((err) => console.log(err));
   }
-  const debounceUploadFile = debounce(handleUploadFiles, DURATION);
+  const debounceUploadFile = debounce(handleUploadFiles, DEBOUNCE_DURATION);
 
   useEffect(() => {
     debounceMessagesInRoom();

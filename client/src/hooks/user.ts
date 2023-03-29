@@ -21,6 +21,7 @@ export function useUser() {
     const user = await data.json();
     return user;
   };
+
   const getUserById = async (id: string) => {
     const options: RequestInit = {
       method: 'GET',
@@ -43,7 +44,7 @@ export function useUser() {
       credentials: 'include',
       body: JSON.stringify(user),
     };
-    await fetch(`${BASE_URL}/user`, options);
+    return await fetch(`${BASE_URL}/user`, options);
   };
 
   const findUserByName = async ({

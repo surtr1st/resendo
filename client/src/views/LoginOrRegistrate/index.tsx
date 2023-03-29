@@ -3,6 +3,7 @@ import React, { useState } from 'react';
 import { debounce } from 'lodash';
 import { useNavigate } from 'react-router-dom';
 import { useAuth, useUser } from '../../hooks';
+import { DEBOUNCE_DURATION } from '../../helpers';
 import {
   Button,
   Input,
@@ -10,8 +11,8 @@ import {
   Loading,
   Notify,
   LogInIcon,
+  RegistrateIcon,
 } from '../../components';
-
 
 export function LoginOrRegistrate() {
   const [isSignUp, setIsSignUp] = useState(false);
@@ -28,7 +29,6 @@ export function LoginOrRegistrate() {
   const email = React.createRef<HTMLInputElement>();
   const password = React.createRef<HTMLInputElement>();
   const reEnterPassword = React.createRef<HTMLInputElement>();
-  const DURATION = 500;
 
   function signin() {
     setIsLoading(true);
@@ -47,7 +47,7 @@ export function LoginOrRegistrate() {
         setTimeout(() => {
           setIsLoading(false);
           navigate('/chat');
-        }, DURATION)
+        }, 500)
       }
       catch (err) {
         setIsError(true);
@@ -56,7 +56,7 @@ export function LoginOrRegistrate() {
       }
     })()
   }
-  const debounceLogin = debounce(signin, DURATION);
+  const debounceLogin = debounce(signin, DEBOUNCE_DURATION);
 
   const removeLastSymbol = (text: string) => text.replace(/.$/, '')
 
@@ -103,7 +103,7 @@ export function LoginOrRegistrate() {
       .then(() => setIsSignUp(false))
       .catch((err) => console.log(err));
   }
-  const debounceRegistrate = debounce(signup, DURATION);
+  const debounceRegistrate = debounce(signup, DEBOUNCE_DURATION);
 
   return (
     <div className='login-bg'>
@@ -165,6 +165,7 @@ export function LoginOrRegistrate() {
               {isSignUp ? (
                 <Button.Send
                   label='Registrate'
+                  icon={<RegistrateIcon />}
                   onSend={debounceRegistrate}
                 />
               ) : (

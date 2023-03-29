@@ -1,13 +1,16 @@
 @import url('../../assets/animations.css');
 
 #notify {
-  visibility: hidden;
-  top: 0;
   position: fixed;
-  margin: 1rem;
+  visibility: hidden;
+  top: 25px;
+  left: 50%;
+  margin-left: -125px;
+  min-width: 250px;
   padding: .7rem;
   border-radius: 7px;
   font-size: 12px;
+  z-index: 10000;
 }
 
 #notify.show {
@@ -32,7 +35,7 @@
   color: #00452a;
 }
 
-.error > .content > h3 {
+.success > .content > h3 {
   background: inherit;
   color: #00452a;
 }

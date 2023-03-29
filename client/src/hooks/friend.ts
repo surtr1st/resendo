@@ -47,7 +47,7 @@ export function useFriend() {
       credentials: 'include',
       body: JSON.stringify({ friendId }),
     };
-    await fetch(`${BASE_URL}/friends?userId=${userId}`, options);
+    return await fetch(`${BASE_URL}/friends?userId=${userId}`, options);
   };
   return {
     getFriendsByUserId,

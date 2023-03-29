@@ -11,3 +11,4 @@ export * from './CircleTickIcon';
 export * from './FilledBookmarkAddedIcon';
 export * from './FilledBookmarkRemoveIcon';
 export * from './PeopleTeamIcon';
+export * from './RegistrateIcon'

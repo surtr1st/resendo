@@ -1,9 +1,10 @@
+import React, { createRef, useEffect, useState } from 'react';
 import { io } from 'socket.io-client';
 import { debounce } from 'lodash';
-import React, { createRef, useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { MessageResponse } from '../../types';
-import { useAuth, useMessage, useRoom } from '../../hooks';
+import { DEBOUNCE_DURATION } from '../../helpers';
+import { SERVER_URL, SOCKET_AUTH_TOKEN, useAuth, useMessage, useRoom } from '../../hooks';
 import {
   Button,
   Chat,
@@ -25,16 +26,12 @@ export function MainChat() {
   const { createMessage, uploadMedia } = useMessage();
   const { getConversationInRoom } = useRoom();
 
-  const socket = io('http://localhost:4000', {
-    auth: {
-      token: '@AuthToken',
-    },
+  const socket = io(SERVER_URL, {
+    auth: { token: SOCKET_AUTH_TOKEN },
   });
 
   const content = createRef<HTMLTextAreaElement>();
   const files = createRef<HTMLInputElement>();
-
-  const DURATION = 250;
 
   function onReceive() {
     socket.on('from-server', (data) => {
@@ -69,7 +66,7 @@ export function MainChat() {
       })
       .catch((err) => console.log(err));
   }
-  const debounceMessagesInRoom = debounce(handleConversationInRoom, DURATION);
+  const debounceMessagesInRoom = debounce(handleConversationInRoom, DEBOUNCE_DURATION);
 
   function sendMessage() {
     const value = `${content.current?.value}`.trim();
@@ -84,6 +81,7 @@ export function MainChat() {
     if (content.current) content.current!.value = '';
   }
 
+
   function handleUploadFiles() {
     const fileList = files.current?.files;
     const roomId = sessionStorage.getItem('Room-Id') as string;
@@ -95,7 +93,7 @@ export function MainChat() {
         })
         .catch((err) => console.log(err));
   }
-  const debounceUploadFile = debounce(handleUploadFiles, DURATION);
+  const debounceUploadFile = debounce(handleUploadFiles, DEBOUNCE_DURATION);
 
   useEffect(() => {
     debounceMessagesInRoom();

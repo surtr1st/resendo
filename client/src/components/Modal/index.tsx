@@ -25,20 +25,25 @@ const ESCAPE = 'Escape';
 
 export const Modal = {
   Default: ({ open, title, content, onClose }: Partial<DefaultProps>) => {
+    const modal = useRef<HTMLDivElement>(null);
     function closeOnEsc(e: KeyboardEvent) {
       if (e.key === ESCAPE) {
         e.preventDefault();
         if (onClose) onClose();
       }
     }
+    useEffect(() => {
+      if (!modal.current) return
+      modal.current.focus();
+    }, [])
 
     return ReactDOM.createPortal(
       <React.Fragment>
         {open && (
           <>
             <div
-              className='modal'
-              onKeyDown={closeOnEsc}
+              id='modal'
+              className='show'
             >
               <span className='modal-header'>
                 <h3>{title}</h3>
@@ -67,21 +72,24 @@ export const Modal = {
   },
   Customizable: ({ open, onClose, title, children }: CustomizableProps) => {
     const modal = useRef<HTMLDivElement>(null);
+    function closeOnEsc(e: KeyboardEvent) {
+      if (e.key === ESCAPE) {
+        e.preventDefault();
+        if (onClose) onClose();
+      }
+    }
     useEffect(() => {
-      modal.current?.focus();
-      modal.current?.classList.add('show');
-      return () => {
-        modal.current?.classList.remove('show');
-      };
-    }, []);
-
+      if (!modal.current) return
+      modal.current.focus();
+    }, [])
     return ReactDOM.createPortal(
       <React.Fragment>
         {open && (
           <>
             <div
               ref={modal}
-              className='modal'
+              id='modal'
+              className='show'
             >
               <span className='modal-header'>
                 <h3>{title}</h3>
