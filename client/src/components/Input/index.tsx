@@ -22,6 +22,7 @@ type Props = {
 };
 
 type InputProps = Props & {
+  errorMessage: string
   onChange: (e: ChangeEvent<HTMLInputElement>) => void;
   onClear: () => void;
 };
@@ -41,6 +42,7 @@ export const Input = {
         value,
         children,
         clearable,
+        errorMessage,
         onEnter,
         onChange,
         onClear,
@@ -74,6 +76,9 @@ export const Input = {
             {children}
             {clearable && <Button.Clear onClear={onClear} />}
           </div>
+          <span className='error-label'>
+            {errorMessage && <h4>{errorMessage}</h4>}
+          </span>
         </div>
       );
     },
@@ -89,6 +94,7 @@ export const Input = {
         onEnter,
         onChange,
         onClear,
+        errorMessage
       }: Partial<InputProps>,
       ref: ForwardedRef<HTMLInputElement>,
     ) => {
@@ -119,6 +125,9 @@ export const Input = {
             />
             {children}
             {clearable && <Button.Clear onClear={onClear} />}
+            <span className='error-label'>
+              {errorMessage && <h4>{errorMessage}</h4>}
+            </span>
           </div>
         </div>
       );

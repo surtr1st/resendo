@@ -7,7 +7,6 @@ import { useAuth, useMessage, useRoom } from '../../hooks';
 import {
   Button,
   Chat,
-  Container,
   Input,
   Message,
   PageHeader,
@@ -114,7 +113,7 @@ export function MainChat() {
   }, []);
 
   return (
-    <Container.GridItem type='article'>
+    <React.Fragment>
       {isLoading ? (
         <Loading.Swap />
       ) : (
@@ -168,6 +167,6 @@ export function MainChat() {
           </Chat.Footer>
         </Chat.Box>
       )}
-    </Container.GridItem>
+    </React.Fragment>
   );
 }

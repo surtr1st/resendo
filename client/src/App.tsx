@@ -255,36 +255,38 @@ function App() {
                 onAction={() => { }}
                 invisible
               />
-              {isLoadingFriends ? (
-                <Loading.FlipSquare partialStyle />
-              ) : (
-                friends.map(
-                  (friend: Omit<TUser, 'password'>, index: number) => (
-                    <Message.Card
-                      key={index}
-                      avatarSrc=''
-                      opponentName={friend.fullname}
-                      latestMessage={friend.lastMessage as string}
-                      onAction={() => navigate(`/chat/${friend._id}`)}
-                    />
-                  ),
-                )
-              )}
-              {isLoadingGroups ? (
-                <Loading.FlipSquare partialStyle />
-              ) : (
-                groups.map((group: GroupResponse, index: number) => (
-                  <Message.Card
-                    key={index}
-                    avatarSrc=''
-                    opponentName={group.title}
-                    latestMessage={`${group.lastMessage.sender && '@'}${group.lastMessage.sender
-                      }${group.lastMessage.sender && ': '}${group.lastMessage.content
-                      }`}
-                    onAction={() => navigate(`/chat/group/${group._id}`)}
-                  />
-                ))
-              )}
+              {
+                isLoadingFriends || isLoadingGroups
+                  ? <Loading.FlipSquare partialStyle />
+                  : <React.Fragment>
+                    {
+                      friends.map(
+                        (friend: Omit<TUser, 'password'>, index: number) => (
+                          <Message.Card
+                            key={index}
+                            avatarSrc=''
+                            opponentName={friend.fullname}
+                            latestMessage={friend.lastMessage as string}
+                            onAction={() => navigate(`/chat/${friend._id}`)}
+                          />
+                        ),
+                      )
+                    }
+                    {
+                      groups.map((group: GroupResponse, index: number) => (
+                        <Message.Card
+                          key={index}
+                          avatarSrc=''
+                          opponentName={group.title}
+                          latestMessage={`${group.lastMessage.sender && '@'}${group.lastMessage.sender
+                            }${group.lastMessage.sender && ': '}${group.lastMessage.content
+                            }`}
+                          onAction={() => navigate(`/chat/group/${group._id}`)}
+                        />
+                      ))
+                    }
+                  </React.Fragment>
+              }
             </List.Item>
           </List.Box>
         </Container.GridItem>

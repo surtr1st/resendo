@@ -1,5 +1,8 @@
 import './style.css';
 import React, { useState } from 'react';
+import { debounce } from 'lodash';
+import { useNavigate } from 'react-router-dom';
+import { useAuth, useUser } from '../../hooks';
 import {
   Button,
   Input,
@@ -8,19 +11,17 @@ import {
   Notify,
   LogInIcon,
 } from '../../components';
-import { useAuth, useUser } from '../../hooks';
-import { debounce } from 'lodash';
-import { useNavigate } from 'react-router-dom';
+
 
 export function LoginOrRegistrate() {
   const [isSignUp, setIsSignUp] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
   const [isError, setIsError] = useState(false);
-  const [errorMessage, setErrorMessage] = useState('');
+  const [responseMessage, setResponseMessage] = useState('')
 
   const navigate = useNavigate();
-  const { authorize } = useAuth();
+  const { authorize, setAuthorizing } = useAuth();
   const { createUser } = useUser();
 
   const fullname = React.createRef<HTMLInputElement>();
@@ -33,38 +34,71 @@ export function LoginOrRegistrate() {
     setIsLoading(true);
     const account = {
       email: `${email.current?.value}`,
-      // password: `${password.current?.value}`
     };
-    authorize(account)
-      .then(() =>
+    (async () => {
+      try {
+        const response = await authorize(account)
+        const data = await response.json()
+        if (response.status === 400)
+          throw new Error(data.message)
+        setAuthorizing(data);
+        setResponseMessage('Authorized')
+        setIsSuccess(true);
         setTimeout(() => {
           setIsLoading(false);
           navigate('/chat');
-          setIsSuccess(!isSuccess);
-        }, DURATION),
-      )
-      .catch((err) => {
-        setIsError(!isError);
-        setErrorMessage(`${err}`);
-      });
+        }, DURATION)
+      }
+      catch (err) {
+        setIsError(true);
+        setIsLoading(false);
+        setResponseMessage(`${err}`)
+      }
+    })()
   }
   const debounceLogin = debounce(signin, DURATION);
 
-  function signup() {
-    if (fullname.current?.value.length === 0) return;
-    if (email.current?.value.length === 0) return;
-    if (password.current?.value.length === 0) return;
-    if (
-      `${reEnterPassword.current?.value}`.includes(`${password.current?.value}`)
-    )
-      return;
+  const removeLastSymbol = (text: string) => text.replace(/.$/, '')
 
+  function convertCamelCaseToNormal(text: string) {
+    // Split the string by capital letters and join with a space
+    const sequence = text.split(/(?=[A-Z])/).join(' ');
+    // Capitalize the first letter
+    const firstLetterCapitalized = sequence.charAt(0).toUpperCase() + sequence.slice(1);
+    return firstLetterCapitalized;
+  }
+
+  function isEmptyProperties() {
+    const user: {
+      [key: string]: any
+    } = {
+      fullname: fullname.current?.value,
+      email: email.current?.value,
+      password: password.current?.value,
+      reEnterPassword: reEnterPassword.current?.value,
+    }
+    let errors = ''
+    for (const field in user) {
+      if (!user[field] && field !== 'reEnterPassword')
+        errors += `${convertCamelCaseToNormal(`${[field]}`)}, `
+      if (field === 'reEnterPassword')
+        errors += 'Re-enter password, '
+    }
+    if (errors.length === 0)
+      return false
+    setResponseMessage(`${removeLastSymbol(errors.trimEnd())} is empty`)
+    setIsError(!isError)
+    return true
+  }
+
+  function signup() {
+    if (isEmptyProperties())
+      return
     const account = {
-      fullname: `${fullname.current?.value}`,
-      email: `${email.current?.value}`,
-      password: `${password.current?.value}`,
+      fullname: `${fullname.current?.value} `,
+      email: `${email.current?.value} `,
+      password: `${password.current?.value} `,
     };
-    console.log(account);
     createUser(account)
       .then(() => setIsSignUp(false))
       .catch((err) => console.log(err));
@@ -76,14 +110,16 @@ export function LoginOrRegistrate() {
       <div className='login'>
         {isSuccess && (
           <Notify.Success
-            message='Authenticated successfully!'
+            message={responseMessage}
             duration={3000}
+            reset={() => setIsSuccess(false)}
           />
         )}
         {isError && (
           <Notify.Error
-            message={errorMessage}
+            message={responseMessage}
             duration={3000}
+            reset={() => setIsError(false)}
           />
         )}
         {isLoading ? (

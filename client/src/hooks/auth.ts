@@ -24,10 +24,7 @@ export function useAuth() {
       credentials: 'include',
       body: JSON.stringify({ ...args }),
     };
-    await fetch(`${BASE_URL}/auth`, options).then(async (res) => {
-      const data: AuthorizeResponse = await res.json();
-      setAuthorizing(data);
-    });
+    return await fetch(`${BASE_URL}/auth`, options);
   };
 
   return {
@@ -36,5 +33,6 @@ export function useAuth() {
     accessToken,
     refreshToken,
     authorize,
+    setAuthorizing,
   };
 }

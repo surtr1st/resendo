@@ -14,26 +14,30 @@ export function AuthController() {
     const { email } = req.body;
     const { JWT_SECRET, REFRESH_SECRET } = process.env;
 
-    const user = await userService.findByEmail(email);
-    if (!user) return res.status(401).send('Unauthorized');
+    try {
+      const user = await userService.findByEmail(email);
+      const accessToken = service.createToken({
+        payload: { id: user.id },
+        secretOrPrivateKey: JWT_SECRET as string,
+        options: { expiresIn: 120 },
+      });
 
-    const accessToken = service.createToken({
-      payload: { id: user.id },
-      secretOrPrivateKey: JWT_SECRET as string,
-      options: { expiresIn: 120 },
-    });
+      const refreshToken = service.createToken({
+        payload: { id: user.id },
+        secretOrPrivateKey: REFRESH_SECRET as string,
+        options: { expiresIn: 240 },
+      });
 
-    const refreshToken = service.createToken({
-      payload: { id: user.id },
-      secretOrPrivateKey: REFRESH_SECRET as string,
-      options: { expiresIn: 240 },
-    });
-
-    res.status(200).json({
-      accessToken,
-      refreshToken,
-      userId: user.id,
-    });
+      res.status(200).json({
+        accessToken,
+        refreshToken,
+        userId: user.id,
+      });
+    } catch (e: Error | unknown) {
+      res.status(400).send({
+        message: "Email doesn't exist!",
+      });
+    }
   });
 
   return router;

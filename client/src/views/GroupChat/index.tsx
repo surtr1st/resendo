@@ -7,13 +7,12 @@ import { useAuth, useGroup, useMessage } from '../../hooks';
 import {
   Button,
   Chat,
-  Container,
   Input,
   Message,
   PageHeader,
   SendIcon,
+  Loading
 } from '../../components';
-import { Loading } from '../../components/Loading';
 
 export function GroupChat() {
   const [conversation, setConversation] = useState<MessageResponse[]>([]);
@@ -110,7 +109,7 @@ export function GroupChat() {
   }, []);
 
   return (
-    <Container.GridItem type='article'>
+    <React.Fragment>
       {isLoading ? (
         <Loading.Swap />
       ) : (
@@ -164,6 +163,6 @@ export function GroupChat() {
           </Chat.Footer>
         </Chat.Box>
       )}
-    </Container.GridItem>
+    </React.Fragment>
   );
 }

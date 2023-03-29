@@ -12,6 +12,17 @@ label {
   text-transform: capitalize;
 }
 
+.error-label {
+  width: 100%;
+  margin-bottom: .5rem;
+  margin-top: .3rem;
+}
+
+.error-label > h4 {
+  color: var(--danger);
+  font-style: italic;
+}
+
 textarea {
   padding-left: 12px;
   padding-top: 8px;
