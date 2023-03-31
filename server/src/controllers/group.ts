@@ -16,82 +16,108 @@ export function GroupController() {
   const messageService = new MessageService();
 
   router.get(GROUPS_BY_USER_ID, async (req: Request, res: Response) => {
-    const { userId } = req.query;
-    const group = await service.findAllByOwner(userId as string);
+    try {
+      const { userId } = req.query;
+      const group = await service.findAllByOwner(userId as string);
 
-    if (group.length === 0) {
-      res.status(200).json(await service.findGroupsByMember(userId as string));
-      return;
+      if (group.length === 0) {
+        res
+          .status(200)
+          .json(await service.findGroupsByMember(userId as string));
+        return;
+      }
+      res.status(200).json(group);
+    } catch (e) {
+      res.status(500).json({ message: e });
     }
-    res.status(200).json(group);
   });
 
   router.get(GROUP_BY_ID, async (req: Request, res: Response) => {
-    const { id } = req.query;
-    const group = await service.findById(id as string);
-    const { title, owner, users, messages } = group!;
+    try {
+      const { id } = req.query;
+      const group = await service.findById(id as string);
+      const { title, owner, users, messages } = group!;
 
-    const usersInRoom = [];
-    for (const user of users) {
-      const detailUser = await userService.findByIdExcludePassword(user._id);
-      usersInRoom.push(detailUser);
-    }
+      const usersInRoom = [];
+      for (const user of users) {
+        const detailUser = await userService.findByIdExcludePassword(user._id);
+        usersInRoom.push(detailUser);
+      }
 
-    const messagesInRoom = [];
-    // Response only 12 messages for each request
-    const limitedMessages =
-      messages.length > 12
-        ? messages.slice(messages.length - 12, messages.length)
-        : messages;
-    for (const message of limitedMessages) {
-      const detailMessage = await messageService.findById(message._id);
-      messagesInRoom.push(detailMessage);
+      const messagesInRoom = [];
+      // Response only 12 messages for each request
+      const limitedMessages =
+        messages.length > 12
+          ? messages.slice(messages.length - 12, messages.length)
+          : messages;
+      for (const message of limitedMessages) {
+        const detailMessage = await messageService.findById(message._id);
+        messagesInRoom.push(detailMessage);
+      }
+      const result = {
+        _id: id,
+        title,
+        owner: await userService.findByIdExcludePassword(owner._id),
+        users: usersInRoom,
+        messages: messagesInRoom,
+      };
+      res.status(200).json(result);
+    } catch (e) {
+      res.status(500).json({ message: e });
     }
-    const result = {
-      _id: id,
-      title,
-      owner: await userService.findByIdExcludePassword(owner._id),
-      users: usersInRoom,
-      messages: messagesInRoom,
-    };
-    res.status(200).json(result);
   });
 
   router.post(CREATE_GROUP, async (req: Request, res: Response) => {
-    const { title, owner, users } = req.body;
-    const group: Partial<IGroup> = {
-      title,
-      owner,
-      users: users.length > 0 ? [...users, owner] : [owner],
-      lastMessage: {
-        sender: '',
-        content: '',
-      },
-    };
-    const newGroup = service.create(group);
-    res.status(201).json(newGroup);
+    try {
+      const { title, owner, users } = req.body;
+      const group: Partial<IGroup> = {
+        title,
+        owner,
+        users: users.length > 0 ? [...users, owner] : [owner],
+        lastMessage: {
+          sender: '',
+          content: '',
+        },
+      };
+      const newGroup = service.create(group);
+      res.status(201).json(newGroup);
+    } catch (e) {
+      res.status(500).json({ message: e });
+    }
   });
 
   router.patch(ADD_MEMBERS, async (req: Request, res: Response) => {
-    const { id } = req.query;
-    const { users } = req.body;
-    if ((users as string[]).length === 1)
-      await service.addMember(id as string, users[0]);
-    else await service.addMembers(id as string, users);
-    res.status(200).send();
+    try {
+      const { id } = req.query;
+      const { users } = req.body;
+      if ((users as string[]).length === 1)
+        await service.addMember(id as string, users[0]);
+      else await service.addMembers(id as string, users);
+      res.status(200).send();
+    } catch (e) {
+      res.status(500).json({ message: e });
+    }
   });
 
   router.patch(REMOVE_MEMBERS, async (req: Request, res: Response) => {
-    const { id } = req.query;
-    const { userId } = req.body;
-    await service.removeMember(id as string, userId);
-    res.status(200).send();
+    try {
+      const { id } = req.query;
+      const { userId } = req.body;
+      await service.removeMember(id as string, userId);
+      res.status(200).send();
+    } catch (e) {
+      res.status(500).json({ message: e });
+    }
   });
 
   router.delete(GROUP_BY_ID, async (req: Request, res: Response) => {
-    const { id } = req.query;
-    await service.remove(id as string);
-    res.status(200).send();
+    try {
+      const { id } = req.query;
+      await service.remove(id as string);
+      res.status(200).send();
+    } catch (e) {
+      res.status(500).json({ message: e });
+    }
   });
 
   return router;

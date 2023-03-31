@@ -25,40 +25,48 @@ export function MessageController() {
   const MEDIA_FOLDER = 'media';
   if (!fs.existsSync(MEDIA_FOLDER)) fs.mkdirSync(MEDIA_FOLDER);
 
-  // Find messages by user
-  router.get(MESSAGES_BY_USER_ID, async (req: Request, res: Response) => {
-    const { userId } = req.query;
-    res.status(200).json(await service.findAllByUserId(userId as string));
-  });
-
-  // Create message
-  router.post(CREATE_MESSAGE, async (req: Request, res: Response) => {
-    const { content, userId, roomId, groupId } = req.body;
-    const user = await userService.findById(userId as string);
-    const newMessage = await service.create({
-      content,
-      user,
-      author: user!.fullname,
-      sentAt: new Date(),
-    });
-    if (groupId) {
-      await groupService.patchMessage(groupId, newMessage);
-      await groupService.patchLatestMessage(groupId, {
-        sender: user.fullname,
-        content,
-      });
-    } else {
-      await userService.findAndPatch(userId as string, content);
-      await roomService.patchMessage(roomId, newMessage);
-    }
-    res.status(201).json(newMessage);
-  });
-
   // Configuration
   v2.config({
     cloud_name: CLOUDINARY_CLOUD_NAME,
     api_key: CLOUDINARY_API_KEY,
     api_secret: CLOUDINARY_API_SECRET,
+  });
+
+  // Find messages by user
+  router.get(MESSAGES_BY_USER_ID, async (req: Request, res: Response) => {
+    try {
+      const { userId } = req.query;
+      res.status(200).json(await service.findAllByUserId(userId as string));
+    } catch (e) {
+      res.status(500).json({ message: e });
+    }
+  });
+
+  // Create message
+  router.post(CREATE_MESSAGE, async (req: Request, res: Response) => {
+    try {
+      const { content, userId, roomId, groupId } = req.body;
+      const user = await userService.findById(userId as string);
+      const newMessage = await service.create({
+        content,
+        user,
+        author: user!.fullname,
+        sentAt: new Date(),
+      });
+      if (groupId) {
+        await groupService.patchMessage(groupId, newMessage);
+        await groupService.patchLatestMessage(groupId, {
+          sender: user.fullname,
+          content,
+        });
+      } else {
+        await userService.findAndPatch(userId as string, content);
+        await roomService.patchMessage(roomId, newMessage);
+      }
+      res.status(201).json(newMessage);
+    } catch (e) {
+      res.status(500).json({ message: e });
+    }
   });
 
   const storage = multer.diskStorage({
@@ -84,34 +92,38 @@ export function MessageController() {
     UPLOAD_MEDIA,
     upload.single('xfile'),
     async (req: Request, res: Response) => {
-      const file = req.file;
-      const { userId, roomId, groupId } = JSON.parse(req.body['xjson']);
+      try {
+        const file = req.file;
+        const { userId, roomId, groupId } = JSON.parse(req.body['xjson']);
 
-      if (!file) {
-        res.status(406).json({ message: 'File is undefined' });
-        return;
+        if (!file) {
+          res.status(406).json({ message: 'File is undefined' });
+          return;
+        }
+
+        // Upload
+        v2.uploader.upload(`${MEDIA_FOLDER}/${file.filename}`, {
+          public_id: file?.filename,
+        });
+
+        // Generate
+        const url = v2.url(`${file.filename}`, {
+          Crop: 'fill',
+        });
+
+        const user = await userService.findById(userId);
+        const newMessage = await service.create({
+          user,
+          author: user.fullname,
+          sentAt: new Date(),
+          media: url,
+        });
+        if (groupId) await groupService.patchMessage(groupId, newMessage);
+        else await roomService.patchMessage(roomId, newMessage);
+        res.status(201).json(newMessage);
+      } catch (e) {
+        res.status(500).json({ message: e });
       }
-
-      // Upload
-      v2.uploader.upload(`${MEDIA_FOLDER}/${file.filename}`, {
-        public_id: file?.filename,
-      });
-
-      // Generate
-      const url = v2.url(`${file.filename}`, {
-        Crop: 'fill',
-      });
-
-      const user = await userService.findById(userId);
-      const newMessage = await service.create({
-        user,
-        author: user.fullname,
-        sentAt: new Date(),
-        media: url,
-      });
-      if (groupId) await groupService.patchMessage(groupId, newMessage);
-      else await roomService.patchMessage(roomId, newMessage);
-      res.status(201).json(newMessage);
     },
   );
 

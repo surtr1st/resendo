@@ -39,7 +39,7 @@ export function LoginOrRegistrate() {
       try {
         const response = await authorize(account)
         const data = await response.json()
-        if (response.status === 400)
+        if (response.status === 500)
           throw new Error(data.message)
         setAuthorizing(data);
         setResponseMessage('Authorized')

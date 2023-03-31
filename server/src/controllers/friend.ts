@@ -12,17 +12,21 @@ export function FriendController() {
 
   // Find friends by user
   router.get(FRIENDS_BY_USER_ID, async (req: Request, res: Response) => {
-    const { userId } = req.query;
-    const user = await userService.findById(userId as string);
-    const friends = await service.findFriendsByUser(user);
-    const userFriends = [];
-    for (const friend of friends) {
-      const detailFriend = await userService.findByIdExcludePassword(
-        friend._id,
-      );
-      userFriends.push(detailFriend);
+    try {
+      const { userId } = req.query;
+      const user = await userService.findById(userId as string);
+      const friends = await service.findFriendsByUser(user);
+      const userFriends = [];
+      for (const friend of friends) {
+        const detailFriend = await userService.findByIdExcludePassword(
+          friend._id,
+        );
+        userFriends.push(detailFriend);
+      }
+      res.status(200).json(userFriends);
+    } catch (e) {
+      res.status(500).json({ message: e });
     }
-    res.status(200).json(userFriends);
   });
 
   // Check if user added
@@ -30,28 +34,36 @@ export function FriendController() {
     IS_ADDED_FRIEND,
     validateFriend,
     async (req: Request, res: Response) => {
-      const { userId, friendId } = req.body;
-      const user = await userService.findById(userId);
-      res.status(200).json(await service.isAdded(user, friendId));
+      try {
+        const { userId, friendId } = req.body;
+        const user = await userService.findById(userId);
+        res.status(200).json(await service.isAdded(user, friendId));
+      } catch (e) {
+        res.status(500).json({ message: e });
+      }
     },
   );
 
   // Update friends by user
   router.patch(FRIENDS_BY_USER_ID, async (req: Request, res: Response) => {
-    const { userId } = req.query;
-    const { friendId } = req.body;
-    const user = await userService.findById(userId as string);
-    const friend = await userService.findById(friendId);
-    // Update to self first
-    await service.patchFriend(user, friend);
-    // Then update to other
-    await service.patchFriend(friend, user);
-    const newRoom = {
-      user1: user,
-      user2: friend,
-    };
-    await roomService.create(newRoom);
-    res.status(201).send();
+    try {
+      const { userId } = req.query;
+      const { friendId } = req.body;
+      const user = await userService.findById(userId as string);
+      const friend = await userService.findById(friendId);
+      // Update to self first
+      await service.patchFriend(user, friend);
+      // Then update to other
+      await service.patchFriend(friend, user);
+      const newRoom = {
+        user1: user,
+        user2: friend,
+      };
+      await roomService.create(newRoom);
+      res.status(201).send();
+    } catch (e) {
+      res.status(500).json({ message: e });
+    }
   });
 
   return router;
