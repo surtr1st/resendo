@@ -13,7 +13,7 @@ import {
   SendIcon,
   Loading
 } from '../../components';
-import { useSocketIO } from '../../socket';
+import socket from '../../socket';
 
 export function GroupChat() {
   const [conversation, setConversation] = useState<MessageResponse[]>([]);
@@ -21,7 +21,6 @@ export function GroupChat() {
   const [isScrollDown, setIsScrollDown] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
 
-  const socket = useSocketIO()
   const { id } = useParams();
   const { userId, accessToken } = useAuth();
   const { createMessage, uploadMedia } = useMessage();

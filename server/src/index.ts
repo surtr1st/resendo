@@ -68,7 +68,32 @@ function main() {
         duration: 3,
       });
 
+      const onlineUsers: {
+        [key: string]: any;
+      } = {};
+
       io.on('connection', (socket) => {
+        function onConnect() {
+          // Adding id of user connected
+          socket.on('online', (data) => {
+            onlineUsers[data.userId] = data.isOnline;
+            socket.emit('user-onlines', Object.keys(onlineUsers));
+          });
+        }
+
+        function onDisconnect() {
+          // Removing id of user just disconnected
+          socket.on('disconnect', () => {
+            const userId = Object.keys(onlineUsers).find(
+              (key) => onlineUsers[key] === true,
+            );
+            if (userId) {
+              delete onlineUsers[userId];
+              socket.emit('user-onlines', Object.keys(onlineUsers));
+            }
+          });
+        }
+
         function onJoinRoom() {
           // Joining a room
           socket.on('join-room', (data) => {
@@ -77,11 +102,11 @@ function main() {
         }
 
         function onReceiveAndSendBack() {
-          // Only show message to all users within room
+          // Only show message to all users within room id
           socket.on('from-client', async (data) => {
             try {
               await rateLimiter.consume(socket.handshake.address);
-              socket.to(data.room).emit('from-server', data.message);
+              io.to(data.room).emit('from-server', data.message);
             } catch (e) {
               socket.emit('blocked', {
                 'retry-ms': (e as RateLimiterRes).msBeforeNext,
@@ -91,10 +116,14 @@ function main() {
         }
 
         if (socket.recovered) {
+          onConnect();
+          onDisconnect();
           onJoinRoom();
           onReceiveAndSendBack();
           return;
         }
+        onConnect();
+        onDisconnect();
         onJoinRoom();
         onReceiveAndSendBack();
       });

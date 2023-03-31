@@ -1,4 +1,4 @@
-import React, { createRef, useState } from 'react';
+import React, { createRef, useEffect, useState } from 'react';
 import { debounce } from 'lodash';
 import { Outlet, useNavigate } from 'react-router-dom';
 import { useQuery } from 'react-query';
@@ -21,8 +21,10 @@ import {
   Loading,
   Notify
 } from '../../components';
+import socket from '../../socket';
 
 export function Navigator() {
+  const [onlineUsers, setOnlineUsers] = useState<string[]>([])
   const [users, setUsers] = useState<Array<Omit<TUser, 'password'>>>([]);
   const [openFindPeople, setOpenFindPeople] = useState(false);
   const [openCreateGroup, setOpenCreateGroup] = useState(false);
@@ -128,6 +130,20 @@ export function Navigator() {
     setMembers((prev) => prev.filter((member) => member !== user));
   }
   const debounceAddToGroup = debounce(handleAddToGroup, DEBOUNCE_DURATION);
+
+  useEffect(() => {
+    socket.connect()
+    function setOnline(userIds: string[]) {
+      setOnlineUsers(userIds)
+    }
+    socket.emit('online', { isOnline: true, userId })
+    socket.on('user-onlines', setOnline)
+    return () => {
+      socket.disconnect()
+      socket.off('online', () => { })
+      socket.off('user-onlines', setOnline)
+    }
+  }, [])
 
   return (
     <React.Fragment>
@@ -275,7 +291,7 @@ export function Navigator() {
                             key={index}
                             avatarSrc=''
                             opponentName={friend.fullname}
-                            latestMessage={friend.lastMessage as string}
+                            latestMessage={onlineUsers.includes(friend._id as string) ? 'Online' : 'Offline'}
                             onAction={() => navigate(`/chat/${friend._id}`)}
                           />
                         ),
