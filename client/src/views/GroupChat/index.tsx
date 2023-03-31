@@ -1,10 +1,9 @@
 import React, { createRef, useEffect, useState } from 'react';
-import { io } from 'socket.io-client';
 import { debounce } from 'lodash';
 import { useParams } from 'react-router-dom';
 import { MessageResponse } from '../../types';
 import { DEBOUNCE_DURATION } from '../../helpers';
-import { SERVER_URL, SOCKET_AUTH_TOKEN, useAuth, useGroup, useMessage } from '../../hooks';
+import { useAuth, useGroup, useMessage } from '../../hooks';
 import {
   Button,
   Chat,
@@ -14,6 +13,7 @@ import {
   SendIcon,
   Loading
 } from '../../components';
+import { useSocketIO } from '../../socket';
 
 export function GroupChat() {
   const [conversation, setConversation] = useState<MessageResponse[]>([]);
@@ -21,14 +21,11 @@ export function GroupChat() {
   const [isScrollDown, setIsScrollDown] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
 
+  const socket = useSocketIO()
   const { id } = useParams();
   const { userId, accessToken } = useAuth();
   const { createMessage, uploadMedia } = useMessage();
   const { getGroupById } = useGroup();
-
-  const socket = io(SERVER_URL, {
-    auth: { token: SOCKET_AUTH_TOKEN },
-  });
 
   const content = createRef<HTMLTextAreaElement>();
   const files = createRef<HTMLInputElement>();
@@ -89,18 +86,15 @@ export function GroupChat() {
 
   useEffect(() => {
     debounceMessagesInRoom();
+    onReceive();
+    return () => {
+      onAbort();
+    }
   }, [id]);
 
   useEffect(() => {
     setIsScrollDown(!isScrollDown);
   }, [conversation.length]);
-
-  useEffect(() => {
-    onReceive();
-    return () => {
-      onAbort();
-    };
-  }, []);
 
   return (
     <React.Fragment>
