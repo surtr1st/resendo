@@ -1,5 +1,5 @@
-@import '../../assets/color.css';
-@import '../../assets/animations.css';
+@import url('../../assets/color.css');
+@import url('../../assets/animations.css');
 
 #modal {
   position: fixed;
@@ -15,15 +15,20 @@
   flex-direction: column;
   row-gap: 1rem; 
   padding: .2rem;
-  visibility: hidden;
 }
 
-#modal.show {
-  visibility: visible;
-  animation: modal-fadein 350ms;
+.md-fade-enter-active {
+  animation: modal-fade-in 150ms;
   animation-fill-mode: forwards;
   animation-timing-function: cubic-bezier(0,.83,.41,.97);
 }
+
+.md-fade-leave-active {
+  animation: modal-fade-out 150ms;
+  animation-fill-mode: forwards;
+  animation-timing-function: cubic-bezier(0,.83,.41,.97);
+}
+
 
 .modal-header {
   padding: .5rem;
@@ -53,6 +58,7 @@
   border-radius: .3rem;
 }
 
+
 .modal-backdrop {
   background: black;
   position: fixed;
@@ -61,5 +67,5 @@
   bottom: 0;
   left: 0;
   z-index: 1000;
-  opacity: .5;
+  opacity: .7;
 }

@@ -1,5 +1,5 @@
-@import '../../assets/color.css';
-@import '../../assets/animations.css';
+@import url('../../assets/color.css');
+@import url('../../assets/animations.css');
 
 .sender, .receiver {
   width: auto;
@@ -54,55 +54,3 @@
 .receiver > p, img {
   background: inherit;
 }
-
-.card {
-  display: flex;
-  justify-content: space-evenly;
-  gap: 1rem;
-  align-items: center;
-  border: 1px solid var(--border-alternative-color);
-  border-radius: .3rem;
-  padding: .5rem;
-  background-color: transparent;
-  transition: 150ms ease-in-out all;
-  height: 10vh;
-  margin: .15rem;
-  animation-name: fadedown;
-  animation-duration: 150ms;
-  animation-timing-function: ease-in-out;
-  animation-fill-mode: forwards;
-}
-
-.card:hover {
-  cursor: pointer;
-  background-color: var(--secondary);
-}
-
-.invisible {
-  display: flex;
-  justify-content: space-evenly;
-  visibility: hidden;
-  align-items: center;
-  height: 9vh;
-}
-
-.card-image {
-  display: grid;
-  background: inherit;
-}
-
-.card-detail {
-  display: flex;
-  justify-content: center;
-  flex-direction: column;
-  align-items: start;
-  gap: .2rem;
-  background-color: inherit;
-  width: 70%;
-}
-
-.card-detail > h3 {
-  background-color: inherit;
-  color: inherit;
-}
-

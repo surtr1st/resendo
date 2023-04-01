@@ -12,11 +12,13 @@ export function useGroup() {
       credentials: 'include',
     };
     const data = await fetch(`${BASE_URL}/groups?userId=${userId}`, options);
-    const groups = await data.json();
-    return groups;
+    return await data.json();
   };
 
-  const getGroupById = async (groupId: string, accessToken: AccessToken) => {
+  const getGroupById = async (
+    groupId: string,
+    accessToken: AccessToken,
+  ): Promise<GroupResponse> => {
     const options: RequestInit = {
       method: 'GET',
       headers: {
@@ -26,8 +28,7 @@ export function useGroup() {
       credentials: 'include',
     };
     const data = await fetch(`${BASE_URL}/group?id=${groupId}`, options);
-    const group: GroupResponse = await data.json();
-    return group;
+    return await data.json();
   };
 
   const checkIfAdded = async (groupId: string, userId: string) => {
@@ -40,8 +41,7 @@ export function useGroup() {
       body: JSON.stringify({ userId }),
     };
     const data = await fetch(`${BASE_URL}/group/joined?id=${groupId}`, options);
-    const result = await data.json();
-    return result;
+    return await data.json();
   };
 
   const getLatestMessageWithinGroup = async (
@@ -59,8 +59,7 @@ export function useGroup() {
       body: JSON.stringify({ userId }),
     };
     const data = await fetch(`${BASE_URL}/group/latest?id=${groupId}`, options);
-    const result = await data.json();
-    return result;
+    return await data.json();
   };
 
   const createGroup = async (group: Group, accessToken: AccessToken) => {

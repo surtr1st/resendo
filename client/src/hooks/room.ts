@@ -12,15 +12,14 @@ export function useRoom() {
       credentials: 'include',
     };
     const data = await fetch(`${BASE_URL}/rooms?userId=${userId}`, options);
-    const rooms = await data.json();
-    return rooms;
+    return await data.json();
   };
 
   const getConversationInRoom = async ({
     userId,
     friendId,
     accessToken,
-  }: Required<RoomArgs>) => {
+  }: Required<RoomArgs>): Promise<RoomResponse> => {
     const options: RequestInit = {
       method: 'GET',
       headers: {
@@ -33,8 +32,7 @@ export function useRoom() {
       `${BASE_URL}/room/filter?userId=${userId}&friendId=${friendId}`,
       options,
     );
-    const room: RoomResponse = await data.json();
-    return room;
+    return await data.json();
   };
 
   const getLatestMessageWithinRoom = async (
@@ -53,8 +51,7 @@ export function useRoom() {
       `${BASE_URL}/room/latest?userId=${userId}`,
       options,
     );
-    const result = await data.json();
-    return result;
+    return await data.json();
   };
 
   const createRoom = async (room: Partial<Room>, accessToken: AccessToken) => {
@@ -68,8 +65,7 @@ export function useRoom() {
       body: JSON.stringify(room),
     };
     const data = await fetch(`${BASE_URL}/room`, options);
-    const id = await data.json();
-    return id;
+    return await data.json();
   };
 
   return {

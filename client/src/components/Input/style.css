@@ -1,5 +1,5 @@
-@import '../../assets/color.css';
-@import '../../assets/animations.css';
+@import url('../../assets/color.css');
+@import url('../../assets/animations.css');
 
 .input-label {
   width: 100%;

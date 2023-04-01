@@ -26,6 +26,15 @@ export type User = {
   password: string;
   lastMessage?: string;
 };
+export type UserResponse = {
+  _id: string;
+  fullname: string;
+  email: string;
+  password: string;
+  lastMessage?: string;
+};
+export type InsensitiveUserInfo = Omit<User, 'password'>;
+export type InsensitiveResponseUserInfo = Omit<UserResponse, 'password'>;
 export type Message = {
   content: string;
   userId: string;
@@ -57,8 +66,8 @@ export type LatestMessage = {
 };
 export type RoomResponse = {
   _id: string;
-  user1: Omit<User, 'password'>;
-  user2: Omit<User, 'password'>;
+  user1: InsensitiveResponseUserInfo;
+  user2: InsensitiveResponseUserInfo;
   messages: Partial<MessageResponse[]>;
 };
 export type Group = {
@@ -69,8 +78,8 @@ export type Group = {
 export type GroupResponse = {
   _id: string;
   title: string;
-  owner: Omit<User, 'password'>;
-  users: Omit<User, 'password'>[];
+  owner: InsensitiveResponseUserInfo;
+  users: InsensitiveResponseUserInfo[];
   messages: Partial<MessageResponse[]>;
   lastMessage: LatestMessage;
 };
