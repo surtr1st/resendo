@@ -1,5 +1,10 @@
 import { BASE_URL } from '.';
-import { AccessToken, User, UserFilter } from '../types';
+import {
+  AccessToken,
+  InsensitiveResponseUserInfo,
+  User,
+  UserFilter,
+} from '../types';
 
 export function useUser() {
   const getUsersWithoutSelf = async (
@@ -18,11 +23,12 @@ export function useUser() {
       `${BASE_URL}/users/filter?except=${userId}`,
       options,
     );
-    const user = await data.json();
-    return user;
+    return await data.json();
   };
 
-  const getUserById = async (id: string) => {
+  const getUserById = async (
+    id: string,
+  ): Promise<InsensitiveResponseUserInfo> => {
     const options: RequestInit = {
       method: 'GET',
       headers: {
@@ -31,8 +37,7 @@ export function useUser() {
       credentials: 'include',
     };
     const data = await fetch(`${BASE_URL}/user?id=${id}`, options);
-    const user: Omit<User, 'password'> = await data.json();
-    return user;
+    return await data.json();
   };
 
   const createUser = async (user: User) => {
@@ -66,8 +71,7 @@ export function useUser() {
       `${BASE_URL}/users/search?name=${keyword}`,
       options,
     );
-    const json = await data.json();
-    return json;
+    return await data.json();
   };
 
   return {

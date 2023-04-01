@@ -15,8 +15,7 @@ export function useFriend() {
       credentials: 'include',
     };
     const data = await fetch(`${BASE_URL}/friends?userId=${userId}`, options);
-    const friends = await data.json();
-    return friends;
+    return await data.json();
   };
 
   const checkIfAdded = async (userId: string, friendId: string) => {
@@ -29,8 +28,7 @@ export function useFriend() {
       body: JSON.stringify({ userId, friendId }),
     };
     const data = await fetch(`${BASE_URL}/friends`, options);
-    const result = await data.json();
-    return result;
+    return await data.json();
   };
 
   const updateFriend = async ({
