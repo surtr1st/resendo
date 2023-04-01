@@ -201,6 +201,7 @@ tryOnUnmounted(() => {
           <TextField
             label="Username"
             name="room-input"
+            v-model:value="username"
             @clear="username = ''"
             @enter="debounceFilterUser"
           />
@@ -237,12 +238,12 @@ tryOnUnmounted(() => {
           />
           <HorizontalSpacing>
             <FriendList
-              v-for="user in users"
-              :key="user._id"
-              :uid="user._id"
-              :name="user.fullname"
-              :temporaryDisabled="members.includes(user._id)"
-              @action="() => debounceAddToGroup(user._id)"
+              v-for="friend in friends"
+              :key="friend._id"
+              :uid="friend._id"
+              :name="friend.fullname"
+              :temporaryDisabled="members.includes(friend._id)"
+              @action="() => debounceAddToGroup(friend._id)"
             />
           </HorizontalSpacing>
           <VerticalSpacing>

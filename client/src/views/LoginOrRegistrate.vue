@@ -10,20 +10,16 @@ import SwapLoading from '../components/Loading/SwapLoading.vue';
 import PrimaryButton from '../components/PrimaryButton.vue';
 import SecondaryButton from '../components/SecondaryButton.vue';
 import VerticalSpacing from '../components/Spacing/VerticalSpacing.vue';
-import SuccessNotify from '../components/Toasty/SuccessNotify.vue';
-import ErrorNotify from '../components/Toasty/ErrorNotify.vue';
 import { DEBOUNCE_DURATION } from '../helpers';
-import { useAuth, useUser } from '../hooks';
+import { useAuth, useToast, useUser } from '../hooks';
 
 const isSignUp = ref(false);
 const isLoading = ref(false);
-const isSuccess = ref(false);
-const isError = ref(false);
-const responseMessage = ref('');
 
 const router = useRouter();
 const { authorize, setAuthorizing } = useAuth();
 const { createUser } = useUser();
+const { onSuccess, onError } = useToast();
 const account = reactive({
   fullname: '',
   email: '',
@@ -39,16 +35,14 @@ function signin() {
       const data = await response.json();
       if (response.status === 500) throw new Error(data.message);
       setAuthorizing(data);
-      responseMessage.value = 'Authorized';
-      isSuccess.value = true;
+      onSuccess('Authorized');
       setTimeout(() => {
         isLoading.value = false;
         router.replace({ path: '/@chat', replace: true });
       }, 500);
     } catch (err) {
-      isError.value = true;
       isLoading.value = false;
-      responseMessage.value = `${err}`;
+      onError(`${err}`);
     }
   })();
 }
@@ -78,11 +72,11 @@ function isEmptyProperties() {
   for (const field in user) {
     if (!user[field] && field !== 'reEnterPassword')
       errors += `${convertCamelCaseToNormal(`${[field]}`)}, `;
-    if (field === 'reEnterPassword') errors += 'Re-enter password, ';
+    if (!user[field] && field === 'reEnterPassword')
+      errors += 'Re-enter password, ';
   }
   if (errors.length === 0) return false;
-  responseMessage.value = `${removeLastSymbol(errors.trimEnd())} is empty`;
-  isError.value = true;
+  onError(`${removeLastSymbol(errors.trimEnd())} is empty`);
   return true;
 }
 
@@ -103,18 +97,6 @@ const debounceRegistrate = useDebounceFn(signup, DEBOUNCE_DURATION);
 <template>
   <div class="login-bg">
     <div class="login">
-      <SuccessNotify
-        v-show="isSuccess"
-        :message="responseMessage"
-        :duration="3000"
-        @reset="isSuccess = false"
-      />
-      <ErrorNotify
-        v-show="isError"
-        :message="responseMessage"
-        :duration="3000"
-        @reset="isError = false"
-      />
       <SwapLoading v-if="isLoading" />
       <template v-else>
         <VerticalSpacing v-if="isSignUp">
@@ -201,12 +183,5 @@ const debounceRegistrate = useDebounceFn(signup, DEBOUNCE_DURATION);
   flex-direction: column;
   justify-content: center;
   align-items: center;
-}
-
-h2 {
-  font-weight: bold;
-}
-a {
-  text-decoration: none;
 }
 </style>

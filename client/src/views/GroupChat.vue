@@ -18,8 +18,8 @@ import { DEBOUNCE_DURATION, ScrollState } from '../helpers';
 import { useAuth, useMessage, useGroup } from '../hooks';
 import { MessageResponse } from '../types';
 import { tryOnMounted, tryOnUnmounted, useDebounceFn } from '@vueuse/core';
+import { state } from '../state';
 
-const conversation = ref<MessageResponse[]>([]);
 const title = ref('');
 const isLoading = ref(true);
 const content = ref<string>('');
@@ -31,13 +31,13 @@ const { getGroupById } = useGroup();
 
 function onReceive() {
   socket.on('from-server', (data) => {
-    conversation.value.push(data);
+    state.messages.push(data);
   });
 }
 
 function onAbort() {
   socket.off('from-server', (data) => {
-    conversation.value.push(data);
+    state.messages.push(data);
   });
 }
 
@@ -48,7 +48,7 @@ function handleConversationInRoom(id: string) {
       sessionStorage.setItem('Group-Id', _id);
       socket.emit('join-room', _id);
       title.value = groupTitle;
-      conversation.value = messages as MessageResponse[];
+      state.messages = messages as MessageResponse[];
       ScrollState.trigger = !ScrollState.trigger;
       isLoading.value = false;
     })
@@ -66,7 +66,6 @@ function sendMessage() {
   createMessage({ content: value, userId, groupId }, accessToken)
     .then((res) => {
       socket.emit('from-client', { message: res, room: groupId });
-      ScrollState.trigger = !ScrollState.trigger;
     })
     .catch((err) => console.log(err));
   content.value = '';
@@ -78,7 +77,6 @@ function handleUploadFiles(files: FileList | null) {
     uploadMedia({ userId, groupId }, files[0], accessToken)
       .then((res) => {
         socket.emit('from-client', { message: res, room: groupId });
-        ScrollState.trigger = !ScrollState.trigger;
       })
       .catch((err) => console.log(err));
 }
@@ -102,7 +100,7 @@ tryOnUnmounted(() => onAbort());
     </ChatHeader>
     <ChatBody>
       <template
-        v-for="message in conversation"
+        v-for="message in state.messages"
         :key="message._id"
       >
         <Sender

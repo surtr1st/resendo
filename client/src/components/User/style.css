@@ -27,7 +27,7 @@
   place-items: center;
 }
 
-.added > h4 {
+.self-label > h4 {
   background: inherit;
 }
 

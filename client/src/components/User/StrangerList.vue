@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import PrimaryButton from '../PrimaryButton.vue';
+import SecondaryButton from '../SecondaryButton.vue';
 import { ref } from 'vue';
 import { useAuth, useFriend } from '../../hooks';
 
@@ -28,20 +29,15 @@ isFriendAdded(userId, uid as string)
     <PrimaryButton
       v-if="!isSelf && !isAdded"
       label="Add"
-      :action="onAction"
+      @action="onAction"
     >
     </PrimaryButton>
-    <PrimaryButton
-      v-else
-      label="Added"
-      :action="onAction"
+    <div
+      v-else-if="!isSelf && isAdded"
+      class="self-label"
     >
-    </PrimaryButton>
-    <PrimaryButton
-      label="Added"
-      disabled
-    >
-    </PrimaryButton>
+      <h4>Added</h4>
+    </div>
     <div
       v-if="isSelf"
       class="self-label"

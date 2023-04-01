@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { onMounted, ref, watch } from 'vue';
-import { ScrollState } from '../../helpers';
+import { state } from '../../state';
 
 const chatBody = ref<HTMLDivElement | null>(null);
 function onScrollDown() {
@@ -11,13 +11,13 @@ function onScrollDown() {
     inline: 'nearest',
   });
 }
-onMounted(() => onScrollDown());
 watch(
-  () => ScrollState.trigger,
+  () => state.messages,
   () => {
     onScrollDown();
   },
 );
+onMounted(() => onScrollDown());
 </script>
 
 <template>

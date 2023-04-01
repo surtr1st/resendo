@@ -12,3 +12,4 @@ export * from './message';
 export * from './room';
 export * from './friend';
 export * from './group';
+export * from './toast';

@@ -23,7 +23,7 @@ function main() {
       const app = express();
 
       const corsOptions: CorsOptions = {
-        origin: 'http://localhost:5173',
+        origin: 'http://localhost:5174',
         // 'https://resendo-client.netlify.app',
         credentials: true,
         optionsSuccessStatus: 200,

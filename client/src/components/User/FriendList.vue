@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import PrimaryButton from '../PrimaryButton.vue';
 interface IStranger {
   name?: string;
   avatarSrc?: string;
@@ -15,7 +16,7 @@ defineProps<IStranger>();
     <h4>{{ name!.length > 12 ? `${name!.slice(0, 12)}...` : name }}</h4>
     <PrimaryButton
       :label="temporaryDisabled ? 'Added' : 'Add'"
-      :action="onAction"
+      @action="onAction"
     >
     </PrimaryButton>
   </div>

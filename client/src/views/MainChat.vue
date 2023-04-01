@@ -12,14 +12,14 @@ import PageHeader from '../components/PageHeader.vue';
 import PrimaryButton from '../components/PrimaryButton.vue';
 import TextArea from '../components/Input/TextArea.vue';
 import SendIcon from '../components/Icon/SendIcon.vue';
-import { ref } from 'vue';
+import { ref, watch } from 'vue';
 import { useRoute } from 'vue-router';
 import { DEBOUNCE_DURATION, ScrollState } from '../helpers';
 import { useAuth, useMessage, useRoom } from '../hooks';
 import { MessageResponse } from '../types';
 import { tryOnMounted, tryOnUnmounted, useDebounceFn } from '@vueuse/core';
+import { state } from '../state';
 
-const conversation = ref<MessageResponse[]>([]);
 const fullname = ref('');
 const isLoading = ref(true);
 const content = ref<string>('');
@@ -29,25 +29,13 @@ const { userId, accessToken } = useAuth();
 const { createMessage, uploadMedia } = useMessage();
 const { getConversationInRoom } = useRoom();
 
-function onReceive() {
-  socket.on('from-server', (data) => {
-    conversation.value.push(data);
-  });
-}
-
-function onAbort() {
-  socket.off('from-server', (data) => {
-    conversation.value.push(data);
-  });
-}
-
 function handleConversationInRoom(friendId: string) {
   getConversationInRoom({ userId, friendId, accessToken })
     .then((res) => {
       const { _id, user1, user2, messages } = res;
       sessionStorage.setItem('Room-Id', _id);
       socket.emit('join-room', _id);
-      conversation.value = messages as MessageResponse[];
+      state.messages = messages as MessageResponse[];
       switch (userId) {
         case user2._id:
           fullname.value = user1.fullname;
@@ -72,7 +60,6 @@ function sendMessage() {
   createMessage({ content: value, userId, roomId }, accessToken)
     .then((res) => {
       socket.emit('from-client', { message: res, room: roomId });
-      ScrollState.trigger = !ScrollState.trigger;
     })
     .catch((err) => console.log(err));
   content.value = '';
@@ -84,17 +71,19 @@ function handleUploadFiles(files: FileList | null) {
     uploadMedia({ userId, roomId }, files[0], accessToken)
       .then((res) => {
         socket.emit('from-client', { message: res, room: roomId });
-        ScrollState.trigger = !ScrollState.trigger;
       })
       .catch((err) => console.log(err));
 }
 const debounceUploadFile = useDebounceFn(handleUploadFiles, DEBOUNCE_DURATION);
 
+watch(
+  () => ScrollState.trigger,
+  () => {},
+);
+
 tryOnMounted(() => {
-  onReceive();
   debounceMessagesInRoom(`${route.params.id}`);
 });
-tryOnUnmounted(() => onAbort());
 </script>
 
 <template>
@@ -108,7 +97,7 @@ tryOnUnmounted(() => onAbort());
     </ChatHeader>
     <ChatBody>
       <template
-        v-for="message in conversation"
+        v-for="message in state.messages"
         :key="message._id"
       >
         <Sender

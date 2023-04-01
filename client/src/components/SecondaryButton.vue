@@ -12,6 +12,7 @@ defineProps<ISecondary>();
   <button
     @click="onAction"
     class="secondary-btn"
+    :disabled="disabled"
   >
     <div
       v-if="noContent"
