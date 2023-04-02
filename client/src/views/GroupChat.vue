@@ -12,34 +12,26 @@ import PageHeader from '../components/PageHeader.vue';
 import PrimaryButton from '../components/PrimaryButton.vue';
 import TextArea from '../components/Input/TextArea.vue';
 import SendIcon from '../components/Icon/SendIcon.vue';
-import { ref } from 'vue';
+import { ref, watch } from 'vue';
 import { useRoute } from 'vue-router';
 import { DEBOUNCE_DURATION, ScrollState } from '../helpers';
 import { useAuth, useMessage, useGroup } from '../hooks';
 import { MessageResponse } from '../types';
 import { tryOnMounted, tryOnUnmounted, useDebounceFn } from '@vueuse/core';
 import { state } from '../state';
+import TypeIndicator from '../components/TypeIndicator.vue';
 
 const title = ref('');
 const isLoading = ref(true);
 const content = ref<string>('');
-
+const isTyping = ref(false);
+const users = ref<{ [key: string]: { fullname: string; isTyping: boolean } }>(
+  {},
+);
 const route = useRoute();
 const { userId, accessToken } = useAuth();
 const { createMessage, uploadMedia } = useMessage();
 const { getGroupById } = useGroup();
-
-function onReceive() {
-  socket.on('from-server', (data) => {
-    state.messages.push(data);
-  });
-}
-
-function onAbort() {
-  socket.off('from-server', (data) => {
-    state.messages.push(data);
-  });
-}
 
 function handleConversationInRoom(id: string) {
   getGroupById(id, accessToken)
@@ -48,7 +40,7 @@ function handleConversationInRoom(id: string) {
       sessionStorage.setItem('Group-Id', _id);
       socket.emit('join-room', _id);
       title.value = groupTitle;
-      state.messages = messages as MessageResponse[];
+      state.groupMessages = messages as MessageResponse[];
       ScrollState.trigger = !ScrollState.trigger;
       isLoading.value = false;
     })
@@ -65,7 +57,7 @@ function sendMessage() {
   if (value.length === 0) return;
   createMessage({ content: value, userId, groupId }, accessToken)
     .then((res) => {
-      socket.emit('from-client', { message: res, room: groupId });
+      socket.emit('from-group-client', { message: res, room: groupId });
     })
     .catch((err) => console.log(err));
   content.value = '';
@@ -76,17 +68,35 @@ function handleUploadFiles(files: FileList | null) {
   if (files)
     uploadMedia({ userId, groupId }, files[0], accessToken)
       .then((res) => {
-        socket.emit('from-client', { message: res, room: groupId });
+        socket.emit('from-group-client', { message: res, room: groupId });
       })
       .catch((err) => console.log(err));
 }
 const debounceUploadFile = useDebounceFn(handleUploadFiles, DEBOUNCE_DURATION);
 
-tryOnMounted(() => {
-  onReceive();
-  debounceMessagesInRoom(`${route.params.id}`);
+watch(content, (newContent, oldContent) => {
+  const groupId = sessionStorage.getItem('Group-Id') as string;
+  if (newContent.trim() !== '')
+    socket.emit('is-group-typing', {
+      userId,
+      room: groupId,
+      isTyping: true,
+    });
+  else
+    socket.emit('is-group-typing', {
+      userId,
+      room: groupId,
+      isTyping: false,
+    });
+  console.log(users.value);
 });
-tryOnUnmounted(() => onAbort());
+
+tryOnMounted(() => {
+  debounceMessagesInRoom(`${route.params.id}`);
+  socket.on('is-group-typing', (data) => {
+    users.value[data.userId] = data;
+  });
+});
 </script>
 
 <template>
@@ -100,7 +110,7 @@ tryOnUnmounted(() => onAbort());
     </ChatHeader>
     <ChatBody>
       <template
-        v-for="message in state.messages"
+        v-for="message in state.groupMessages"
         :key="message._id"
       >
         <Sender
@@ -117,6 +127,10 @@ tryOnUnmounted(() => onAbort());
       </template>
     </ChatBody>
     <ChatFooter>
+      <TypeIndicator
+        :is-typing="isTyping"
+        :users="users"
+      />
       <TextArea
         v-model:value="content"
         @enter="sendMessage"

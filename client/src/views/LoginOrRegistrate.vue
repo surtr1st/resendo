@@ -10,7 +10,11 @@ import SwapLoading from '../components/Loading/SwapLoading.vue';
 import PrimaryButton from '../components/PrimaryButton.vue';
 import SecondaryButton from '../components/SecondaryButton.vue';
 import VerticalSpacing from '../components/Spacing/VerticalSpacing.vue';
-import { DEBOUNCE_DURATION } from '../helpers';
+import {
+  convertCamelCaseToNormal,
+  DEBOUNCE_DURATION,
+  removeLastSymbol,
+} from '../helpers';
 import { useAuth, useToast, useUser } from '../hooks';
 
 const isSignUp = ref(false);
@@ -47,17 +51,6 @@ function signin() {
   })();
 }
 const debounceLogin = useDebounceFn(signin, DEBOUNCE_DURATION);
-
-const removeLastSymbol = (text: string) => text.replace(/.$/, '');
-
-function convertCamelCaseToNormal(text: string) {
-  // Split the string by capital letters and join with a space
-  const sequence = text.split(/(?=[A-Z])/).join(' ');
-  // Capitalize the first letter
-  const firstLetterCapitalized =
-    sequence.charAt(0).toUpperCase() + sequence.slice(1);
-  return firstLetterCapitalized;
-}
 
 function isEmptyProperties() {
   const user: {

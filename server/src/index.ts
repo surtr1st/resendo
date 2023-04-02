@@ -14,7 +14,9 @@ import {
   AuthController,
   FriendController,
   GroupController,
+  QueueController,
 } from './controllers';
+import { UserService } from './services';
 
 function main() {
   connect(`${MONGODB_URL}`).then(
@@ -23,7 +25,7 @@ function main() {
       const app = express();
 
       const corsOptions: CorsOptions = {
-        origin: 'http://localhost:5174',
+        origin: 'http://localhost:5173',
         // 'https://resendo-client.netlify.app',
         credentials: true,
         optionsSuccessStatus: 200,
@@ -47,6 +49,7 @@ function main() {
       app.use(MessageController());
       app.use(RoomController());
       app.use(FriendController());
+      app.use(QueueController());
       app.use(GroupController());
       app.use(AuthController());
 
@@ -73,6 +76,7 @@ function main() {
       } = {};
 
       io.on('connection', (socket) => {
+        const userService = new UserService();
         function onConnect() {
           // Adding id of user connected
           socket.on('online', (data) => {
@@ -101,6 +105,28 @@ function main() {
           });
         }
 
+        function onTyping() {
+          // Showing typing each perspective
+          socket.on('is-typing', (data) => {
+            socket.to(data.room).emit('is-typing', {
+              fullname: data.fullname,
+              isTyping: data.isTyping,
+            });
+          });
+        }
+
+        function onGroupTyping() {
+          // Showing typing each perspective
+          socket.on('is-group-typing', async (data) => {
+            const user = await userService.findById(data.userId);
+            socket.to(data.room).emit('is-group-typing', {
+              userId: data.userId,
+              fullname: user.fullname,
+              isTyping: data.isTyping,
+            });
+          });
+        }
+
         function onReceiveAndSendBack() {
           // Only show message to all users within room id
           socket.on('from-client', async (data) => {
@@ -115,17 +141,37 @@ function main() {
           });
         }
 
+        function onGroupReceiveAndSendBack() {
+          // Only show message to all users within room id
+          socket.on('from-group-client', async (data) => {
+            try {
+              await rateLimiter.consume(socket.handshake.address);
+              io.to(data.room).emit('from-group-server', data.message);
+            } catch (e) {
+              socket.emit('blocked', {
+                'retry-ms': (e as RateLimiterRes).msBeforeNext,
+              });
+            }
+          });
+        }
+
         if (socket.recovered) {
           onConnect();
           onDisconnect();
           onJoinRoom();
+          onTyping();
+          onGroupTyping();
           onReceiveAndSendBack();
+          onGroupReceiveAndSendBack();
           return;
         }
         onConnect();
         onDisconnect();
         onJoinRoom();
+        onTyping();
+        onGroupTyping();
         onReceiveAndSendBack();
+        onGroupReceiveAndSendBack();
       });
 
       httpServer.listen(PORT, HOST);

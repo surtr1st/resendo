@@ -3,6 +3,7 @@ import Avatar from './Avatar.vue';
 interface IFriend {
   avatarSrc?: string;
   opponentName?: string;
+  isOnline?: boolean;
   latestMessage?: string;
   invisible?: boolean;
   onAction?: () => void;
@@ -19,24 +20,20 @@ defineProps<IFriend>();
       <Avatar
         v-if="avatarSrc"
         :src="avatarSrc"
+        :status="isOnline"
         alt="#"
       />
       <Avatar
         v-else
         :name="opponentName"
+        :status="isOnline"
       />
     </div>
     <span class="card-detail">
-      <h3
-        v-if="opponentName && opponentName.length > 12"
-        :style="{ 'font-weight': 'bold' }"
-      >
+      <h3 v-if="opponentName && opponentName.length > 12">
         {{ `${opponentName.substring(0, 12)}...` }}
       </h3>
-      <h3
-        v-else
-        :style="{ 'font-weight': 'bold' }"
-      >
+      <h3 v-else>
         {{ opponentName }}
       </h3>
       <h5
@@ -115,5 +112,6 @@ defineProps<IFriend>();
 .card-detail > h3 {
   background-color: inherit;
   color: inherit;
+  font-weight: bold;
 }
 </style>

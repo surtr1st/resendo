@@ -9,8 +9,6 @@ import ModalFooter from '../components/Modal/ModalFooter.vue';
 import PrimaryButton from '../components/PrimaryButton.vue';
 import HorizontalSpacing from '../components/Spacing/HorizontalSpacing.vue';
 import VerticalSpacing from '../components/Spacing/VerticalSpacing.vue';
-import ErrorNotify from '../components/Toasty/ErrorNotify.vue';
-import SuccessNotify from '../components/Toasty/SuccessNotify.vue';
 import FriendList from '../components/User/FriendList.vue';
 import StrangerList from '../components/User/StrangerList.vue';
 import List from '../components/List.vue';
@@ -21,14 +19,15 @@ import CancelIcon from '../components/Icon/CancelIcon.vue';
 import CreateIcon from '../components/Icon/CreateIcon.vue';
 import PeopleTeamIcon from '../components/Icon/PeopleTeamIcon.vue';
 import FindIcon from '../components/Icon/FindIcon.vue';
-import { reactive, ref } from 'vue';
+import HamburgerIcon from '../components/Icon/HamburgerIcon.vue';
+import { ref, watch } from 'vue';
 import {
   Group,
   GroupResponse,
   InsensitiveResponseUserInfo,
   UserResponse,
 } from '../types';
-import { useAuth, useFriend, useGroup, useUser } from '../hooks';
+import { useAuth, useFriend, useGroup, useToast, useUser } from '../hooks';
 import { DEBOUNCE_DURATION } from '../helpers';
 import { tryOnMounted, tryOnUnmounted, useDebounceFn } from '@vueuse/core';
 
@@ -41,13 +40,10 @@ const isLoadingFriends = ref(false);
 const isLoadingGroups = ref(false);
 const username = ref('');
 const groupTitle = ref('');
-const responseMessage = reactive({
-  success: false,
-  error: false,
-});
 const isOpenFindPeople = ref(false);
 const isOpenCreateGroup = ref(false);
 
+const { onSuccess, onError } = useToast();
 const { getUsersWithoutSelf, findUserByName } = useUser();
 const { getFriendsByUserId, checkIfAdded, updateFriend } = useFriend();
 const { userId, accessToken } = useAuth();
@@ -113,7 +109,7 @@ const debounceFilterUser = useDebounceFn(filterUser, DEBOUNCE_DURATION);
 function handleCreateGroup() {
   if (!groupTitle.value) return;
   if (groupTitle.value.length === 0) {
-    responseMessage.error = true;
+    onError('Cannot create group without a title!');
     return;
   }
   const group: Group = {
@@ -123,7 +119,8 @@ function handleCreateGroup() {
   };
   createGroup(group, accessToken)
     .then(() => {
-      responseMessage.success = true;
+      onSuccess('Created a group!');
+      isOpenCreateGroup.value = false;
       members.value = [];
     })
     .catch((err) => console.log(err));
@@ -148,6 +145,10 @@ function setOnline(userIds: string[]) {
   onlineUsers.value = userIds;
 }
 
+watch(onlineUsers, (newUser, oldUser) => {
+  console.log(newUser);
+});
+
 tryOnMounted(() => {
   socket.connect();
   socket.emit('online', { isOnline: true, userId });
@@ -164,21 +165,12 @@ tryOnUnmounted(() => {
 </script>
 
 <template>
-  <SuccessNotify
-    v-show="responseMessage.success"
-    message="Created group!"
-    :duration="3000"
-    @reset="responseMessage.success = false"
-  />
-  <ErrorNotify
-    v-show="responseMessage.error"
-    message="Cannot create group without a title!"
-    :duration="3000"
-    @reset="responseMessage.error = false"
-  />
   <Grid>
     <GridItem type="side">
       <HorizontalSpacing floated>
+        <PrimaryButton>
+          <HamburgerIcon />
+        </PrimaryButton>
         <PrimaryButton
           label="Find"
           @action="findPeople"
@@ -234,6 +226,7 @@ tryOnUnmounted(() => {
           <TextField
             label="Title"
             name="group-input"
+            v-model:value="groupTitle"
             @clear="groupTitle = ''"
           />
           <HorizontalSpacing>
@@ -281,9 +274,8 @@ tryOnUnmounted(() => {
               v-for="friend in friends"
               :key="friend._id"
               :opponentName="friend.fullname"
-              :latestMessage="
-                onlineUsers.includes(friend._id) ? 'Online' : 'Offline'
-              "
+              :latestMessage="friend.lastMessage"
+              :is-online="onlineUsers.includes(friend._id)"
               @action="$router.replace({ path: `/@chat/${friend._id}` })"
             />
             <Friend

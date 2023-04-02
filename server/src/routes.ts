@@ -20,6 +20,10 @@ export const LATEST_MESSAGE_IN_ROOM_BY_USER = `${BASE_URL}/room/latest`;
 
 export const IS_ADDED_FRIEND = `${BASE_URL}/friends`;
 export const FRIENDS_BY_USER_ID = `${BASE_URL}/friends`;
+export const FRIEND_REQUEST_QUEUES = `${BASE_URL}/friend/queues`;
+export const REQUEST_FRIEND = `${BASE_URL}/friend/request`;
+export const ACCEPT_REQUEST = `${BASE_URL}/friend/request/accept`;
+export const REJECT_REQUEST = `${BASE_URL}/friend/request/reject`;
 
 export const CREATE_GROUP = `${BASE_URL}/group`;
 export const IS_JOINED_GROUP = `${BASE_URL}/group/joined`;

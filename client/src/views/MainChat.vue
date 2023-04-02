@@ -12,17 +12,20 @@ import PageHeader from '../components/PageHeader.vue';
 import PrimaryButton from '../components/PrimaryButton.vue';
 import TextArea from '../components/Input/TextArea.vue';
 import SendIcon from '../components/Icon/SendIcon.vue';
+import TypeIndicator from '../components/TypeIndicator.vue';
 import { ref, watch } from 'vue';
 import { useRoute } from 'vue-router';
 import { DEBOUNCE_DURATION, ScrollState } from '../helpers';
 import { useAuth, useMessage, useRoom } from '../hooks';
 import { MessageResponse } from '../types';
-import { tryOnMounted, tryOnUnmounted, useDebounceFn } from '@vueuse/core';
+import { tryOnMounted, useDebounceFn } from '@vueuse/core';
 import { state } from '../state';
 
 const fullname = ref('');
 const isLoading = ref(true);
 const content = ref<string>('');
+const isTyping = ref(false);
+const who = ref('');
 
 const route = useRoute();
 const { userId, accessToken } = useAuth();
@@ -81,8 +84,28 @@ watch(
   () => {},
 );
 
+watch(content, (newContent, oldContent) => {
+  const roomId = sessionStorage.getItem('Room-Id') as string;
+  if (newContent.trim() !== '')
+    socket.emit('is-typing', {
+      room: roomId,
+      fullname: fullname.value,
+      isTyping: true,
+    });
+  else
+    socket.emit('is-typing', {
+      room: roomId,
+      fullname: fullname.value,
+      isTyping: false,
+    });
+});
+
 tryOnMounted(() => {
   debounceMessagesInRoom(`${route.params.id}`);
+  socket.on('is-typing', (data) => {
+    who.value = data.fullname;
+    isTyping.value = data.isTyping;
+  });
 });
 </script>
 
@@ -114,6 +137,10 @@ tryOnMounted(() => {
       </template>
     </ChatBody>
     <ChatFooter>
+      <TypeIndicator
+        :is-typing="isTyping"
+        :who="who"
+      />
       <TextArea
         v-model:value="content"
         @enter="sendMessage"

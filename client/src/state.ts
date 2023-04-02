@@ -4,6 +4,8 @@ import { MessageResponse } from './types';
 
 export const state = reactive({
   messages: [] as MessageResponse[],
+  groupMessages: [] as MessageResponse[],
 });
 
 socket.on('from-server', (data) => state.messages.push(data));
+socket.on('from-group-server', (data) => state.groupMessages.push(data));
