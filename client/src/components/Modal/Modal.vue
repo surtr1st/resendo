@@ -5,6 +5,7 @@ import SecondaryButton from '../SecondaryButton.vue';
 interface IModal {
   title?: string;
   open?: boolean;
+  name?: string;
   onClose?: () => void | Promise<void>;
 }
 const { onClose } = defineProps<IModal>();
@@ -36,7 +37,10 @@ onUnmounted(() => {
 <template>
   <Teleport to="body">
     <Transition name="md-fade">
-      <div v-show="open">
+      <div
+        v-if="open"
+        :id="name"
+      >
         <div
           id="modal"
           ref="modal"
@@ -53,8 +57,9 @@ onUnmounted(() => {
       </div>
     </Transition>
     <div
-      v-show="open"
+      v-if="open"
       class="modal-backdrop"
+      @click="onClose"
     />
   </Teleport>
 </template>

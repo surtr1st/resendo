@@ -5,7 +5,7 @@ export function useAuth() {
   const userId = sessionStorage.getItem('userId') as string;
   const isAuth = Boolean(sessionStorage.getItem('isAuth')) ? true : false;
   const accessToken = sessionStorage.getItem('Access-Token') ?? '';
-  const refreshToken = sessionStorage.getItem('Refresh-Token');
+  const refreshToken = sessionStorage.getItem('Refresh-Token') ?? '';
 
   const setAuthorizing = (args: AuthorizeResponse) => {
     const { accessToken, refreshToken, userId } = args;

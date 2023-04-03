@@ -20,7 +20,7 @@ defineProps<IMenu>();
   >
     <VerticalSpacing grid>
       <FindPeople />
-      <GroupCreator />
+      <GroupCreator :friends="friends" />
       <ProfileSettings />
     </VerticalSpacing>
   </Drawer>

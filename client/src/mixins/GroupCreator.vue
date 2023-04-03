@@ -4,15 +4,17 @@ import Modal from '../components/Modal/Modal.vue';
 import ModalBody from '../components/Modal/ModalBody.vue';
 import ModalFooter from '../components/Modal/ModalFooter.vue';
 import VerticalSpacing from '../components/Spacing/VerticalSpacing.vue';
+import HorizontalSpacing from '../components/Spacing/HorizontalSpacing.vue';
 import FriendList from '../components/User/FriendList.vue';
 import CancelIcon from '../components/Icon/CancelIcon.vue';
 import CreateIcon from '../components/Icon/CreateIcon.vue';
 import PeopleTeamIcon from '../components/Icon/PeopleTeamIcon.vue';
 import PrimaryButton from '../components/PrimaryButton.vue';
+import SecondaryButton from '../components/SecondaryButton.vue';
 import { ref } from 'vue';
+import { useDebounceFn } from '@vueuse/core';
 import { useAuth, useGroup, useToast } from '../hooks';
 import { Group, InsensitiveResponseUserInfo } from '../types';
-import { useDebounceFn } from '@vueuse/core';
 import { DEBOUNCE_DURATION } from '../helpers';
 
 interface IGroupCreator {
@@ -60,16 +62,15 @@ function handleAddToGroup(user: string) {
   const filtered = members.value.filter((member) => member !== user);
   members.value = filtered;
 }
-const debounceAddToGroup = useDebounceFn(handleAddToGroup, DEBOUNCE_DURATION);
 </script>
 
 <template>
-  <PrimaryButton
+  <SecondaryButton
     label="Create Group"
     @action="isOpenCreateGroup = true"
   >
     <CreateIcon />
-  </PrimaryButton>
+  </SecondaryButton>
   <Modal
     :open="isOpenCreateGroup"
     title="Create a Group"
@@ -88,8 +89,8 @@ const debounceAddToGroup = useDebounceFn(handleAddToGroup, DEBOUNCE_DURATION);
           :key="friend._id"
           :uid="friend._id"
           :name="friend.fullname"
-          :temporaryDisabled="members.includes(friend._id)"
-          @action="() => debounceAddToGroup(friend._id)"
+          :label="members.includes(friend._id) ? 'Added' : 'Add'"
+          @action="() => handleAddToGroup(friend._id)"
         />
       </HorizontalSpacing>
       <VerticalSpacing>

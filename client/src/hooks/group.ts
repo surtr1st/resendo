@@ -1,5 +1,10 @@
 import { BASE_URL } from '.';
-import { AccessToken, Group, GroupResponse } from '../types';
+import {
+  AccessToken,
+  Group,
+  GroupResponse,
+  InsensitiveResponseUserInfo,
+} from '../types';
 
 export function useGroup() {
   const getGroupsByUser = async (userId: string, accessToken: AccessToken) => {
@@ -31,16 +36,35 @@ export function useGroup() {
     return await data.json();
   };
 
-  const checkIfAdded = async (groupId: string, userId: string) => {
+  const getMembersWithinGroup = async (
+    groupId: string,
+    accessToken: AccessToken,
+  ): Promise<InsensitiveResponseUserInfo[]> => {
+    const options: RequestInit = {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${accessToken}`,
+      },
+      credentials: 'include',
+    };
+    const data = await fetch(`${BASE_URL}/group/${groupId}/members`, options);
+    return await data.json();
+  };
+
+  const getOutsideGroupUsers = async (
+    groupId: string,
+    userIds: string[],
+  ): Promise<InsensitiveResponseUserInfo[]> => {
     const options: RequestInit = {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
       },
       credentials: 'include',
-      body: JSON.stringify({ userId }),
+      body: JSON.stringify({ userIds }),
     };
-    const data = await fetch(`${BASE_URL}/group/joined?id=${groupId}`, options);
+    const data = await fetch(`${BASE_URL}/group/${groupId}/outside`, options);
     return await data.json();
   };
 
@@ -92,9 +116,9 @@ export function useGroup() {
     return await fetch(`${BASE_URL}/group/member/add`, options);
   };
 
-  const removeMembers = async (
+  const removeMember = async (
     groupId: string,
-    users: string[],
+    userId: string,
     accessToken: AccessToken,
   ) => {
     const options: RequestInit = {
@@ -104,7 +128,7 @@ export function useGroup() {
         Authorization: `Bearer ${accessToken}`,
       },
       credentials: 'include',
-      body: JSON.stringify({ groupId, users }),
+      body: JSON.stringify({ groupId, userId }),
     };
     return await fetch(`${BASE_URL}/group/member/remove`, options);
   };
@@ -124,11 +148,12 @@ export function useGroup() {
   return {
     getGroupsByUser,
     getGroupById,
+    getMembersWithinGroup,
     getLatestMessageWithinGroup,
     createGroup,
     addMembers,
-    removeMembers,
-    checkIfAdded,
+    removeMember,
+    getOutsideGroupUsers,
     deleteGroup,
   };
 }

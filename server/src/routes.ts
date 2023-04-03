@@ -26,8 +26,9 @@ export const ACCEPT_REQUEST = `${BASE_URL}/friend/request/accept`;
 export const REJECT_REQUEST = `${BASE_URL}/friend/request/reject`;
 
 export const CREATE_GROUP = `${BASE_URL}/group`;
-export const IS_JOINED_GROUP = `${BASE_URL}/group/joined`;
+export const OUTSIDE_GROUP_USERS = `${BASE_URL}/group/:id/outside`;
 export const GROUP_BY_ID = `${BASE_URL}/group`;
+export const GROUP_MEMBERS = `${BASE_URL}/group/:id/members`;
 export const ADD_MEMBERS = `${BASE_URL}/group/member/add`;
 export const REMOVE_MEMBERS = `${BASE_URL}/group/member/remove`;
 export const GROUPS_BY_USER_ID = `${BASE_URL}/groups`;

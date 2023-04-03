@@ -2,6 +2,7 @@
 interface ISpacing {
   floated?: boolean;
   grid?: boolean;
+  rowGap?: number;
 }
 defineProps<ISpacing>();
 </script>
@@ -10,18 +11,21 @@ defineProps<ISpacing>();
   <div
     v-if="!floated && !grid"
     class="v-space"
+    :style="{ rowGap: `${rowGap}rem` }"
   >
     <slot />
   </div>
   <div
     v-else-if="floated"
     class="v-space floated"
+    :style="{ rowGap: `${rowGap}rem` }"
   >
     <slot />
   </div>
   <div
     v-else-if="grid"
     class="v-grid-space"
+    :style="{ rowGap: `${rowGap}rem` }"
   >
     <slot />
   </div>

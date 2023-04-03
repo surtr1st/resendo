@@ -9,11 +9,11 @@ import Friend from '../components/Friend.vue';
 import FlipSquareLoading from '../components/Loading/FlipSquareLoading.vue';
 import HamburgerIcon from '../components/Icon/HamburgerIcon.vue';
 import Menu from '../mixins/Menu.vue';
+import HorizontalSpacing from '../components/Spacing/HorizontalSpacing.vue';
 import { ref, watch } from 'vue';
 import { GroupResponse, InsensitiveResponseUserInfo } from '../types';
 import { useAuth, useFriend, useGroup } from '../hooks';
 import { tryOnMounted, tryOnUnmounted } from '@vueuse/core';
-import HorizontalSpacing from '../components/Spacing/HorizontalSpacing.vue';
 
 const friends = ref<InsensitiveResponseUserInfo[]>([]);
 const groups = ref<GroupResponse[]>([]);

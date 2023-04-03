@@ -15,7 +15,7 @@ import SendIcon from '../components/Icon/SendIcon.vue';
 import TypeIndicator from '../components/TypeIndicator.vue';
 import { ref, watch } from 'vue';
 import { useRoute } from 'vue-router';
-import { DEBOUNCE_DURATION, ScrollState } from '../helpers';
+import { DEBOUNCE_DURATION } from '../helpers';
 import { useAuth, useMessage, useRoom } from '../hooks';
 import { MessageResponse } from '../types';
 import { tryOnMounted, useDebounceFn } from '@vueuse/core';

@@ -1,7 +1,4 @@
 <script setup lang="ts">
-import { useDebounceFn } from '@vueuse/core';
-import { reactive, ref } from 'vue';
-import { useRouter } from 'vue-router';
 import LogInIcon from '../components/Icon/LogInIcon.vue';
 import RegistrateIcon from '../components/Icon/RegistrateIcon.vue';
 import PasswordField from '../components/Input/PasswordField.vue';
@@ -10,12 +7,15 @@ import SwapLoading from '../components/Loading/SwapLoading.vue';
 import PrimaryButton from '../components/PrimaryButton.vue';
 import SecondaryButton from '../components/SecondaryButton.vue';
 import VerticalSpacing from '../components/Spacing/VerticalSpacing.vue';
+import { reactive, ref } from 'vue';
+import { useRouter } from 'vue-router';
+import { useDebounceFn } from '@vueuse/core';
+import { useAuth, useToast, useUser } from '../hooks';
 import {
   convertCamelCaseToSentence,
   DEBOUNCE_DURATION,
   removeLastSymbol,
 } from '../helpers';
-import { useAuth, useToast, useUser } from '../hooks';
 
 const isSignUp = ref(false);
 const isLoading = ref(false);

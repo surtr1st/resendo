@@ -1,10 +1,12 @@
 import { Request, Response, Router } from 'express';
-import { IGroup } from '../models';
+import { IGroup, IUser } from '../models';
 import {
   ADD_MEMBERS,
   CREATE_GROUP,
   GROUPS_BY_USER_ID,
   GROUP_BY_ID,
+  GROUP_MEMBERS,
+  OUTSIDE_GROUP_USERS,
   REMOVE_MEMBERS,
 } from '../routes';
 import { GroupService, MessageService, UserService } from '../services';
@@ -64,6 +66,43 @@ export function GroupController() {
       res.status(200).json(result);
     } catch (e) {
       res.status(500).json({ message: e });
+    }
+  });
+
+  router.post(OUTSIDE_GROUP_USERS, async (req: Request, res: Response) => {
+    try {
+      const { id } = req.params;
+      const { userIds } = req.body;
+      const group = await service.findById(id as string);
+      if (!group) return res.status(400).json({ message: 'Not found' });
+      const outsideUsers: IUser[] = [];
+      const noneAddedUsers = group.users.filter(
+        async (user) => !(userIds as string[]).includes(user._id),
+      );
+      for (const user of noneAddedUsers)
+        outsideUsers.push(await userService.findById(user._id));
+      res.status(200).json(outsideUsers);
+    } catch (e) {
+      res.status(500).json({ message: `${e}` });
+    }
+  });
+
+  router.get(GROUP_MEMBERS, async (req: Request, res: Response) => {
+    try {
+      const { id } = req.params;
+      const group = await service.findById(id as string);
+      if (group) {
+        const members = [];
+        for (const user of group.users) {
+          const detailUser = await userService.findById(user._id);
+          members.push(detailUser);
+        }
+        res.status(200).json(members);
+        return;
+      }
+      res.status(400).json({ message: 'Not found' });
+    } catch (e) {
+      res.status(500).json({ message: `${e}` });
     }
   });
 

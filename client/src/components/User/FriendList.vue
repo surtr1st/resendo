@@ -6,7 +6,7 @@ interface IStranger {
   onAction?: () => void | Promise<void>;
   uid?: string;
   isSelf?: boolean;
-  temporaryDisabled?: boolean;
+  label?: string;
 }
 defineProps<IStranger>();
 </script>
@@ -15,7 +15,7 @@ defineProps<IStranger>();
   <div class="user">
     <h4>{{ name!.length > 12 ? `${name!.slice(0, 12)}...` : name }}</h4>
     <PrimaryButton
-      :label="temporaryDisabled ? 'Added' : 'Add'"
+      :label="label"
       @action="onAction"
     >
     </PrimaryButton>

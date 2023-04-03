@@ -10,7 +10,7 @@ export function useUser() {
   const getUsersWithoutSelf = async (
     userId: string,
     accessToken: AccessToken,
-  ) => {
+  ): Promise<InsensitiveResponseUserInfo[]> => {
     const options: RequestInit = {
       method: 'GET',
       headers: {

@@ -7,14 +7,16 @@ import StrangerList from '../components/User/StrangerList.vue';
 import CancelIcon from '../components/Icon/CancelIcon.vue';
 import FindIcon from '../components/Icon/FindIcon.vue';
 import PrimaryButton from '../components/PrimaryButton.vue';
-import { useAuth, useFriend, useUser } from '../hooks';
-import { UserResponse } from '../types';
+import SecondaryButton from '../components/SecondaryButton.vue';
+import HorizontalSpacing from '../components/Spacing/HorizontalSpacing.vue';
 import { ref } from 'vue';
 import { tryOnMounted, useDebounceFn } from '@vueuse/core';
+import { useAuth, useFriend, useUser } from '../hooks';
+import { InsensitiveResponseUserInfo, UserResponse } from '../types';
 import { DEBOUNCE_DURATION } from '../helpers';
 
 const isOpenFindPeople = ref(false);
-const users = ref<UserResponse[]>([]);
+const users = ref<InsensitiveResponseUserInfo[]>([]);
 const username = ref('');
 const { getUsersWithoutSelf, findUserByName } = useUser();
 const { userId, accessToken } = useAuth();
@@ -22,10 +24,10 @@ const { checkIfAdded, updateFriend } = useFriend();
 
 function findPeople() {
   getUsersWithoutSelf(userId, accessToken)
-    .then(async (res: UserResponse[]) => {
+    .then(async (res) => {
       const filteredAddedUsers = [];
       for await (const user of res) {
-        const isAdded = await checkIfAdded(userId, user._id as string);
+        const isAdded = await checkIfAdded(userId, user._id);
         if (!isAdded) filteredAddedUsers.push(user);
       }
       users.value = filteredAddedUsers;
@@ -60,12 +62,12 @@ tryOnMounted(() => {
 </script>
 
 <template>
-  <PrimaryButton
+  <SecondaryButton
     label="Find"
     @action="isOpenFindPeople = true"
   >
     <FindIcon />
-  </PrimaryButton>
+  </SecondaryButton>
   <Modal
     :open="isOpenFindPeople"
     title="Find People"

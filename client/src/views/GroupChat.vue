@@ -13,6 +13,7 @@ import PrimaryButton from '../components/PrimaryButton.vue';
 import TextArea from '../components/Input/TextArea.vue';
 import SendIcon from '../components/Icon/SendIcon.vue';
 import TypeIndicator from '../components/TypeIndicator.vue';
+import GroupSettings from '../mixins/GroupSettings.vue';
 import { ref, watch } from 'vue';
 import { useRoute } from 'vue-router';
 import { DEBOUNCE_DURATION, ScrollState } from '../helpers';
@@ -20,7 +21,6 @@ import { useAuth, useMessage, useGroup } from '../hooks';
 import { MessageResponse } from '../types';
 import { tryOnMounted, useDebounceFn } from '@vueuse/core';
 import { state } from '../state';
-import GearIcon from '../components/Icon/GearIcon.vue';
 
 const title = ref('');
 const isLoading = ref(true);
@@ -106,9 +106,10 @@ tryOnMounted(() => {
   >
     <ChatHeader>
       <PageHeader :author="title" />
-      <PrimaryButton>
-        <GearIcon />
-      </PrimaryButton>
+      <GroupSettings
+        :group-id="$route.params.id as string"
+        :title="title"
+      />
     </ChatHeader>
     <ChatBody>
       <template
