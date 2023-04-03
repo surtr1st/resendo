@@ -13,8 +13,21 @@ function onScrollDown() {
 }
 watch(
   () => state.messages,
-  () => {
-    onScrollDown();
+  (newData, oldData) => {
+    if (newData.length > oldData.length) onScrollDown();
+  },
+  {
+    deep: true,
+  },
+);
+
+watch(
+  () => state.groupMessages,
+  (newData, oldData) => {
+    if (newData.length > oldData.length) onScrollDown();
+  },
+  {
+    deep: true,
   },
 );
 onMounted(() => onScrollDown());

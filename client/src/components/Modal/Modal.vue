@@ -41,18 +41,21 @@ onUnmounted(() => {
           id="modal"
           ref="modal"
         >
-          <span className="modal-header">
+          <span class="modal-header">
             <h3>{{ title }}</h3>
             <SecondaryButton
-              noContent
+              no-content
               @action="onClose"
             />
           </span>
           <slot />
         </div>
-        <div class="modal-backdrop" />
       </div>
     </Transition>
+    <div
+      v-show="open"
+      class="modal-backdrop"
+    />
   </Teleport>
 </template>
 

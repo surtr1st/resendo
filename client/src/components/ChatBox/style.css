@@ -28,6 +28,13 @@
   height: 10vh;
 }
 
+.chat-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: inherit;
+}
+
 .chat {
   position: relative;
   padding: .5rem;

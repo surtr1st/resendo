@@ -11,7 +11,7 @@ import PrimaryButton from '../components/PrimaryButton.vue';
 import SecondaryButton from '../components/SecondaryButton.vue';
 import VerticalSpacing from '../components/Spacing/VerticalSpacing.vue';
 import {
-  convertCamelCaseToNormal,
+  convertCamelCaseToSentence,
   DEBOUNCE_DURATION,
   removeLastSymbol,
 } from '../helpers';
@@ -64,7 +64,7 @@ function isEmptyProperties() {
   let errors = '';
   for (const field in user) {
     if (!user[field] && field !== 'reEnterPassword')
-      errors += `${convertCamelCaseToNormal(`${[field]}`)}, `;
+      errors += `${convertCamelCaseToSentence(`${[field]}`)}, `;
     if (!user[field] && field === 'reEnterPassword')
       errors += 'Re-enter password, ';
   }

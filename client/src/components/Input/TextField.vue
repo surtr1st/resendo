@@ -7,6 +7,7 @@ interface IInput {
   value?: string;
   clearable?: boolean;
   error?: string;
+  readonly?: boolean;
   onEnter?: () => void;
   onClear?: () => void;
 }
@@ -43,6 +44,7 @@ function handleEnter(event: KeyboardEvent) {
         "
         @keydown="handleEnter"
         class="text"
+        :readonly="readonly"
       />
       <slot />
       <SecondaryButton

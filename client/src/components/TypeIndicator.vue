@@ -2,15 +2,13 @@
 import { computed } from 'vue';
 
 type UserTyping = {
-  [key: string]: {
-    fullname: string;
-    isTyping: boolean;
-  };
+  fullname: string;
+  isTyping: boolean;
 };
 interface IIndicator {
   isTyping?: boolean;
   who?: string;
-  users?: UserTyping;
+  users?: Record<string, UserTyping>;
 }
 const { users } = defineProps<IIndicator>();
 
@@ -19,6 +17,16 @@ const computedIsTyping = computed((): number => {
   for (const key in users) if (users[key].isTyping) typings.push(users[key]);
   return typings.length;
 });
+const userKeys = computed(() => {
+  return Object.keys(users as Record<string, UserTyping>);
+});
+const numberOfTypingUsers = computed(() =>
+  Object.keys(users as Record<string, UserTyping>).reduce(
+    (count: number, key: string) => count + Number(users![key].isTyping),
+    0,
+  ),
+);
+const isMoreThanOneTyping = computed(() => numberOfTypingUsers.value > 1);
 </script>
 
 <template>
@@ -30,11 +38,14 @@ const computedIsTyping = computed((): number => {
       >
         <span
           ref="span"
-          v-for="user in users"
-          :key="user.fullname"
-          v-show="user.isTyping"
+          v-for="(key, index) in userKeys"
+          :key="users[key].fullname"
+          v-show="users[key].isTyping"
         >
-          {{ `${user.fullname}` }}
+          {{ users[key].fullname }}
+          <template v-if="isMoreThanOneTyping">
+            {{ index < numberOfTypingUsers - 1 ? ', ' : '' }}
+          </template>
         </span>
         <span>
           {{ computedIsTyping > 1 ? 'are typing...' : 'is typing...' }}

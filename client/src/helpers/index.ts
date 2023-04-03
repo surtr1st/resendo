@@ -6,7 +6,7 @@ export const ScrollState = reactive({
 });
 export const removeLastSymbol = (text: string) => text.replace(/.$/, '');
 export const removeDuplicates = (arr: any) => [...new Set(arr)];
-export function convertCamelCaseToNormal(text: string) {
+export function convertCamelCaseToSentence(text: string) {
   // Split the string by capital letters and join with a space
   const sequence = text.split(/(?=[A-Z])/).join(' ');
   // Capitalize the first letter

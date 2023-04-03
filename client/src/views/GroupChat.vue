@@ -12,22 +12,21 @@ import PageHeader from '../components/PageHeader.vue';
 import PrimaryButton from '../components/PrimaryButton.vue';
 import TextArea from '../components/Input/TextArea.vue';
 import SendIcon from '../components/Icon/SendIcon.vue';
+import TypeIndicator from '../components/TypeIndicator.vue';
 import { ref, watch } from 'vue';
 import { useRoute } from 'vue-router';
 import { DEBOUNCE_DURATION, ScrollState } from '../helpers';
 import { useAuth, useMessage, useGroup } from '../hooks';
 import { MessageResponse } from '../types';
-import { tryOnMounted, tryOnUnmounted, useDebounceFn } from '@vueuse/core';
+import { tryOnMounted, useDebounceFn } from '@vueuse/core';
 import { state } from '../state';
-import TypeIndicator from '../components/TypeIndicator.vue';
+import GearIcon from '../components/Icon/GearIcon.vue';
 
 const title = ref('');
 const isLoading = ref(true);
 const content = ref<string>('');
 const isTyping = ref(false);
-const users = ref<{ [key: string]: { fullname: string; isTyping: boolean } }>(
-  {},
-);
+const users = ref<Record<string, { fullname: string; isTyping: boolean }>>({});
 const route = useRoute();
 const { userId, accessToken } = useAuth();
 const { createMessage, uploadMedia } = useMessage();
@@ -107,6 +106,9 @@ tryOnMounted(() => {
   >
     <ChatHeader>
       <PageHeader :author="title" />
+      <PrimaryButton>
+        <GearIcon />
+      </PrimaryButton>
     </ChatHeader>
     <ChatBody>
       <template

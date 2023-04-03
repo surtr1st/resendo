@@ -79,11 +79,6 @@ function handleUploadFiles(files: FileList | null) {
 }
 const debounceUploadFile = useDebounceFn(handleUploadFiles, DEBOUNCE_DURATION);
 
-watch(
-  () => ScrollState.trigger,
-  () => {},
-);
-
 watch(content, (newContent, oldContent) => {
   const roomId = sessionStorage.getItem('Room-Id') as string;
   if (newContent.trim() !== '')
