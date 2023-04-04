@@ -21,6 +21,16 @@ export class UserService {
     }
   }
 
+  async updateAvatar(id: string | ObjectId, avatar: string) {
+    try {
+      const patched = await User.updateOne({ _id: id }, { $set: { avatar } });
+      if (!patched) throw new Error(`Cannot update avatar of user: ${id}`);
+      return patched.modifiedCount;
+    } catch (e) {
+      throw e;
+    }
+  }
+
   async findAndPatch(id: string | ObjectId, message: string) {
     try {
       const patched = await User.updateOne(

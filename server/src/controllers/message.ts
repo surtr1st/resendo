@@ -1,6 +1,4 @@
-import fs from 'fs';
-import multer from 'multer';
-import { v2 } from 'cloudinary';
+import path from 'path';
 import { Request, Response, Router } from 'express';
 import {
   GroupService,
@@ -9,11 +7,7 @@ import {
   UserService,
 } from '../services';
 import { CREATE_MESSAGE, MESSAGES_BY_USER_ID, UPLOAD_MEDIA } from '../routes';
-import {
-  CLOUDINARY_API_KEY,
-  CLOUDINARY_API_SECRET,
-  CLOUDINARY_CLOUD_NAME,
-} from '../config';
+import { cloudinary, MEDIA_FOLDER, upload } from '../multipart';
 
 export function MessageController() {
   const router = Router();
@@ -21,16 +15,6 @@ export function MessageController() {
   const userService = new UserService();
   const roomService = new RoomService();
   const groupService = new GroupService();
-
-  const MEDIA_FOLDER = 'media';
-  if (!fs.existsSync(MEDIA_FOLDER)) fs.mkdirSync(MEDIA_FOLDER);
-
-  // Configuration
-  v2.config({
-    cloud_name: CLOUDINARY_CLOUD_NAME,
-    api_key: CLOUDINARY_API_KEY,
-    api_secret: CLOUDINARY_API_SECRET,
-  });
 
   // Find messages by user
   router.get(MESSAGES_BY_USER_ID, async (req: Request, res: Response) => {
@@ -46,11 +30,12 @@ export function MessageController() {
   router.post(CREATE_MESSAGE, async (req: Request, res: Response) => {
     try {
       const { content, userId, roomId, groupId } = req.body;
-      const user = await userService.findById(userId as string);
+      const user = await userService.findById(userId);
+      if (!user) return res.status(400).json({ message: 'Not found' });
       const newMessage = await service.create({
         content,
         user,
-        author: user!.fullname,
+        author: user.fullname,
         sentAt: new Date(),
       });
       if (groupId) {
@@ -69,25 +54,6 @@ export function MessageController() {
     }
   });
 
-  const storage = multer.diskStorage({
-    destination: function (
-      _req: Request,
-      _file: Express.Multer.File,
-      cb: (error: Error | null, destination: string) => void,
-    ) {
-      cb(null, MEDIA_FOLDER);
-    },
-    filename: function (
-      _req: Request,
-      file: Express.Multer.File,
-      cb: (error: Error | null, destination: string) => void,
-    ) {
-      cb(null, file.originalname);
-    },
-  });
-
-  const upload = multer({ storage });
-
   router.post(
     UPLOAD_MEDIA,
     upload.single('xfile'),
@@ -102,12 +68,12 @@ export function MessageController() {
         }
 
         // Upload
-        v2.uploader.upload(`${MEDIA_FOLDER}/${file.filename}`, {
+        cloudinary.uploader.upload(`${MEDIA_FOLDER}/${file.filename}`, {
           public_id: file?.filename,
         });
 
         // Generate
-        const url = v2.url(`${file.filename}`, {
+        const url = cloudinary.url(`${file.filename}`, {
           Crop: 'fill',
         });
 
@@ -116,7 +82,7 @@ export function MessageController() {
           user,
           author: user.fullname,
           sentAt: new Date(),
-          media: url,
+          media: `${url}${path.extname(file.originalname)}`,
         });
         if (groupId) await groupService.patchMessage(groupId, newMessage);
         else await roomService.patchMessage(roomId, newMessage);

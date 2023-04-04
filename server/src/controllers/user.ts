@@ -3,10 +3,13 @@ import { validateUser } from '../middlewares';
 import { FriendService, UserService } from '../services';
 import {
   CREATE_USER,
+  UPDATE_AVATAR,
   USERS_BY_NAME,
   USERS_EXCEPT_SELF,
   USER_BY_ID,
 } from '../routes';
+import { cloudinary, MEDIA_FOLDER, upload } from '../multipart';
+import path from 'path';
 
 export function UserController() {
   const router = Router();
@@ -19,7 +22,7 @@ export function UserController() {
       const { id } = req.query;
       res.status(200).json(await service.findByIdExcludePassword(id as string));
     } catch (e) {
-      res.status(500).json({ message: e });
+      res.status(500).json({ message: `${e}` });
     }
   });
 
@@ -29,7 +32,7 @@ export function UserController() {
       const { except } = req.query;
       res.status(200).json(await service.findExcludeSelf(except as string));
     } catch (e) {
-      res.status(500).json({ message: e });
+      res.status(500).json({ message: `${e}` });
     }
   });
 
@@ -43,7 +46,7 @@ export function UserController() {
         await friendService.create({ user: await service.findById(newUser) });
         res.status(201).json(newUser);
       } catch (e) {
-        res.status(500).json({ message: e });
+        res.status(500).json({ message: `${e}` });
       }
     },
   );
@@ -54,9 +57,43 @@ export function UserController() {
       const { name } = req.query;
       res.status(200).json(await service.findByName(name as string));
     } catch (e) {
-      res.status(500).json({ message: e });
+      res.status(500).json({ message: `${e}` });
     }
   });
+
+  router.patch(
+    UPDATE_AVATAR,
+    upload.single('xavatar'),
+    async (req: Request, res: Response) => {
+      try {
+        const file = req.file;
+        const { id } = req.params;
+        if (!file) {
+          res.status(406).json({ message: 'File is undefined' });
+          return;
+        }
+
+        cloudinary.uploader.upload(`${MEDIA_FOLDER}/${file.filename}`, {
+          public_id: file.filename,
+        });
+
+        const url = cloudinary.url(`${file.filename}`, {
+          Crop: 'fill',
+        });
+
+        res
+          .status(201)
+          .json(
+            await service.updateAvatar(
+              id,
+              `${url}${path.extname(file.originalname)}`,
+            ),
+          );
+      } catch (e) {
+        res.status(500).json({ message: `${e}` });
+      }
+    },
+  );
 
   return router;
 }

@@ -25,6 +25,7 @@ export type User = {
   email: string;
   password: string;
   lastMessage?: string;
+  avatar?: string;
 };
 export type UserResponse = {
   _id: string;
@@ -32,6 +33,7 @@ export type UserResponse = {
   email: string;
   password: string;
   lastMessage?: string;
+  avatar?: string;
 };
 export type InsensitiveUserInfo = Omit<User, 'password'>;
 export type InsensitiveResponseUserInfo = Omit<UserResponse, 'password'>;

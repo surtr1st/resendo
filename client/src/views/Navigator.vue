@@ -96,6 +96,7 @@ tryOnUnmounted(() => {
             <Friend
               v-for="friend in friends"
               :key="friend._id"
+              :avatar-src="friend.avatar"
               :opponentName="friend.fullname"
               :latestMessage="friend.lastMessage"
               :is-online="onlineUsers.includes(friend._id)"

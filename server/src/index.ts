@@ -107,9 +107,10 @@ function main() {
 
         function onTyping() {
           // Showing typing each perspective
-          socket.on('is-typing', (data) => {
+          socket.on('is-typing', async (data) => {
+            const user = await userService.findById(data.userId);
             socket.to(data.room).emit('is-typing', {
-              fullname: data.fullname,
+              fullname: user.fullname,
               isTyping: data.isTyping,
             });
           });

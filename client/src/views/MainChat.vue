@@ -26,6 +26,7 @@ const isLoading = ref(true);
 const content = ref<string>('');
 const isTyping = ref(false);
 const who = ref('');
+const avatarSrc = ref('');
 
 const route = useRoute();
 const { userId, accessToken } = useAuth();
@@ -42,9 +43,11 @@ function handleConversationInRoom(friendId: string) {
       switch (userId) {
         case user2._id:
           fullname.value = user1.fullname;
+          avatarSrc.value = user1.avatar as string;
           break;
         default:
           fullname.value = user2.fullname;
+          avatarSrc.value = user2.avatar as string;
           break;
       }
       isLoading.value = false;
@@ -84,13 +87,13 @@ watch(content, (newContent, oldContent) => {
   if (newContent.trim() !== '')
     socket.emit('is-typing', {
       room: roomId,
-      fullname: fullname.value,
+      userId,
       isTyping: true,
     });
   else
     socket.emit('is-typing', {
       room: roomId,
-      fullname: fullname.value,
+      userId,
       isTyping: false,
     });
 });
@@ -111,7 +114,10 @@ tryOnMounted(() => {
     type="container"
   >
     <ChatHeader>
-      <PageHeader :author="fullname" />
+      <PageHeader
+        :author="fullname"
+        :avatar-src="avatarSrc"
+      />
     </ChatHeader>
     <ChatBody>
       <template
@@ -128,6 +134,7 @@ tryOnMounted(() => {
           :author="message.author"
           :content="message.content"
           :mediaSrc="message.media"
+          :author-avatar-src="avatarSrc"
         />
       </template>
     </ChatBody>

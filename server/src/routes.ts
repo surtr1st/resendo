@@ -6,6 +6,7 @@ export const CREATE_USER = `${BASE_URL}/user`;
 export const USER_BY_ID = `${BASE_URL}/user`;
 export const USERS_BY_NAME = `${BASE_URL}/users/search`;
 export const USERS_EXCEPT_SELF = `${BASE_URL}/users/filter`;
+export const UPDATE_AVATAR = `${BASE_URL}/user/:id/avatar`;
 
 export const CREATE_MESSAGE = `${BASE_URL}/message`;
 export const MESSAGE_BY_ID = `${BASE_URL}/message`;

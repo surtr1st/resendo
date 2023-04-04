@@ -4,6 +4,8 @@ interface IAvatar {
   alt?: string;
   name?: string;
   status?: boolean;
+  width?: number;
+  height?: number;
 }
 defineProps<IAvatar>();
 const randomColor = `#${Math.floor(Math.random() * 16777215).toString(16)}`;
@@ -17,7 +19,11 @@ const randomColor = `#${Math.floor(Math.random() * 16777215).toString(16)}`;
     <div
       class="none-label"
       :title="name"
-      :style="{ background: randomColor }"
+      :style="{
+        background: randomColor,
+        width: `${width}px`,
+        height: `${height}px`,
+      }"
     >
       <h3>{{ name && name.slice(0, 1).toUpperCase() }}</h3>
       <div

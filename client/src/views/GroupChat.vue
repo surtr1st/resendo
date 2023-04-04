@@ -107,7 +107,7 @@ tryOnMounted(() => {
     <ChatHeader>
       <PageHeader :author="title" />
       <GroupSettings
-        :group-id="$route.params.id as string"
+        :group-id="$route.params.id[0]"
         :title="title"
       />
     </ChatHeader>

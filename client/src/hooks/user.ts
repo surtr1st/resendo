@@ -74,10 +74,30 @@ export function useUser() {
     return await data.json();
   };
 
+  const updateAvatar = async (
+    id: string,
+    file: File,
+    accessToken: AccessToken,
+  ) => {
+    const formData = new FormData();
+    formData.append('xavatar', file);
+    const options: RequestInit = {
+      method: 'PATCH',
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+      },
+      credentials: 'include',
+      body: formData,
+    };
+    const data = await fetch(`${BASE_URL}/user/${id}/avatar`, options);
+    return await data.json();
+  };
+
   return {
     getUsersWithoutSelf,
     getUserById,
     createUser,
     findUserByName,
+    updateAvatar,
   };
 }

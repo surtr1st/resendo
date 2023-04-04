@@ -5,6 +5,7 @@ type TypeUser = mongo.Document & {
   fullname: string;
   password: string;
   email: string;
+  avatar: string;
   lastMessage: string;
 };
 
@@ -12,6 +13,7 @@ interface IUser {
   fullname: string;
   password: string;
   email: string;
+  avatar: string;
   lastMessage: string;
 }
 
@@ -26,6 +28,7 @@ const schema = new Schema<TypeUser>({
     unique: true,
     index: true,
   },
+  avatar: String,
   lastMessage: String,
 });
 
