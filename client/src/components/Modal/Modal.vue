@@ -7,6 +7,7 @@ interface IModal {
   open?: boolean;
   name?: string;
   onClose?: () => void | Promise<void>;
+  nested?: boolean;
 }
 const { onClose } = defineProps<IModal>();
 const modal = ref<HTMLDivElement | null>(null);
@@ -42,7 +43,7 @@ onUnmounted(() => {
         :id="name"
       >
         <div
-          id="modal"
+          :id="!nested ? 'modal' : 'nested-modal'"
           ref="modal"
         >
           <span class="modal-header">
@@ -58,7 +59,7 @@ onUnmounted(() => {
     </Transition>
     <div
       v-if="open"
-      class="modal-backdrop"
+      :class="!nested ? 'modal-backdrop' : 'nested-modal-backdrop'"
       @click="onClose"
     />
   </Teleport>

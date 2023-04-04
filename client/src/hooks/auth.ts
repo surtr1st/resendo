@@ -27,6 +27,11 @@ export function useAuth() {
     return await fetch(`${BASE_URL}/auth`, options);
   };
 
+  const logout = (): void => {
+    sessionStorage.clear();
+    location.reload();
+  };
+
   return {
     userId,
     isAuth,
@@ -34,5 +39,6 @@ export function useAuth() {
     refreshToken,
     authorize,
     setAuthorizing,
+    logout,
   };
 }

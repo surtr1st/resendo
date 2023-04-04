@@ -6,6 +6,7 @@ import {
   GROUPS_BY_USER_ID,
   GROUP_BY_ID,
   GROUP_MEMBERS,
+  IS_GROUP_OWNER,
   OUTSIDE_GROUP_USERS,
   REMOVE_MEMBERS,
 } from '../routes';
@@ -69,6 +70,19 @@ export function GroupController() {
     }
   });
 
+  router.post(IS_GROUP_OWNER, async (req: Request, res: Response) => {
+    try {
+      const { id } = req.params;
+      const { userId } = req.body;
+      const group = await service.findById(id);
+      if (!group) return res.status(400).json({ message: 'Not found' });
+      const isOwner = group.owner._id.toString() === userId;
+      res.status(200).json(isOwner);
+    } catch (e) {
+      res.status(500).json({ message: `${e}` });
+    }
+  });
+
   router.post(OUTSIDE_GROUP_USERS, async (req: Request, res: Response) => {
     try {
       const { id } = req.params;
@@ -76,11 +90,11 @@ export function GroupController() {
       const group = await service.findById(id as string);
       if (!group) return res.status(400).json({ message: 'Not found' });
       const outsideUsers: IUser[] = [];
-      const noneAddedUsers = group.users.filter(
-        async (user) => !(userIds as string[]).includes(user._id),
-      );
-      for (const user of noneAddedUsers)
-        outsideUsers.push(await userService.findById(user._id));
+      for (const userId of userIds) {
+        if (group.owner._id.toString() === userId) continue;
+        else if (!group.users.includes(userId))
+          outsideUsers.push(await userService.findById(userId));
+      }
       res.status(200).json(outsideUsers);
     } catch (e) {
       res.status(500).json({ message: `${e}` });
@@ -127,25 +141,23 @@ export function GroupController() {
 
   router.patch(ADD_MEMBERS, async (req: Request, res: Response) => {
     try {
-      const { id } = req.query;
-      const { users } = req.body;
+      const { groupId, users } = req.body;
       if ((users as string[]).length === 1)
-        await service.addMember(id as string, users[0]);
-      else await service.addMembers(id as string, users);
+        await service.addMember(groupId, users[0]);
+      else await service.addMembers(groupId, users);
       res.status(200).send();
     } catch (e) {
       res.status(500).json({ message: e });
     }
   });
 
-  router.patch(REMOVE_MEMBERS, async (req: Request, res: Response) => {
+  router.delete(REMOVE_MEMBERS, async (req: Request, res: Response) => {
     try {
-      const { id } = req.query;
-      const { userId } = req.body;
-      await service.removeMember(id as string, userId);
+      const { groupId, userId } = req.body;
+      await service.removeMember(groupId, userId);
       res.status(200).send();
     } catch (e) {
-      res.status(500).json({ message: e });
+      res.status(500).json({ message: `${e}` });
     }
   });
 

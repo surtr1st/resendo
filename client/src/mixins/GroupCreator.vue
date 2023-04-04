@@ -43,8 +43,9 @@ function handleCreateGroup() {
   createGroup(group, accessToken)
     .then(() => {
       onSuccess('Created a group!');
-      isOpenCreateGroup.value = true;
+      isOpenCreateGroup.value = false;
       members.value = [];
+      groupTitle.value = '';
     })
     .catch((err) => console.log(err));
 }

@@ -11,8 +11,15 @@ defineProps<IPrimary>();
 </script>
 
 <template>
+  <div
+    v-if="disabled"
+    class="disabled-label"
+  >
+    <slot />
+    <h4>{{ label }}</h4>
+  </div>
   <button
-    :disabled="disabled"
+    v-else
     :class="transparent ? 'primary-btn-transparent' : 'primary-btn'"
     @click="onAction"
   >
@@ -35,7 +42,7 @@ defineProps<IPrimary>();
   display: flex;
   justify-content: center;
   align-items: center;
-  gap: 0.15rem;
+  gap: 0.35rem;
   background: inherit;
 }
 .primary-btn-transparent {
@@ -44,5 +51,20 @@ defineProps<IPrimary>();
 
 .primary-btn-transparent:hover {
   background: var(--secondary);
+}
+.disabled-label {
+  height: 2.5rem;
+  padding-left: 0.75rem;
+  padding-right: 0.75rem;
+  border-radius: 0.3rem;
+  border: 0px;
+  transition: 250ms ease-in-out all;
+  background: var(--darker-bg);
+  color: black;
+  display: grid;
+  place-items: center;
+}
+.disabled-label > * {
+  background: inherit;
 }
 </style>

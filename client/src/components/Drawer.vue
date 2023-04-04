@@ -69,12 +69,12 @@ onMounted(() => {
 }
 
 .t-drawer-enter-active {
-  animation: drawer-left-in 550ms;
+  animation: drawer-left-in 450ms;
   animation-fill-mode: forwards;
   animation-timing-function: cubic-bezier(0.62, -0.01, 0.09, 0.96);
 }
 .t-drawer-leave-active {
-  animation: drawer-left-out 550ms;
+  animation: drawer-left-out 350ms;
   animation-fill-mode: forwards;
   animation-timing-function: cubic-bezier(1, 0.01, 0.26, 0.82);
 }

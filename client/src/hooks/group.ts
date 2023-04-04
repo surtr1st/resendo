@@ -52,6 +52,24 @@ export function useGroup() {
     return await data.json();
   };
 
+  const isGroupOwner = async (
+    groupId: string,
+    userId: string,
+    accessToken: AccessToken,
+  ): Promise<boolean> => {
+    const options: RequestInit = {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${accessToken}`,
+      },
+      credentials: 'include',
+      body: JSON.stringify({ userId }),
+    };
+    const data = await fetch(`${BASE_URL}/group/${groupId}/owner`, options);
+    return await data.json();
+  };
+
   const getOutsideGroupUsers = async (
     groupId: string,
     userIds: string[],
@@ -149,6 +167,7 @@ export function useGroup() {
     getGroupsByUser,
     getGroupById,
     getMembersWithinGroup,
+    isGroupOwner,
     getLatestMessageWithinGroup,
     createGroup,
     addMembers,

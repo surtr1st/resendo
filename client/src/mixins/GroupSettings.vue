@@ -12,7 +12,7 @@ import PeopleTeamIcon from '../components/Icon/PeopleTeamIcon.vue';
 import FilledPersonAddIcon from '../components/Icon/FilledPersonAddIcon.vue';
 import CreateIcon from '../components/Icon/CreateIcon.vue';
 import CancelIcon from '../components/Icon/CancelIcon.vue';
-import { onMounted, ref } from 'vue';
+import { computed, onMounted, ref } from 'vue';
 import { useAuth, useFriend, useGroup } from '../hooks';
 import { InsensitiveResponseUserInfo } from '../types';
 import { useDebounceFn } from '@vueuse/core';
@@ -31,7 +31,9 @@ const isLoadingMembers = ref(false);
 const members = ref<string[]>([]);
 const friends = ref<InsensitiveResponseUserInfo[]>([]);
 const groupMembers = ref<InsensitiveResponseUserInfo[]>([]);
+const groupOwner = ref('');
 const {
+  getGroupById,
   getOutsideGroupUsers,
   addMembers,
   removeMember,
@@ -39,6 +41,15 @@ const {
 } = useGroup();
 const { userId, accessToken } = useAuth();
 const { getFriendsByUserId } = useFriend();
+
+function checkIfOwner() {
+  getGroupById(groupId as string, accessToken)
+    .then((res) => {
+      groupOwner.value = res.owner._id;
+      console.log(res.owner._id);
+    })
+    .catch((e) => console.log(e));
+}
 
 async function retrieveFriends() {
   try {
@@ -50,7 +61,6 @@ async function retrieveFriends() {
       groupId as string,
       friendIds,
     );
-    console.log(noneAddedUsers);
     friends.value = noneAddedUsers;
     isLoadingFriends.value = false;
   } catch (e) {
@@ -84,7 +94,10 @@ function handleAddToQueue(user: string) {
 
 function handleAddToGroup() {
   addMembers(groupId as string, members.value, accessToken)
-    .then((res) => console.log(res))
+    .then(() => {
+      members.value = [];
+      openAddMember.value = false;
+    })
     .catch((err) => console.log(err));
 }
 const debounceAddToGroup = useDebounceFn(handleAddToGroup, DEBOUNCE_DURATION);
@@ -100,6 +113,7 @@ const debounceRemoveMember = useDebounceFn(
 );
 
 onMounted(() => {
+  checkIfOwner();
   retrieveMembers();
   retrieveFriends();
 });
@@ -132,7 +146,8 @@ onMounted(() => {
         :key="member._id"
         :uid="member._id"
         :name="member.fullname"
-        label="Remove"
+        :label="member._id === groupOwner ? 'Owner' : 'Remove'"
+        :disabled="member._id === groupOwner"
         @action="() => debounceRemoveMember(member._id)"
       />
     </ModalBody>
@@ -141,6 +156,7 @@ onMounted(() => {
     :open="openAddMember"
     title="Add friend to group"
     @close="openAddMember = false"
+    nested
   >
     <ModalBody>
       <HorizontalSpacing>
@@ -162,7 +178,7 @@ onMounted(() => {
     </ModalBody>
     <ModalFooter>
       <PrimaryButton
-        label="Create"
+        label="Add to group"
         @action="debounceAddToGroup"
       >
         <CreateIcon />

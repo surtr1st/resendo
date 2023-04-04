@@ -7,6 +7,7 @@ interface IStranger {
   uid?: string;
   isSelf?: boolean;
   label?: string;
+  disabled?: boolean;
 }
 defineProps<IStranger>();
 </script>
@@ -17,8 +18,8 @@ defineProps<IStranger>();
     <PrimaryButton
       :label="label"
       @action="onAction"
-    >
-    </PrimaryButton>
+      :disabled="disabled"
+    />
   </div>
 </template>
 

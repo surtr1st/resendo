@@ -64,7 +64,7 @@ export class GroupService {
 
   async removeMember(id: string | ObjectId, user: string | ObjectId) {
     try {
-      return await Group.findOneAndRemove({ _id: id }, { users: user });
+      return await Group.updateOne({ _id: id }, { $pull: { users: user } });
     } catch (e) {
       throw new Error(`Cannot remove member: ${user}`);
     }

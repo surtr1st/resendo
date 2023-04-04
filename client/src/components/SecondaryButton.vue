@@ -34,6 +34,7 @@ defineProps<ISecondary>();
       v-else
       class="transparent-content"
     >
+      <slot />
       {{ label }}
     </div>
   </button>
@@ -58,7 +59,7 @@ defineProps<ISecondary>();
 }
 .transparent-content {
   display: flex;
-  justify-content: center;
+  justify-content: space-between;
   align-items: center;
   gap: 0.15rem;
   background: transparent;

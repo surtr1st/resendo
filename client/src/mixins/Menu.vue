@@ -3,8 +3,11 @@ import Drawer from '../components/Drawer.vue';
 import VerticalSpacing from '../components/Spacing/VerticalSpacing.vue';
 import FindPeople from './FindPeople.vue';
 import GroupCreator from './GroupCreator.vue';
+import PrimaryButton from '../components/PrimaryButton.vue';
+import LogoutIcon from '../components/Icon/LogoutIcon.vue';
 import ProfileSettings from './ProfileSettings.vue';
 import { InsensitiveResponseUserInfo } from '../types';
+import { useAuth } from '../hooks';
 
 interface IMenu {
   open?: boolean;
@@ -12,6 +15,7 @@ interface IMenu {
   onCallback?: () => void | boolean;
 }
 defineProps<IMenu>();
+const { logout } = useAuth();
 </script>
 <template>
   <Drawer
@@ -22,6 +26,12 @@ defineProps<IMenu>();
       <FindPeople />
       <GroupCreator :friends="friends" />
       <ProfileSettings />
+      <PrimaryButton
+        label="Log out"
+        @action="logout"
+      >
+        <LogoutIcon />
+      </PrimaryButton>
     </VerticalSpacing>
   </Drawer>
 </template>
