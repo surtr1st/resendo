@@ -3,4 +3,5 @@ export * from './message';
 export * from './room';
 export * from './user';
 export * from './friend';
-export * from './queue';
+export * from './request-queue';
+export * from './notification-queue';

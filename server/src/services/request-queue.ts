@@ -1,10 +1,10 @@
 import { ObjectId } from 'mongoose';
-import { IQueue, Queue } from '../models';
+import { IRequestQueue, RequestQueue } from '../models';
 
-export class QueueService {
+export class RequestQueueService {
   async findAllByUser(user: string | ObjectId) {
     try {
-      const queues = await Queue.find({ to: user });
+      const queues = await RequestQueue.find({ to: user });
       if (!queues)
         throw new Error(`Cannot return list of queues of user: ${user}`);
       return queues;
@@ -13,9 +13,9 @@ export class QueueService {
     }
   }
 
-  async requestFriend(queue: Partial<IQueue>) {
+  async requestFriend(queue: Partial<IRequestQueue>) {
     try {
-      const { id } = await Queue.create(queue);
+      const { id } = await RequestQueue.create(queue);
       return id;
     } catch (e) {
       throw new Error('Cannot send friend request');
@@ -24,7 +24,7 @@ export class QueueService {
 
   async accept(from: string | ObjectId, to: string | ObjectId) {
     try {
-      return await Queue.findOneAndUpdate(
+      return await RequestQueue.findOneAndUpdate(
         { from, to },
         { $set: { isAccepted: true } },
       );
@@ -35,7 +35,7 @@ export class QueueService {
 
   async reject(from: string | ObjectId, to: string | ObjectId) {
     try {
-      return await Queue.findOneAndDelete({ from, to });
+      return await RequestQueue.findOneAndDelete({ from, to });
     } catch (e) {
       throw new Error('Cannot reject friend request');
     }

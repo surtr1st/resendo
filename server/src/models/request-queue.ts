@@ -1,6 +1,6 @@
 import mongo, { Schema, model, ObjectId } from 'mongoose';
 
-type TypeQueue = mongo.Document & {
+type TypeRequestQueue = mongo.Document & {
   _id: ObjectId;
   from: string | ObjectId;
   to: string | ObjectId;
@@ -8,20 +8,20 @@ type TypeQueue = mongo.Document & {
   sentAt: Date;
 };
 
-interface IQueue {
+interface IRequestQueue {
   from: string | ObjectId;
   to: string | ObjectId;
   isAccepted: boolean;
   sentAt: Date;
 }
 
-const schema = new Schema<TypeQueue>({
+const schema = new Schema<TypeRequestQueue>({
   from: String,
   to: String,
   isAccepted: Boolean,
   sentAt: Date,
 });
 
-const Queue = model<TypeQueue>('Queue', schema);
+const RequestQueue = model<TypeRequestQueue>('RequestQueue', schema);
 
-export { TypeQueue, IQueue, Queue };
+export { TypeRequestQueue, IRequestQueue, RequestQueue };

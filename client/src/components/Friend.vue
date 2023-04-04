@@ -7,6 +7,7 @@ interface IFriend {
   latestMessage?: string;
   invisible?: boolean;
   onAction?: () => void;
+  notifications?: number;
 }
 defineProps<IFriend>();
 </script>
@@ -57,6 +58,12 @@ defineProps<IFriend>();
         {{ latestMessage }}
       </h5>
     </span>
+    <div
+      v-if="notifications as number > 0"
+      class="notification-badge"
+    >
+      <span>{{ notifications }}</span>
+    </div>
   </div>
 </template>
 
@@ -64,6 +71,7 @@ defineProps<IFriend>();
 @import url('../assets/color.css');
 @import url('../assets/animations.css');
 .card {
+  position: relative;
   display: flex;
   justify-content: space-evenly;
   gap: 1rem;
@@ -87,6 +95,7 @@ defineProps<IFriend>();
 }
 
 .invisible {
+  position: relative;
   display: flex;
   justify-content: space-evenly;
   visibility: hidden;
@@ -113,5 +122,28 @@ defineProps<IFriend>();
   background-color: inherit;
   color: inherit;
   font-weight: bold;
+}
+
+.notification-badge {
+  background: rgb(148, 37, 37);
+  color: white;
+  border-radius: 100%;
+  position: absolute;
+  top: 40%;
+  right: 10%;
+  display: grid;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  font-size: 10px;
+  text-align: center;
+  transform: translate(-40%, -10%);
+}
+.notification-badge > span {
+  background: inherit;
+  width: 14px;
+  height: 14px;
+  font-weight: bolder;
+  border-radius: inherit;
 }
 </style>

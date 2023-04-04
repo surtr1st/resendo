@@ -36,6 +36,9 @@ export const REMOVE_MEMBERS = `${BASE_URL}/group/member/remove`;
 export const GROUPS_BY_USER_ID = `${BASE_URL}/groups`;
 export const LATEST_MESSAGE_IN_GROUP_BY_USER = `${BASE_URL}/group/latest`;
 
+export const NOTIFICATION_QUEUES = `${BASE_URL}/notifications`;
+export const ON_SEEN = `${BASE_URL}/notifications/seen`;
+
 export const METHOD = {
   GET: 'GET',
   POST: 'POST',

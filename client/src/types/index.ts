@@ -85,3 +85,12 @@ export type GroupResponse = {
   messages: Partial<MessageResponse[]>;
   lastMessage: LatestMessage;
 };
+export type NotificationQueueArgs = {
+  message: MessageResponse;
+  sender: string;
+};
+export type NotificationQueueResponse = {
+  _id: string;
+  messages: string[];
+  sender: string;
+};

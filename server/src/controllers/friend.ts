@@ -1,7 +1,7 @@
 import { Request, Response, Router } from 'express';
 import { validateFriend } from '../middlewares';
 import { FRIENDS_BY_USER_ID, IS_ADDED_FRIEND } from '../routes';
-import { RoomService, UserService } from '../services';
+import { NotifiationQueueService, RoomService, UserService } from '../services';
 import { FriendService } from '../services/friend';
 
 export function FriendController() {
@@ -9,6 +9,7 @@ export function FriendController() {
   const service = new FriendService();
   const userService = new UserService();
   const roomService = new RoomService();
+  const notifyQueueService = new NotifiationQueueService();
 
   // Find friends by user
   router.get(FRIENDS_BY_USER_ID, async (req: Request, res: Response) => {
@@ -60,6 +61,14 @@ export function FriendController() {
         user2: friend,
       };
       await roomService.create(newRoom);
+      await notifyQueueService.createNotificationQueue({
+        messages: [],
+        sender: `${userId}`,
+      });
+      await notifyQueueService.createNotificationQueue({
+        messages: [],
+        sender: `${friendId}`,
+      });
       res.status(201).send();
     } catch (e) {
       res.status(500).json({ message: e });

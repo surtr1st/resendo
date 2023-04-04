@@ -1,16 +1,16 @@
 import { Request, Response, Router } from 'express';
-import { IQueue } from '../models';
+import { IRequestQueue } from '../models';
 import {
   ACCEPT_REQUEST,
   FRIEND_REQUEST_QUEUES,
   REJECT_REQUEST,
   REQUEST_FRIEND,
 } from '../routes';
-import { QueueService } from '../services';
+import { RequestQueueService } from '../services';
 
-export function QueueController() {
+export function RequestQueueController() {
   const router = Router();
-  const service = new QueueService();
+  const service = new RequestQueueService();
 
   router.get(FRIEND_REQUEST_QUEUES, async (req: Request, res: Response) => {
     try {
@@ -25,7 +25,7 @@ export function QueueController() {
     try {
       const { userId } = req.query;
       const { fromId } = req.body;
-      const queue: Partial<IQueue> = {
+      const queue: Partial<IRequestQueue> = {
         from: fromId,
         to: userId as string,
         isAccepted: false,

@@ -16,7 +16,7 @@ import TypeIndicator from '../components/TypeIndicator.vue';
 import { ref, watch } from 'vue';
 import { useRoute } from 'vue-router';
 import { DEBOUNCE_DURATION } from '../helpers';
-import { useAuth, useMessage, useRoom } from '../hooks';
+import { useAuth, useMessage, useNotificationQueue, useRoom } from '../hooks';
 import { MessageResponse } from '../types';
 import { tryOnMounted, useDebounceFn } from '@vueuse/core';
 import { state } from '../state';
@@ -32,6 +32,7 @@ const route = useRoute();
 const { userId, accessToken } = useAuth();
 const { createMessage, uploadMedia } = useMessage();
 const { getConversationInRoom } = useRoom();
+const { addToNotificationQueue, clearOnSeen } = useNotificationQueue();
 
 function handleConversationInRoom(friendId: string) {
   getConversationInRoom({ userId, friendId, accessToken })
@@ -51,6 +52,7 @@ function handleConversationInRoom(friendId: string) {
           break;
       }
       isLoading.value = false;
+      clearOnSeen(friendId, accessToken);
     })
     .catch((err) => console.log(err));
 }
@@ -66,6 +68,10 @@ function sendMessage() {
   createMessage({ content: value, userId, roomId }, accessToken)
     .then((res) => {
       socket.emit('from-client', { message: res, room: roomId });
+      socket.emit('notification-queue', { message: res, userId });
+      addToNotificationQueue({ message: res, sender: userId }, accessToken)
+        .then((res) => console.log(res))
+        .catch((err) => console.log(err));
     })
     .catch((err) => console.log(err));
   content.value = '';
@@ -77,6 +83,10 @@ function handleUploadFiles(files: FileList | null) {
     uploadMedia({ userId, roomId }, files[0], accessToken)
       .then((res) => {
         socket.emit('from-client', { message: res, room: roomId });
+        socket.emit('notification-queue', { message: res, userId });
+        addToNotificationQueue({ message: res, sender: userId }, accessToken)
+          .then((res) => console.log(res))
+          .catch((err) => console.log(err));
       })
       .catch((err) => console.log(err));
 }

@@ -14,7 +14,8 @@ import {
   AuthController,
   FriendController,
   GroupController,
-  QueueController,
+  RequestQueueController,
+  NotificationQueueController,
 } from './controllers';
 import { UserService } from './services';
 
@@ -49,7 +50,8 @@ function main() {
       app.use(MessageController());
       app.use(RoomController());
       app.use(FriendController());
-      app.use(QueueController());
+      app.use(RequestQueueController());
+      app.use(NotificationQueueController());
       app.use(GroupController());
       app.use(AuthController());
 
@@ -142,6 +144,13 @@ function main() {
           });
         }
 
+        function onEnqueuedNotifiations() {
+          // Only show notification sent message to user within room id
+          socket.on('notification-queue', async (data) => {
+            socket.broadcast.emit('notification-queue', data.userId);
+          });
+        }
+
         function onGroupReceiveAndSendBack() {
           // Only show message to all users within room id
           socket.on('from-group-client', async (data) => {
@@ -164,6 +173,7 @@ function main() {
           onGroupTyping();
           onReceiveAndSendBack();
           onGroupReceiveAndSendBack();
+          onEnqueuedNotifiations();
           return;
         }
         onConnect();
@@ -173,6 +183,7 @@ function main() {
         onGroupTyping();
         onReceiveAndSendBack();
         onGroupReceiveAndSendBack();
+        onEnqueuedNotifiations();
       });
 
       httpServer.listen(PORT, HOST);

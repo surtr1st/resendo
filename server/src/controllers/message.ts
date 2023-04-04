@@ -50,7 +50,7 @@ export function MessageController() {
       }
       res.status(201).json(newMessage);
     } catch (e) {
-      res.status(500).json({ message: e });
+      res.status(500).json({ message: `${e}` });
     }
   });
 
@@ -88,7 +88,7 @@ export function MessageController() {
         else await roomService.patchMessage(roomId, newMessage);
         res.status(201).json(newMessage);
       } catch (e) {
-        res.status(500).json({ message: e });
+        res.status(500).json({ message: `${e}` });
       }
     },
   );

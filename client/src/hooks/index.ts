@@ -13,3 +13,4 @@ export * from './room';
 export * from './friend';
 export * from './group';
 export * from './toast';
+export * from './notification-queue';
