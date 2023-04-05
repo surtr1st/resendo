@@ -18,7 +18,7 @@ import { ref, watch } from 'vue';
 import { useRoute } from 'vue-router';
 import { DEBOUNCE_DURATION, ScrollState } from '../helpers';
 import { useAuth, useMessage, useGroup } from '../hooks';
-import { MessageResponse } from '../types';
+import { InsensitiveResponseUserInfo, MessageResponse } from '../types';
 import { tryOnMounted, useDebounceFn } from '@vueuse/core';
 import { state } from '../state';
 
@@ -27,7 +27,9 @@ const isLoading = ref(true);
 const content = ref<string>('');
 const isTyping = ref(false);
 const users = ref<Record<string, { fullname: string; isTyping: boolean }>>({});
+const groupMembers = ref<InsensitiveResponseUserInfo[]>([]);
 const route = useRoute();
+const id = route.params.id as string;
 const { userId, accessToken } = useAuth();
 const { createMessage, uploadMedia } = useMessage();
 const { getGroupById } = useGroup();
@@ -35,11 +37,12 @@ const { getGroupById } = useGroup();
 function handleConversationInRoom(id: string) {
   getGroupById(id, accessToken)
     .then((res) => {
-      const { _id, title: groupTitle, messages } = res;
+      const { _id, title: groupTitle, messages, users: members } = res;
       sessionStorage.setItem('Group-Id', _id);
       socket.emit('join-room', _id);
       title.value = groupTitle;
       state.groupMessages = messages as MessageResponse[];
+      groupMembers.value = members;
       ScrollState.trigger = !ScrollState.trigger;
       isLoading.value = false;
     })
@@ -91,7 +94,7 @@ watch(content, (newContent, oldContent) => {
 });
 
 tryOnMounted(() => {
-  debounceMessagesInRoom(`${route.params.id}`);
+  debounceMessagesInRoom(id);
   socket.on('is-group-typing', (data) => {
     users.value[data.userId] = data;
   });
@@ -107,7 +110,7 @@ tryOnMounted(() => {
     <ChatHeader>
       <PageHeader :author="title" />
       <GroupSettings
-        :group-id="$route.params.id[0]"
+        :group-id="id"
         :title="title"
       />
     </ChatHeader>
@@ -126,6 +129,9 @@ tryOnMounted(() => {
           :author="message.author"
           :content="message.content"
           :mediaSrc="message.media"
+          :author-avatar-src="
+            groupMembers[state.groupMessages.indexOf(message)].avatar
+          "
         />
       </template>
     </ChatBody>

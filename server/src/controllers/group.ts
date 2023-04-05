@@ -31,7 +31,7 @@ export function GroupController() {
       }
       res.status(200).json(group);
     } catch (e) {
-      res.status(500).json({ message: e });
+      res.status(500).json({ message: `${e}` });
     }
   });
 
@@ -66,7 +66,7 @@ export function GroupController() {
       };
       res.status(200).json(result);
     } catch (e) {
-      res.status(500).json({ message: e });
+      res.status(500).json({ message: `${e}` });
     }
   });
 
@@ -135,7 +135,7 @@ export function GroupController() {
       const newGroup = service.create(group);
       res.status(201).json(newGroup);
     } catch (e) {
-      res.status(500).json({ message: e });
+      res.status(500).json({ message: `${e}` });
     }
   });
 
@@ -147,7 +147,7 @@ export function GroupController() {
       else await service.addMembers(groupId, users);
       res.status(200).send();
     } catch (e) {
-      res.status(500).json({ message: e });
+      res.status(500).json({ message: `${e}` });
     }
   });
 
@@ -167,7 +167,7 @@ export function GroupController() {
       await service.remove(id as string);
       res.status(200).send();
     } catch (e) {
-      res.status(500).json({ message: e });
+      res.status(500).json({ message: `${e}` });
     }
   });
 
