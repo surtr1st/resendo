@@ -6,7 +6,13 @@ import { Server } from 'socket.io';
 import { createServer } from 'http';
 import { RateLimiterMemory, RateLimiterRes } from 'rate-limiter-flexible';
 import { connect } from 'mongoose';
-import { MONGODB_URL, PORT, HOST } from './config';
+import {
+  MONGODB_URL,
+  PORT,
+  HOST,
+  LOCAL_CLIENT,
+  STAGING_CLIENT,
+} from './config';
 import {
   UserController,
   MessageController,
@@ -26,8 +32,7 @@ function main() {
       const app = express();
 
       const corsOptions: CorsOptions = {
-        origin: 'http://localhost:5173',
-        // 'https://resendo-client.netlify.app',
+        origin: [LOCAL_CLIENT, STAGING_CLIENT],
         credentials: true,
         optionsSuccessStatus: 200,
         allowedHeaders: ['Content-Type', 'Accept', 'Authorization'],
