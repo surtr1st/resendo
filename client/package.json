@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "cp env.template .env && tsc && vite build && mkdir dist/_redirects",
+    "build": "cp env.template .env && tsc && vite build && touch dist/_redirects && echo '/* /index.html 200' >> _redirects",
     "preview": "vite preview",
     "fmt": "npx prettier --write src"
   },
