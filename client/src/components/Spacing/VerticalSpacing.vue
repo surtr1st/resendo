@@ -40,6 +40,7 @@ defineProps<ISpacing>();
   align-items: center;
   flex-direction: column;
   row-gap: 0.5rem;
+  background: inherit;
 }
 .floated {
   position: absolute;

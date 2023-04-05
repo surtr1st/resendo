@@ -89,8 +89,11 @@ export type NotificationQueueArgs = {
   message: MessageResponse;
   sender: string;
 };
-export type NotificationQueueResponse = {
+export type FriendRequest = {
   _id: string;
-  messages: string[];
-  sender: string;
+  from: string;
+  to: string;
+  isAccepted: boolean;
+  requestAt: Date;
+  user: InsensitiveResponseUserInfo;
 };

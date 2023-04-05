@@ -14,3 +14,4 @@ export * from './friend';
 export * from './group';
 export * from './toast';
 export * from './notification-queue';
+export * from './friend-queue';

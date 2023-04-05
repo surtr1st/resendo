@@ -4,6 +4,7 @@ import { FriendService, UserService } from '../services';
 import {
   CREATE_USER,
   UPDATE_AVATAR,
+  UPDATE_USERNAME,
   USERS_BY_NAME,
   USERS_EXCEPT_SELF,
   USER_BY_ID,
@@ -94,6 +95,16 @@ export function UserController() {
       }
     },
   );
+
+  router.patch(UPDATE_USERNAME, async (req: Request, res: Response) => {
+    try {
+      const { id } = req.params;
+      const { name } = req.body;
+      res.status(200).json(await service.updateUsername(id, name));
+    } catch (e) {
+      res.status(500).json({ message: `${e}` });
+    }
+  });
 
   return router;
 }

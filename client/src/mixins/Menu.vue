@@ -8,6 +8,7 @@ import LogoutIcon from '../components/Icon/LogoutIcon.vue';
 import ProfileSettings from './ProfileSettings.vue';
 import { InsensitiveResponseUserInfo } from '../types';
 import { useAuth } from '../hooks';
+import FriendRequest from './FriendRequest.vue';
 
 interface IMenu {
   open?: boolean;
@@ -25,6 +26,7 @@ const { logout } = useAuth();
     <VerticalSpacing grid>
       <FindPeople />
       <GroupCreator :friends="friends" />
+      <FriendRequest />
       <ProfileSettings />
       <PrimaryButton
         label="Log out"

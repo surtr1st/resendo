@@ -84,6 +84,12 @@ function handleAddToGroup(user: string) {
         v-model:value="groupTitle"
         @clear="groupTitle = ''"
       />
+      <VerticalSpacing>
+        <h3 class="member-label">
+          <PeopleTeamIcon />
+          Members: {{ members.length }}
+        </h3>
+      </VerticalSpacing>
       <HorizontalSpacing>
         <FriendList
           v-for="friend in friends"
@@ -94,12 +100,6 @@ function handleAddToGroup(user: string) {
           @action="() => handleAddToGroup(friend._id)"
         />
       </HorizontalSpacing>
-      <VerticalSpacing>
-        <h3 class="member-label">
-          <PeopleTeamIcon />
-          Members: {{ members.length }}
-        </h3>
-      </VerticalSpacing>
     </ModalBody>
     <ModalFooter>
       <PrimaryButton

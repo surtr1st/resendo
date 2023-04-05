@@ -11,16 +11,18 @@ import SecondaryButton from '../components/SecondaryButton.vue';
 import HorizontalSpacing from '../components/Spacing/HorizontalSpacing.vue';
 import { ref } from 'vue';
 import { tryOnMounted, useDebounceFn } from '@vueuse/core';
-import { useAuth, useFriend, useUser } from '../hooks';
-import { InsensitiveResponseUserInfo, UserResponse } from '../types';
+import { useAuth, useFriend, useUser, useFriendQueue } from '../hooks';
+import { InsensitiveResponseUserInfo } from '../types';
 import { DEBOUNCE_DURATION } from '../helpers';
 
 const isOpenFindPeople = ref(false);
 const users = ref<InsensitiveResponseUserInfo[]>([]);
 const username = ref('');
+const tempLabel = ref('');
 const { getUsersWithoutSelf, findUserByName } = useUser();
 const { userId, accessToken } = useAuth();
-const { checkIfAdded, updateFriend } = useFriend();
+const { checkIfAdded } = useFriend();
+const { sendFriendRequest } = useFriendQueue();
 
 function findPeople() {
   getUsersWithoutSelf(userId, accessToken)
@@ -36,13 +38,8 @@ function findPeople() {
 }
 
 function addFriend(filteredUserId: string) {
-  updateFriend({ userId, friendId: filteredUserId, accessToken })
-    .then(() => {
-      const remainUsers = users.value.filter(
-        (user) => user._id !== filteredUserId,
-      );
-      users.value = remainUsers;
-    })
+  sendFriendRequest(filteredUserId, userId, accessToken)
+    .then(() => (tempLabel.value = 'Sent Request'))
     .catch((err) => console.log(err));
 }
 const debounceAddFriend = useDebounceFn(addFriend, DEBOUNCE_DURATION);
@@ -89,6 +86,7 @@ tryOnMounted(() => {
           :name="user.fullname"
           :is-self="user._id === userId"
           @action="() => debounceAddFriend(user._id)"
+          :temporary-label="tempLabel"
         />
       </HorizontalSpacing>
     </ModalBody>

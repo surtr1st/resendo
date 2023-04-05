@@ -31,6 +31,16 @@ export class UserService {
     }
   }
 
+  async updateUsername(id: string | ObjectId, fullname: string) {
+    try {
+      const patched = await User.updateOne({ _id: id }, { $set: { fullname } });
+      if (!patched) throw new Error(`Cannot update name of user: ${id}`);
+      return patched.modifiedCount;
+    } catch (e) {
+      throw e;
+    }
+  }
+
   async findAndPatch(id: string | ObjectId, message: string) {
     try {
       const patched = await User.updateOne(

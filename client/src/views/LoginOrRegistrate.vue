@@ -42,7 +42,6 @@ function signin() {
       onSuccess('Authorized');
       setTimeout(() => {
         router.replace({ path: '/@chat', replace: true });
-        isLoading.value = false;
       }, 500);
     } catch (err) {
       isLoading.value = false;
@@ -94,27 +93,65 @@ const debounceRegistrate = useDebounceFn(signup, DEBOUNCE_DURATION);
       <template v-else>
         <VerticalSpacing v-if="isSignUp">
           <h2>SIGN UP</h2>
-          <TextField name="fullname" label="Fullname" v-model:value="account.fullname" @enter="debounceRegistrate" />
-          <TextField name="email" label="Email" v-model:value="account.email" @enter="debounceRegistrate" />
-          <PasswordField name="password" label="Password" v-model:value="account.password" @enter="debounceRegistrate" />
-          <PasswordField name="reenterpassword" label="Re-enter Password" v-model:value="account.reEnterPassword"
-            @enter="debounceRegistrate" />
+          <TextField
+            name="fullname"
+            label="Fullname"
+            v-model:value="account.fullname"
+            @enter="debounceRegistrate"
+          />
+          <TextField
+            name="email"
+            label="Email"
+            v-model:value="account.email"
+            @enter="debounceRegistrate"
+          />
+          <PasswordField
+            name="password"
+            label="Password"
+            v-model:value="account.password"
+            @enter="debounceRegistrate"
+          />
+          <PasswordField
+            name="reenterpassword"
+            label="Re-enter Password"
+            v-model:value="account.reEnterPassword"
+            @enter="debounceRegistrate"
+          />
         </VerticalSpacing>
         <VerticalSpacing v-else>
           <h2>SIGN IN</h2>
-          <TextField name="email" label="Email" v-model:value="account.email" @enter="debounceLogin" />
+          <TextField
+            name="email"
+            label="Email"
+            v-model:value="account.email"
+            @enter="debounceLogin"
+          />
         </VerticalSpacing>
         <VerticalSpacing v-if="isSignUp">
-          <PrimaryButton label="Registrate" @action="debounceRegistrate">
+          <PrimaryButton
+            label="Registrate"
+            @action="debounceRegistrate"
+          >
             <RegistrateIcon />
           </PrimaryButton>
-          <SecondaryButton no-element label="Already have an account? Sign in here." @action="isSignUp = false" />
+          <SecondaryButton
+            no-element
+            label="Already have an account? Sign in here."
+            @action="isSignUp = false"
+          />
         </VerticalSpacing>
         <VerticalSpacing v-else>
-          <PrimaryButton label="Log in" @action="debounceLogin">
+          <PrimaryButton
+            label="Log in"
+            @action="debounceLogin"
+          >
             <LogInIcon />
           </PrimaryButton>
-          <SecondaryButton no-element label="Doesn't have an account? Sign up here." @action="isSignUp = true" />
+          <SecondaryButton
+            no-element
+            label="Doesn't have an account? Sign up here."
+            @action="isSignUp = true"
+          />
         </VerticalSpacing>
       </template>
     </div>

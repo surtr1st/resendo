@@ -93,11 +93,30 @@ export function useUser() {
     return await data.json();
   };
 
+  const updateProfileName = async (
+    id: string,
+    name: string,
+    accessToken: AccessToken,
+  ) => {
+    const options: RequestInit = {
+      method: 'PATCH',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${accessToken}`,
+      },
+      credentials: 'include',
+      body: JSON.stringify({ name }),
+    };
+    const data = await fetch(`${BASE_URL}/user/${id}/name`, options);
+    return await data.json();
+  };
+
   return {
     getUsersWithoutSelf,
     getUserById,
     createUser,
     findUserByName,
     updateAvatar,
+    updateProfileName,
   };
 }

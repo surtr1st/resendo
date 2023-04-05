@@ -1,15 +1,27 @@
 import { ObjectId } from 'mongoose';
-import { IRequestQueue, RequestQueue } from '../models';
+import { IRequestQueue, RequestQueue, TypeUser } from '../models';
 
 export class RequestQueueService {
   async findAllByUser(user: string | ObjectId) {
     try {
-      const queues = await RequestQueue.find({ to: user });
+      const queues = await RequestQueue.find({
+        to: user,
+        isAccepted: false,
+      }).exec();
       if (!queues)
         throw new Error(`Cannot return list of queues of user: ${user}`);
       return queues;
     } catch (e) {
       throw e;
+    }
+  }
+
+  async checkIfRequestSent(from: TypeUser, to: string | ObjectId) {
+    try {
+      const isSent = await RequestQueue.findOne({ from, to });
+      return isSent ? true : false;
+    } catch (e) {
+      throw new Error('Cannot check friend request');
     }
   }
 
@@ -22,10 +34,10 @@ export class RequestQueueService {
     }
   }
 
-  async accept(from: string | ObjectId, to: string | ObjectId) {
+  async accept(id: string | ObjectId) {
     try {
       return await RequestQueue.findOneAndUpdate(
-        { from, to },
+        { _id: id },
         { $set: { isAccepted: true } },
       );
     } catch (e) {
@@ -33,9 +45,9 @@ export class RequestQueueService {
     }
   }
 
-  async reject(from: string | ObjectId, to: string | ObjectId) {
+  async reject(id: string | ObjectId) {
     try {
-      return await RequestQueue.findOneAndDelete({ from, to });
+      return await RequestQueue.findOneAndDelete({ _id: id });
     } catch (e) {
       throw new Error('Cannot reject friend request');
     }

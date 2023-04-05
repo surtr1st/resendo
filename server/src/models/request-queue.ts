@@ -1,25 +1,30 @@
-import mongo, { Schema, model, ObjectId } from 'mongoose';
+import mongo, { Schema, model, ObjectId, Types } from 'mongoose';
+import { TypeUser, User } from './user';
 
 type TypeRequestQueue = mongo.Document & {
   _id: ObjectId;
-  from: string | ObjectId;
+  from: TypeUser;
   to: string | ObjectId;
   isAccepted: boolean;
-  sentAt: Date;
+  requestAt: Date;
 };
 
 interface IRequestQueue {
-  from: string | ObjectId;
+  from: TypeUser;
   to: string | ObjectId;
   isAccepted: boolean;
-  sentAt: Date;
+  requestAt: Date;
 }
 
 const schema = new Schema<TypeRequestQueue>({
-  from: String,
+  from: {
+    type: Types.ObjectId,
+    ref: User,
+    required: true,
+  },
   to: String,
   isAccepted: Boolean,
-  sentAt: Date,
+  requestAt: Date,
 });
 
 const RequestQueue = model<TypeRequestQueue>('RequestQueue', schema);

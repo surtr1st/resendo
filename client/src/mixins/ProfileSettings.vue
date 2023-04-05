@@ -9,17 +9,20 @@ import SecondaryButton from '../components/SecondaryButton.vue';
 import HorizontalSpacing from '../components/Spacing/HorizontalSpacing.vue';
 import VerticalSpacing from '../components/Spacing/VerticalSpacing.vue';
 import EditIcon from '../components/Icon/EditIcon.vue';
+import TipsAndUpdateIcon from '../components/Icon/TipsAndUpdateIcon.vue';
 import File from '../components/Input/File.vue';
-import { onMounted, ref } from 'vue';
+import { ref } from 'vue';
 import { useAuth, useUser } from '../hooks';
 import { InsensitiveResponseUserInfo } from '../types';
-import { useDebounceFn } from '@vueuse/core';
+import { tryOnMounted, tryOnUnmounted, useDebounceFn } from '@vueuse/core';
 import { DEBOUNCE_DURATION } from '../helpers';
 
 const open = ref(false);
 const user = ref<InsensitiveResponseUserInfo>();
+const profileName = ref('');
+const editable = ref(false);
 const { userId, accessToken } = useAuth();
-const { getUserById, updateAvatar } = useUser();
+const { getUserById, updateAvatar, updateProfileName } = useUser();
 
 async function retrieveUser() {
   try {
@@ -27,6 +30,15 @@ async function retrieveUser() {
   } catch (e) {
     console.log(e);
   }
+}
+
+function updateName() {
+  updateProfileName(userId, profileName.value, accessToken)
+    .then(async () => {
+      await retrieveUser();
+      editable.value = false;
+    })
+    .catch((err) => console.log(err));
 }
 function handleUploadFiles(files: FileList | null) {
   if (files)
@@ -36,8 +48,12 @@ function handleUploadFiles(files: FileList | null) {
 }
 const debounceUploadFile = useDebounceFn(handleUploadFiles, DEBOUNCE_DURATION);
 
-onMounted(() => {
+tryOnMounted(() => {
   retrieveUser();
+});
+
+tryOnUnmounted(() => {
+  editable.value = false;
 });
 </script>
 
@@ -69,12 +85,30 @@ onMounted(() => {
       </HorizontalSpacing>
       <VerticalSpacing grid>
         <TextField
+          v-if="!editable"
           label="Username"
           :value="user?.fullname"
           readonly
         />
-        <PrimaryButton label="Edit">
+        <TextField
+          v-else
+          label="Username"
+          v-model:value="profileName"
+          :placeholder="user?.fullname"
+        />
+        <PrimaryButton
+          v-if="!editable"
+          label="Edit"
+          @action="editable = true"
+        >
           <EditIcon />
+        </PrimaryButton>
+        <PrimaryButton
+          v-else
+          label="Update"
+          @action="updateName"
+        >
+          <TipsAndUpdateIcon />
         </PrimaryButton>
       </VerticalSpacing>
     </ModalBody>

@@ -7,6 +7,7 @@ export const USER_BY_ID = `${BASE_URL}/user`;
 export const USERS_BY_NAME = `${BASE_URL}/users/search`;
 export const USERS_EXCEPT_SELF = `${BASE_URL}/users/filter`;
 export const UPDATE_AVATAR = `${BASE_URL}/user/:id/avatar`;
+export const UPDATE_USERNAME = `${BASE_URL}/user/:id/name`;
 
 export const CREATE_MESSAGE = `${BASE_URL}/message`;
 export const MESSAGE_BY_ID = `${BASE_URL}/message`;
@@ -21,10 +22,11 @@ export const LATEST_MESSAGE_IN_ROOM_BY_USER = `${BASE_URL}/room/latest`;
 
 export const IS_ADDED_FRIEND = `${BASE_URL}/friends`;
 export const FRIENDS_BY_USER_ID = `${BASE_URL}/friends`;
-export const FRIEND_REQUEST_QUEUES = `${BASE_URL}/friend/queues`;
+export const FRIEND_REQUEST_QUEUES = `${BASE_URL}/friend/:userId/queues`;
 export const REQUEST_FRIEND = `${BASE_URL}/friend/request`;
-export const ACCEPT_REQUEST = `${BASE_URL}/friend/request/accept`;
-export const REJECT_REQUEST = `${BASE_URL}/friend/request/reject`;
+export const IS_REQUEST_SENT = `${BASE_URL}/friend/request/sent`;
+export const ACCEPT_REQUEST = `${BASE_URL}/friend/request/:id/accept`;
+export const REJECT_REQUEST = `${BASE_URL}/friend/request/:id/reject`;
 
 export const CREATE_GROUP = `${BASE_URL}/group`;
 export const IS_GROUP_OWNER = `${BASE_URL}/group/:id/owner`;
