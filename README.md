@@ -1,4 +1,4 @@
-## Table of Contents
+### Table of Contents
 1. [Introduction](#1-introduction)
 2. [Features](#2-features)
 	- [Implemented Features](#implemented-features)
@@ -45,7 +45,7 @@
 
 ### 5. Conclusion
 
-- This project has finished after a month (05/03/2023 to 05/04/2023), there were a plenty of things that I had experienced:
+- This project has finished after a month (05/03/2023 to 05/04/2023), and there were plenty of things that I experienced:
 	- The struggle from the client side: Literally the most thing I've suffered when it comes to front-end is design and making the user interface for the app. It's due to my lack of creativity and incomplete visualization. At first, the client was made in React, but the inefficiency in performance caused me to migrate to Vue, and the migration really took a lot of time to complete. The responsiveness is awful and drives me crazy.
 - What I've learned:
 	- Always have a blueprint before diving into making user interfaces.
