@@ -29,6 +29,7 @@ const who = ref('');
 const avatarSrc = ref('');
 
 const route = useRoute();
+const id = route.params.id as string;
 const { userId, accessToken } = useAuth();
 const { createMessage, uploadMedia } = useMessage();
 const { getConversationInRoom } = useRoom();
@@ -52,7 +53,9 @@ function handleConversationInRoom(friendId: string) {
           break;
       }
       isLoading.value = false;
-      clearOnSeen(friendId, accessToken);
+      clearOnSeen(friendId, accessToken).then(
+        () => (state.isSeen = !state.isSeen),
+      );
     })
     .catch((err) => console.log(err));
 }
@@ -68,10 +71,14 @@ function sendMessage() {
   createMessage({ content: value, userId, roomId }, accessToken)
     .then((res) => {
       socket.emit('from-client', { message: res, room: roomId });
-      socket.emit('notification-queue', { message: res, userId });
-      addToNotificationQueue({ message: res, sender: userId }, accessToken)
-        .then((res) => console.log(res))
-        .catch((err) => console.log(err));
+      socket.emit('notification-queue', {
+        message: res,
+        sender: userId,
+      });
+      addToNotificationQueue(
+        { message: res, sender: userId },
+        accessToken,
+      ).catch((err) => console.log(err));
     })
     .catch((err) => console.log(err));
   content.value = '';
@@ -84,9 +91,10 @@ function handleUploadFiles(files: FileList | null) {
       .then((res) => {
         socket.emit('from-client', { message: res, room: roomId });
         socket.emit('notification-queue', { message: res, userId });
-        addToNotificationQueue({ message: res, sender: userId }, accessToken)
-          .then((res) => console.log(res))
-          .catch((err) => console.log(err));
+        addToNotificationQueue(
+          { message: res, sender: userId },
+          accessToken,
+        ).catch((err) => console.log(err));
       })
       .catch((err) => console.log(err));
 }
@@ -109,7 +117,7 @@ watch(content, (newContent, oldContent) => {
 });
 
 tryOnMounted(() => {
-  debounceMessagesInRoom(`${route.params.id}`);
+  debounceMessagesInRoom(id);
   socket.on('is-typing', (data) => {
     who.value = data.fullname;
     isTyping.value = data.isTyping;
@@ -122,6 +130,7 @@ tryOnMounted(() => {
   <ChatBox
     v-else
     type="container"
+    ref="chatbox"
   >
     <ChatHeader>
       <PageHeader

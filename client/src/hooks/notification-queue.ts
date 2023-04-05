@@ -8,13 +8,11 @@ import {
 export function useNotificationQueue() {
   const getNotificationsQueue = async (
     senderId: string,
-    accessToken: AccessToken,
   ): Promise<NotificationQueueResponse> => {
     const options: RequestInit = {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
-        Authorization: `Bearer ${accessToken}`,
       },
       credentials: 'include',
     };

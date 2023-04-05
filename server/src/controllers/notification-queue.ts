@@ -19,12 +19,8 @@ export function NotificationQueueController() {
   router.patch(NOTIFICATION_QUEUES, async (req: Request, res: Response) => {
     try {
       const { message, sender } = req.body;
-      res.status(201).json(
-        await service.patchQueue({
-          message,
-          sender,
-        }),
-      );
+      const queue = await service.findBySender(sender);
+      res.status(201).json(await service.patchQueue(queue._id, message));
     } catch (e) {
       res.status(500).json({ message: `${e}` });
     }
@@ -33,7 +29,8 @@ export function NotificationQueueController() {
   router.delete(ON_SEEN, async (req: Request, res: Response) => {
     try {
       const { senderId } = req.body;
-      res.status(200).json(await service.clearOnSeen(senderId));
+      const queue = await service.findBySender(senderId);
+      res.status(200).json(await service.clearOnSeen(queue._id));
     } catch (e) {
       res.status(500).json({ message: `${e}` });
     }

@@ -1,5 +1,5 @@
 import { ObjectId } from 'mongoose';
-import { INotificationQueue, NotificationQueue } from '../models';
+import { INotificationQueue, NotificationQueue, TypeMessage } from '../models';
 
 export class NotifiationQueueService {
   async findAllBySender(senderId: string | ObjectId) {
@@ -15,6 +15,16 @@ export class NotifiationQueueService {
     }
   }
 
+  async findBySender(sender: string | ObjectId) {
+    try {
+      const queue = await NotificationQueue.findOne({ sender });
+      if (!queue) throw new Error('Cannot add to queue');
+      return queue;
+    } catch (e) {
+      throw e;
+    }
+  }
+
   async createNotificationQueue(notify: Partial<INotificationQueue>) {
     try {
       const queue = await NotificationQueue.create(notify);
@@ -24,26 +34,26 @@ export class NotifiationQueueService {
     }
   }
 
-  async patchQueue(notify: Partial<INotificationQueue>) {
+  async patchQueue(id: string | ObjectId, message: TypeMessage) {
     try {
       const queue = await NotificationQueue.updateOne(
-        { sender: notify.sender },
-        { $push: { messages: notify.messages } },
+        { _id: id },
+        { $push: { messages: message } },
       );
-      return queue.modifiedCount;
+      return queue;
     } catch (e) {
       throw new Error('Cannot update message queue');
     }
   }
 
-  async clearOnSeen(sender: string | ObjectId) {
+  async clearOnSeen(id: string | ObjectId) {
     try {
       return await NotificationQueue.updateOne(
-        { sender },
-        { $pullAll: { messages: [] } },
+        { _id: id },
+        { $set: { messages: [] } },
       );
     } catch (e) {
-      throw new Error(`Cannot update seen by sender: ${sender}`);
+      throw new Error(`Cannot update seen by sender: ${id}`);
     }
   }
 }

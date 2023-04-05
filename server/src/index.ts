@@ -147,7 +147,10 @@ function main() {
         function onEnqueuedNotifiations() {
           // Only show notification sent message to user within room id
           socket.on('notification-queue', async (data) => {
-            socket.broadcast.emit('notification-queue', data.userId);
+            socket.broadcast.emit('notification-queue', {
+              message: data.message,
+              sender: data.sender,
+            });
           });
         }
 

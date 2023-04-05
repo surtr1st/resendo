@@ -1,15 +1,50 @@
 <script setup lang="ts">
 import Avatar from './Avatar.vue';
+import { ref, watch } from 'vue';
+import { useNotificationQueue } from '../hooks';
+import { MessageResponse } from '../types';
+import { tryOnMounted } from '@vueuse/core';
+import socket from '../socket';
+import { state } from '../state';
+
 interface IFriend {
+  uid?: string;
   avatarSrc?: string;
   opponentName?: string;
   isOnline?: boolean;
   latestMessage?: string;
   invisible?: boolean;
   onAction?: () => void;
-  notifications?: number;
 }
-defineProps<IFriend>();
+const { uid } = defineProps<IFriend>();
+
+const { getNotificationsQueue } = useNotificationQueue();
+const sender = ref('');
+const notifications = ref<MessageResponse[]>([]);
+
+function retrieveNotification() {
+  if (!uid) return;
+  getNotificationsQueue(uid as string)
+    .then((res) => {
+      sender.value = res.sender;
+      notifications.value = res.messages;
+    })
+    .catch((err) => console.log(err));
+}
+
+watch(
+  () => state.isSeen,
+  () => {
+    retrieveNotification();
+  },
+);
+tryOnMounted(() => {
+  retrieveNotification();
+  socket.on('notification-queue', (data) => {
+    sender.value = data.sender;
+    notifications.value.push(data.message);
+  });
+});
 </script>
 
 <template>
@@ -37,32 +72,18 @@ defineProps<IFriend>();
       <h3 v-else>
         {{ opponentName }}
       </h3>
-      <h5
-        v-if="latestMessage && latestMessage.length > 20"
-        style="
-           {
-            color: '#6b7280';
-          }
-        "
-      >
+      <h5 v-if="latestMessage && latestMessage.length > 20">
         {{ `${latestMessage.slice(0, 20)}...` }}
       </h5>
-      <h5
-        v-else
-        style="
-           {
-            color: '#6b7280';
-          }
-        "
-      >
+      <h5 v-else>
         {{ latestMessage }}
       </h5>
     </span>
     <div
-      v-if="notifications as number > 0"
+      v-if="notifications.length > 0 && uid === sender"
       class="notification-badge"
     >
-      <span>{{ notifications }}</span>
+      <span>{{ notifications.length }}</span>
     </div>
   </div>
 </template>
@@ -122,6 +143,10 @@ defineProps<IFriend>();
   background-color: inherit;
   color: inherit;
   font-weight: bold;
+}
+
+.card-detail > h5 {
+  color: #6b7280;
 }
 
 .notification-badge {

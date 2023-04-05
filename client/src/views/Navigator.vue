@@ -12,9 +12,8 @@ import Menu from '../mixins/Menu.vue';
 import HorizontalSpacing from '../components/Spacing/HorizontalSpacing.vue';
 import { ref, watch } from 'vue';
 import { GroupResponse, InsensitiveResponseUserInfo } from '../types';
-import { useAuth, useFriend, useGroup, useNotificationQueue } from '../hooks';
+import { useAuth, useFriend, useGroup } from '../hooks';
 import { tryOnMounted, tryOnUnmounted } from '@vueuse/core';
-import { state } from '../state';
 
 const friends = ref<InsensitiveResponseUserInfo[]>([]);
 const groups = ref<GroupResponse[]>([]);
@@ -26,7 +25,6 @@ const isOpenMenu = ref(false);
 const { userId, accessToken } = useAuth();
 const { getFriendsByUserId } = useFriend();
 const { getGroupsByUser } = useGroup();
-const { getNotificationsQueue } = useNotificationQueue();
 
 async function retrieveFriends() {
   try {
@@ -48,19 +46,6 @@ async function retrieveGroups() {
   } catch (e) {
     console.log(e);
   }
-}
-
-function retrieveNotifications(senderId: string) {
-  let total = 0;
-  (async () => {
-    try {
-      const { messages } = await getNotificationsQueue(senderId, accessToken);
-      total = messages.length;
-    } catch (e) {
-      console.log(e);
-    }
-  })();
-  return total;
 }
 
 function setOnline(userIds: string[]) {
@@ -111,11 +96,11 @@ tryOnUnmounted(() => {
             <Friend
               v-for="friend in friends"
               :key="friend._id"
+              :uid="friend._id"
               :avatar-src="friend.avatar"
               :opponentName="friend.fullname"
               :latestMessage="friend.lastMessage"
               :is-online="onlineUsers.includes(friend._id)"
-              :notifications="state.roomNotificationsQueue.length"
               @action="$router.replace({ path: `/@chat/${friend._id}` })"
             />
             <Friend

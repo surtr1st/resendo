@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { ref } from 'vue';
+import { state } from '../../state';
 
 interface ITextArea {
   label?: string;

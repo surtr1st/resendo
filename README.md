@@ -22,10 +22,12 @@
 - ___Profile___: Users can customize their own profiles, but this is limited.
 - ___Authentication___: Easy registration and login, only need email to login.
 - ___Media___: User can send media such as images, videos (limit: 10MB).
+- ___Notification___: A real-time notification whenever the users receives a message.
 
 ##### Unfinished Features
-- ___Notification___: A real-time notification whenever the user receives a message.
+- ___Group notification___: Exactly like ___Notification___ but in group.
 - ___Chat audio___: A sound effect is played whenever the notification is appended. 
+- ___Friend request indicator___: A notification about friend request whenever users have request.
 
 ### 3. User Interface
 
