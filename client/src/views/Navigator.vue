@@ -6,7 +6,6 @@ import PrimaryButton from '../components/PrimaryButton.vue';
 import List from '../components/List.vue';
 import ListItem from '../components/ListItem.vue';
 import Friend from '../components/Friend.vue';
-import FlipSquareLoading from '../components/Loading/FlipSquareLoading.vue';
 import HamburgerIcon from '../components/Icon/HamburgerIcon.vue';
 import Menu from '../mixins/Menu.vue';
 import HorizontalSpacing from '../components/Spacing/HorizontalSpacing.vue';
@@ -14,12 +13,12 @@ import { ref, watch } from 'vue';
 import { GroupResponse, InsensitiveResponseUserInfo } from '../types';
 import { useAuth, useFriend, useGroup } from '../hooks';
 import { tryOnMounted, tryOnUnmounted } from '@vueuse/core';
+import { state } from '../state';
+import Empty from '../components/Empty.vue';
 
 const friends = ref<InsensitiveResponseUserInfo[]>([]);
 const groups = ref<GroupResponse[]>([]);
 const onlineUsers = ref<string[]>([]);
-const isLoadingFriends = ref(false);
-const isLoadingGroups = ref(false);
 const isOpenMenu = ref(false);
 
 const { userId, accessToken } = useAuth();
@@ -28,10 +27,8 @@ const { getGroupsByUser } = useGroup();
 
 async function retrieveFriends() {
   try {
-    isLoadingFriends.value = true;
     const data = await getFriendsByUserId(userId, accessToken);
     friends.value = data;
-    isLoadingFriends.value = false;
   } catch (e) {
     console.log(e);
   }
@@ -39,10 +36,8 @@ async function retrieveFriends() {
 
 async function retrieveGroups() {
   try {
-    isLoadingGroups.value = true;
     const data = await getGroupsByUser(userId, accessToken);
     groups.value = data;
-    isLoadingGroups.value = false;
   } catch (e) {
     console.log(e);
   }
@@ -55,6 +50,20 @@ function setOnline(userIds: string[]) {
 watch(onlineUsers, (newUser, oldUser) => {
   setOnline(newUser);
 });
+
+watch(
+  () => state.isNewFriend,
+  () => {
+    retrieveFriends();
+  },
+);
+
+watch(
+  () => state.isNewGroup,
+  () => {
+    retrieveGroups();
+  },
+);
 
 tryOnMounted(() => {
   socket.connect();
@@ -91,7 +100,10 @@ tryOnUnmounted(() => {
             avatar-src=""
             opponent-name=""
           />
-          <FlipSquareLoading v-if="isLoadingFriends || isLoadingGroups" />
+          <Empty
+            v-if="friends.length === 0"
+            content="You have no friends!"
+          />
           <template v-else>
             <Friend
               v-for="friend in friends"
@@ -117,7 +129,14 @@ tryOnUnmounted(() => {
       </List>
     </GridItem>
     <GridItem type="article">
-      <RouterView :key="$route.fullPath" />
+      <Empty
+        v-if="$route.fullPath === '/@chat'"
+        content="There aren't any chat box!"
+      />
+      <RouterView
+        v-else
+        :key="$route.fullPath"
+      />
     </GridItem>
   </Grid>
 </template>

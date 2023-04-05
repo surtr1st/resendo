@@ -172,7 +172,10 @@ tryOnMounted(() => {
             @upload="debounceUploadFile"
           />
         </div>
-        <PrimaryButton transparent>
+        <PrimaryButton
+          transparent
+          @action="sendMessage"
+        >
           <SendIcon />
         </PrimaryButton>
       </TextArea>

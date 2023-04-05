@@ -6,6 +6,8 @@ export const state = reactive({
   messages: [] as MessageResponse[],
   groupMessages: [] as MessageResponse[],
   isSeen: false,
+  isNewFriend: false,
+  isNewGroup: false,
 });
 
 socket.on('from-server', (data) => state.messages.push(data));

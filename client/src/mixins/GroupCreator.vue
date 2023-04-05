@@ -16,6 +16,7 @@ import { useDebounceFn } from '@vueuse/core';
 import { useAuth, useGroup, useToast } from '../hooks';
 import { Group, InsensitiveResponseUserInfo } from '../types';
 import { DEBOUNCE_DURATION } from '../helpers';
+import { state } from '../state';
 
 interface IGroupCreator {
   friends?: InsensitiveResponseUserInfo[];
@@ -46,6 +47,7 @@ function handleCreateGroup() {
       isOpenCreateGroup.value = false;
       members.value = [];
       groupTitle.value = '';
+      state.isNewGroup = !state.isNewGroup;
     })
     .catch((err) => console.log(err));
 }

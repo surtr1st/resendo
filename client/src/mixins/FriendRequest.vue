@@ -13,6 +13,7 @@ import AcceptIcon from '../components/Icon/AcceptIcon.vue';
 import CancelIcon from '../components/Icon/CancelIcon.vue';
 import VerticalSpacing from '../components/Spacing/VerticalSpacing.vue';
 import { tryOnMounted } from '@vueuse/core';
+import { state } from '../state';
 
 const open = ref(false);
 const friendRequests = ref<FriendRequest[]>([]);
@@ -32,7 +33,10 @@ function accept(id: string, friendId: string) {
   acceptRequest(id, accessToken)
     .then(() => {
       updateFriend({ userId, friendId, accessToken })
-        .then(() => retrieveRequest())
+        .then(() => {
+          retrieveRequest();
+          state.isNewFriend = !state.isNewFriend;
+        })
         .catch((err) => console.log(err));
     })
     .catch((err) => err);
