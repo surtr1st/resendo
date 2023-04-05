@@ -1,3 +1,13 @@
+## Table of Contents:
+- 1. [Introduction](#1-introduction)
+- 2. [Features](#2-features)
+	- [Implemented Features](#implemented-features)
+	- [Unfinished Features](#unfinished-features)
+- 3. [User Interface](#3-user-interface)
+- 4. [Technical Implementation](#4-technical-implementation)
+- 5. [Conclusion](#5-conclusion)
+
+
 ### 1. Introduction
 
 - __Resendo__ is a real-time chat application, just like other chat applications which are __Telegram__, __WhatsApp__, __Messenger__, etc.
