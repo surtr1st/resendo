@@ -7,6 +7,15 @@ to {
 }
 }
 
+@keyframes fadeout {
+  from {
+  opacity: 1;
+}
+to {
+  opacity: 0;
+}
+}
+
 @keyframes fadeup {
   0% {
     opacity: 0;

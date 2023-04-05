@@ -1,5 +1,7 @@
 <script setup lang="ts">
 import Avatar from '../Avatar.vue';
+import { ref } from 'vue';
+
 interface IReceiver {
   author?: string;
   content?: string;
@@ -7,6 +9,8 @@ interface IReceiver {
   authorAvatarSrc?: string;
 }
 defineProps<IReceiver>();
+
+const viewMedia = ref(false);
 </script>
 
 <template>
@@ -34,7 +38,12 @@ defineProps<IReceiver>();
       >
         <img
           loading="lazy"
-          :src="`${mediaSrc}.png`"
+          :src="mediaSrc"
+        />
+        <ImageViewer
+          :src="mediaSrc"
+          :view="viewMedia"
+          @close="viewMedia = false"
         />
       </div>
     </div>

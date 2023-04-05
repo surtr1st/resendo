@@ -1,10 +1,15 @@
 <script setup lang="ts">
+import { ref } from 'vue';
+import ImageViewer from '../ImageViewer.vue';
+
 interface ISender {
   author?: string;
   content?: string;
   mediaSrc?: string;
 }
 defineProps<ISender>();
+
+const viewMedia = ref(false);
 </script>
 
 <template>
@@ -21,8 +26,14 @@ defineProps<ISender>();
       class="img-container"
     >
       <img
+        :src="mediaSrc"
         loading="lazy"
-        :src="`${mediaSrc}.png`"
+        @click="viewMedia = true"
+      />
+      <ImageViewer
+        :src="mediaSrc"
+        :view="viewMedia"
+        @close="viewMedia = false"
       />
     </div>
   </div>
