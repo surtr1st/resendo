@@ -1,45 +1,43 @@
 <script setup lang="ts">
-import { onMounted, ref, watch } from 'vue';
+import { tryOnMounted } from '@vueuse/core';
+import { ref, watch } from 'vue';
 import { state } from '../../state';
 
 const chatBody = ref<HTMLDivElement | null>(null);
 function onScrollDown() {
-  if (!chatBody.value) return;
-  chatBody.value.scrollIntoView({
-    behavior: 'smooth',
-    block: 'end',
-    inline: 'nearest',
-  });
+  setTimeout(() => {
+    if (chatBody.value)
+      chatBody.value.scrollIntoView({
+        behavior: 'smooth',
+        block: 'end',
+        inline: 'nearest',
+      });
+  }, 0);
 }
 watch(
   () => state.messages,
-  (newData, oldData) => {
-    if (newData.length > oldData.length) onScrollDown();
-  },
-  {
-    deep: true,
-  },
+  () => onScrollDown(),
+  { deep: true },
 );
-
 watch(
   () => state.groupMessages,
-  (newData, oldData) => {
-    if (newData.length > oldData.length) onScrollDown();
-  },
-  {
-    deep: true,
-  },
+  () => onScrollDown(),
+  { deep: true },
 );
-onMounted(() => onScrollDown());
+tryOnMounted(() => {
+  onScrollDown();
+});
 </script>
 
 <template>
   <div class="inner-box">
     <div
+      id="chatBody"
       ref="chatBody"
       class="chat"
     >
       <slot />
+      <div id="hidden-element" />
     </div>
   </div>
 </template>

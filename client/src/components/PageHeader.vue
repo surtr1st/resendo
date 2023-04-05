@@ -13,6 +13,7 @@ defineProps<IPageHeader>();
     <Avatar
       v-if="!avatarSrc"
       no-avatar
+      :name="author"
     />
     <Avatar
       v-else

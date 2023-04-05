@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import Avatar from '../Avatar.vue';
+import ImageViewer from '../ImageViewer.vue';
 import { ref } from 'vue';
 
 interface IReceiver {

@@ -76,7 +76,7 @@ defineProps<IFriend>();
   justify-content: space-evenly;
   gap: 1rem;
   align-items: center;
-  border: 1px solid var(--border-alternative-color);
+  border: 1px solid var(--darker-bg);
   border-radius: 0.3rem;
   padding: 0.5rem;
   background-color: transparent;
