@@ -1,0 +1,31 @@
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
+  force = true
+
+[[redirects]]
+  from = "/"
+  to = "/index.html"
+  status = 200
+  force = true
+
+[[redirects]]
+  from = "/@chat"
+  to = "/@chat"
+  status = 200
+  force = true
+
+[[redirects]]
+  from = "/@chat/:id"
+  to = "/@chat/:id"
+  query = { path = ":id" }
+  status = 200
+  force = true
+
+[[redirects]]
+  from = "/@chat/group/:id"
+  to = "/@chat/group/:id"
+  query = { path = ":id" }
+  status = 200
+  force = true

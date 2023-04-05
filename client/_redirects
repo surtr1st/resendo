@@ -1,5 +1,5 @@
-/*                    /index.html   200
-/                     /index.html   200
-/@chat                /index.html   200
-/@chat/:id            /index.html   200
-/@chat/group/:id      /index.html   200
+/*                    /index.html         200
+/                     /index.html         200
+/@chat                /@chat              200
+/@chat/:id            /@chat/:id          200
+/@chat/group/:id      /@chat/group/:id    200
